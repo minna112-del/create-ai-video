@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI ভিডিও মেকার - আলটিমেট এডিশন</title>
+    <title>AI ভিডিও মেকার - প্রো সংস্করণ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Hind Siliguri', sans-serif; }
-        .glass-morphism { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
-        .shimmer { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        body { font-family: 'Hind Siliguri', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .loader-ring { border: 3px solid #e2e8f0; border-top: 3px solid #6366f1; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block; margin-right: 8px; vertical-align: middle; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="bg-[#f8fafc] min-h-screen">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
@@ -25,195 +25,185 @@
         const App = () => {
             const [apiKey, setApiKey] = useState('');
             const [tab, setTab] = useState('faceSwap');
-            const [isUploading, setIsUploading] = useState(false);
-            const [isLoading, setIsLoading] = useState(false);
+            const [uploading, setUploading] = useState(false);
+            const [processing, setProcessing] = useState(false);
             const [status, setStatus] = useState('');
             const [error, setError] = useState('');
-            const [resultUrl, setResultUrl] = useState(null);
+            const [result, setResult] = useState(null);
 
-            // ফাইল স্টেট
-            const [vidUrl, setVidUrl] = useState('');
-            const [faceUrl, setFaceUrl] = useState('');
-            const [imageToVidUrl, setImageToVidUrl] = useState('');
+            // ফাইল লিঙ্কগুলো
+            const [vUrl, setVUrl] = useState('');
+            const [fUrl, setFUrl] = useState('');
+            const [iUrl, setIUrl] = useState('');
 
-            const corsProxy = "https://corsproxy.io/?";
+            const proxy = "https://corsproxy.io/?";
 
-            const uploadFile = async (e, setter) => {
+            // আরও শক্তিশালী ফাইল আপলোড ফাংশন
+            const uploadToFileIo = async (e, setter) => {
                 const file = e.target.files[0];
                 if (!file) return;
 
-                setIsUploading(true);
+                // ফাইল সাইজ চেক (৫ মেগাবাইটের বেশি হলে সতর্ক করা ভালো, যদিও মডেল বড় ফাইল নেয়)
+                setUploading(true);
                 setError('');
+                setStatus('ফাইল আপলোড হচ্ছে...');
+
                 const formData = new FormData();
                 formData.append('file', file);
 
                 try {
-                    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+                    // file.io ব্যবহার করা হচ্ছে যা অনেক বেশি নির্ভরযোগ্য
+                    const res = await fetch('https://file.io', {
                         method: 'POST',
                         body: formData
                     });
+                    
                     const data = await res.json();
-                    if (data.status === 'success') {
-                        // সরাসরি ডাউনলোডের জন্য URL ফরম্যাট ঠিক করা
-                        const direct = data.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-                        setter(direct);
+                    
+                    if (data.success) {
+                        setter(data.link);
+                        setStatus('আপলোড সফল হয়েছে!');
                     } else {
-                        throw new Error("আপলোড সফল হয়নি");
+                        throw new Error("সার্ভার ফাইলটি গ্রহণ করেনি।");
                     }
                 } catch (err) {
-                    setError("ফাইল আপলোড ব্যর্থ হয়েছে। আবার চেষ্টা করুন।");
+                    console.error(err);
+                    setError("আপলোড এরর: " + err.message + ". অন্য একটি ব্রাউজার বা নেটওয়ার্ক ট্রাই করুন।");
                 } finally {
-                    setIsUploading(false);
+                    setUploading(false);
                 }
             };
 
-            const generateVideo = async () => {
-                if (!apiKey) return setError("অনুগ্রহ করে Replicate API Key প্রদান করুন।");
+            const startAI = async () => {
+                if (!apiKey) return setError("API Key প্রয়োজন।");
                 
-                setIsLoading(true);
+                setProcessing(true);
                 setError('');
-                setResultUrl(null);
-                setStatus("এআই প্রসেসিং শুরু হচ্ছে...");
+                setResult(null);
+                setStatus("এআই মডেলের সাথে যোগাযোগ করা হচ্ছে...");
 
                 const model = tab === 'faceSwap' 
                     ? "9a4298548422074c3f57258c5d544497314ae4112df80d116f0d2109e843d20d"
                     : "3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438";
                 
                 const input = tab === 'faceSwap'
-                    ? { target_video: vidUrl, swap_image: faceUrl }
-                    : { input_image: imageToVidUrl, sizing_strategy: "maintain_aspect_ratio" };
+                    ? { target_video: vUrl, swap_image: fUrl }
+                    : { input_image: iUrl };
 
                 try {
-                    const res = await fetch(corsProxy + encodeURIComponent("https://api.replicate.com/v1/predictions"), {
+                    const res = await fetch(proxy + encodeURIComponent("https://api.replicate.com/v1/predictions"), {
                         method: 'POST',
-                        headers: { 'Authorization': `Token ${apiKey}`, 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Authorization': `Token ${apiKey}`, 
+                            'Content-Type': 'application/json' 
+                        },
                         body: JSON.stringify({ version: model, input })
                     });
                     
                     let data = await res.json();
-                    if (!res.ok) throw new Error(data.detail || "API ত্রুটি");
+                    if (!res.ok) throw new Error(data.detail || "API কী ভুল বা মেয়াউ উত্তীর্ণ।");
 
-                    // পোলিং লুপ
                     while (data.status !== 'succeeded' && data.status !== 'failed') {
                         await new Promise(r => setTimeout(r, 4000));
-                        setStatus(`ভিডিও তৈরি হচ্ছে... অবস্থা: ${data.status}`);
-                        const check = await fetch(corsProxy + encodeURIComponent(data.urls.get), {
+                        setStatus(`প্রসেসিং চলছে... অবস্থা: ${data.status}`);
+                        const check = await fetch(proxy + encodeURIComponent(data.urls.get), {
                             headers: { 'Authorization': `Token ${apiKey}` }
                         });
                         data = await check.json();
                     }
 
                     if (data.status === 'succeeded') {
-                        setResultUrl(data.output);
-                        setStatus("অভিনন্দন! ভিডিও তৈরি সফল হয়েছে।");
+                        setResult(data.output);
+                        setStatus("ভিডিও তৈরি সম্পন্ন!");
                     } else {
-                        throw new Error("এআই ভিডিও তৈরি করতে পারেনি।");
+                        throw new Error("মডেল ভিডিও তৈরি করতে পারেনি। সঠিক ফাইল ব্যবহার করুন।");
                     }
                 } catch (err) {
                     setError(err.message);
                 } finally {
-                    setIsLoading(false);
+                    setProcessing(false);
                 }
             };
 
             return (
-                <div className="flex flex-col items-center justify-start p-6 min-h-screen pt-12">
-                    <div className="w-full max-w-lg glass-morphism p-8 rounded-[2rem] shadow-2xl border border-white">
-                        <h1 className="text-3xl font-extrabold text-indigo-700 text-center mb-2 tracking-tight">AI ভিডিও জেনারেটর</h1>
-                        <p className="text-slate-400 text-center text-sm mb-8 font-medium italic">সরাসরি ফাইল আপলোড করে ভিডিও তৈরি করুন</p>
+                <div className="flex flex-col items-center min-h-screen p-4 py-10">
+                    <div className="w-full max-w-lg glass p-6 sm:p-8 rounded-[2.5rem] shadow-xl border border-white/50">
+                        <div className="text-center mb-8">
+                            <h1 className="text-3xl font-extrabold text-indigo-700">AI ভিডিও মেকার</h1>
+                            <p className="text-slate-400 text-xs mt-1">সবচেয়ে আধুনিক উপায়ে ফেস সোয়াপ করুন</p>
+                        </div>
 
-                        {/* API Input */}
-                        <div className="mb-8">
-                            <label className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest block mb-2 px-1">আপনার গোপন API Token</label>
+                        {/* API Key */}
+                        <div className="mb-6">
+                            <label className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest px-1">API TOKEN</label>
                             <input 
                                 type="password" 
                                 value={apiKey} 
                                 onChange={e => setApiKey(e.target.value)}
                                 placeholder="r8_..." 
-                                className="w-full bg-slate-100/50 border border-slate-200 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-400 focus:bg-white transition-all text-sm"
+                                className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-2xl p-4 outline-none focus:ring-2 focus:ring-indigo-400 transition-all text-sm"
                             />
                         </div>
 
-                        {/* Custom Tabs */}
-                        <div className="flex bg-slate-100 p-1.5 rounded-2xl mb-8 shadow-inner">
-                            <button 
-                                onClick={() => {setTab('faceSwap'); setError(''); setResultUrl(null);}} 
-                                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${tab === 'faceSwap' ? 'bg-white shadow-md text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                ফেস সোয়াপ
-                            </button>
-                            <button 
-                                onClick={() => {setTab('imgToVideo'); setError(''); setResultUrl(null);}} 
-                                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${tab === 'imgToVideo' ? 'bg-white shadow-md text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}
-                            >
-                                ছবি থেকে ভিডিও
-                            </button>
+                        {/* Tabs */}
+                        <div className="flex bg-slate-100 p-1.5 rounded-2xl mb-8">
+                            <button onClick={() => {setTab('faceSwap'); setError(''); setResult(null);}} className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${tab === 'faceSwap' ? 'bg-white shadow text-indigo-600' : 'text-slate-500'}`}>ফেস সোয়াপ</button>
+                            <button onClick={() => {setTab('imgToVideo'); setError(''); setResult(null);}} className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${tab === 'imgToVideo' ? 'bg-white shadow text-indigo-600' : 'text-slate-500'}`}>ছবি থেকে ভিডিও</button>
                         </div>
 
-                        {/* Upload Controls */}
-                        <div className="space-y-6">
+                        {/* Controls */}
+                        <div className="space-y-4">
                             {tab === 'faceSwap' ? (
-                                <div className="space-y-4">
-                                    <div className="relative group">
-                                        <input type="file" accept="video/*" onChange={e => uploadFile(e, setVidUrl)} className="hidden" id="v_up" />
-                                        <label htmlFor="v_up" className={`w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-3xl cursor-pointer transition-all ${vidUrl ? 'border-green-400 bg-green-50/50' : 'border-slate-300 hover:border-indigo-400 bg-slate-50'}`}>
-                                            <span className="text-sm font-bold text-slate-600">{vidUrl ? "✅ ভিডিও আপলোড সম্পন্ন" : "📁 ভিডিও ফাইল সিলেক্ট করুন"}</span>
-                                            <span className="text-[10px] text-slate-400 mt-1">{vidUrl ? "ফাইলটি এআই প্রসেসিংয়ের জন্য প্রস্তুত" : "MP4/MOV ফরম্যাট (সর্বোচ্চ 100MB)"}</span>
+                                <div className="space-y-3">
+                                    <div className="relative">
+                                        <input type="file" accept="video/*" onChange={e => uploadToFileIo(e, setVUrl)} className="hidden" id="v_in" />
+                                        <label htmlFor="v_in" className={`w-full flex flex-col items-center justify-center p-5 border-2 border-dashed rounded-3xl cursor-pointer transition-all ${vUrl ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`}>
+                                            <span className="text-sm font-bold text-slate-600">{vUrl ? "✅ ভিডিও পাওয়া গেছে" : "📁 টার্গেট ভিডিও ফাইল"}</span>
                                         </label>
                                     </div>
-                                    <div className="relative group">
-                                        <input type="file" accept="image/*" onChange={e => uploadFile(e, setFaceUrl)} className="hidden" id="i_up" />
-                                        <label htmlFor="i_up" className={`w-full flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-3xl cursor-pointer transition-all ${faceUrl ? 'border-green-400 bg-green-50/50' : 'border-slate-300 hover:border-indigo-400 bg-slate-50'}`}>
-                                            <span className="text-sm font-bold text-slate-600">{faceUrl ? "✅ ছবি আপলোড সম্পন্ন" : "👤 মুখের ছবি সিলেক্ট করুন"}</span>
+                                    <div className="relative">
+                                        <input type="file" accept="image/*" onChange={e => uploadToFileIo(e, setFUrl)} className="hidden" id="f_in" />
+                                        <label htmlFor="f_in" className={`w-full flex flex-col items-center justify-center p-5 border-2 border-dashed rounded-3xl cursor-pointer transition-all ${fUrl ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`}>
+                                            <span className="text-sm font-bold text-slate-600">{fUrl ? "✅ মুখের ছবি রেডি" : "👤 নতুন মুখের ছবি"}</span>
                                         </label>
                                     </div>
                                 </div>
                             ) : (
-                                <div className="relative group">
-                                    <input type="file" accept="image/*" onChange={e => uploadFile(e, setImageToVidUrl)} className="hidden" id="r_up" />
-                                    <label htmlFor="r_up" className={`w-full flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-3xl cursor-pointer transition-all ${imageToVidUrl ? 'border-green-400 bg-green-50/50' : 'border-slate-300 hover:border-indigo-400 bg-slate-50'}`}>
-                                        <span className="text-sm font-bold text-slate-600">{imageToVidUrl ? "✅ ছবি আপলোড সম্পন্ন" : "🖼️ রেফারেন্স ছবি আপলোড করুন"}</span>
+                                <div className="relative">
+                                    <input type="file" accept="image/*" onChange={e => uploadToFileIo(e, setIUrl)} className="hidden" id="i_in" />
+                                    <label htmlFor="i_in" className={`w-full flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-3xl cursor-pointer transition-all ${iUrl ? 'border-indigo-500 bg-indigo-50/30' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'}`}>
+                                        <span className="text-sm font-bold text-slate-600">{iUrl ? "✅ ছবি আপলোড হয়েছে" : "🖼️ রেফারেন্স ছবি সিলেক্ট করুন"}</span>
                                     </label>
                                 </div>
                             )}
 
                             <button 
-                                onClick={generateVideo} 
-                                disabled={isLoading || isUploading || (tab === 'faceSwap' ? (!vidUrl || !faceUrl) : !imageToVidUrl)}
-                                className="w-full bg-indigo-600 text-white font-bold py-5 rounded-[1.5rem] shadow-xl shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 active:translate-y-0 transition-all disabled:bg-slate-300 disabled:shadow-none"
+                                onClick={startAI} 
+                                disabled={processing || uploading || (tab === 'faceSwap' ? (!vUrl || !fUrl) : !iUrl)}
+                                className="w-full bg-indigo-600 text-white font-bold py-5 rounded-[1.5rem] shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:bg-slate-300 disabled:shadow-none mt-4"
                             >
-                                {isUploading ? "ফাইল আপলোড হচ্ছে..." : isLoading ? "ভিডিও জেনারেট হচ্ছে..." : "ভিডিও তৈরি শুরু করুন"}
+                                {uploading ? "ফাইল আপলোড হচ্ছে..." : processing ? "প্রসেসিং হচ্ছে..." : "ভিডিও তৈরি শুরু করুন"}
                             </button>
                         </div>
 
-                        {/* Status & Error Display */}
-                        {status && !error && !resultUrl && (
-                            <div className="mt-8 text-center animate-pulse">
-                                <p className="text-sm text-indigo-500 font-bold">{status}</p>
+                        {/* Notifications */}
+                        {(status || error) && (
+                            <div className={`mt-8 p-4 rounded-2xl text-center text-xs font-bold ${error ? 'bg-red-50 text-red-500 border border-red-100' : 'text-indigo-600'}`}>
+                                {processing && <div className="loader-ring"></div>}
+                                {error ? `⚠️ এরর: ${error}` : status}
                             </div>
                         )}
 
-                        {error && (
-                            <div className="mt-8 p-4 bg-red-50 border border-red-100 rounded-2xl">
-                                <p className="text-red-500 text-xs text-center font-bold">⚠️ এরর: {error}</p>
-                            </div>
-                        )}
-
-                        {/* Result Display */}
-                        {resultUrl && (
-                            <div className="mt-10 animate-in zoom-in duration-500">
-                                <div className="bg-white p-3 rounded-[2rem] shadow-xl border border-slate-100">
-                                    <video src={resultUrl} controls className="w-full rounded-[1.5rem]" autoPlay loop />
-                                </div>
-                                <div className="flex justify-center mt-6">
-                                    <a href={resultUrl} target="_blank" className="bg-slate-900 text-white px-8 py-3 rounded-full text-xs font-bold hover:bg-indigo-600 transition-colors shadow-lg shadow-slate-200">
-                                        ভিডিও ডাউনলোড করুন
-                                    </a>
+                        {/* Result */}
+                        {result && (
+                            <div className="mt-8">
+                                <video src={result} controls className="w-full rounded-3xl shadow-2xl border-4 border-white" autoPlay loop />
+                                <div className="mt-4 flex justify-center">
+                                    <a href={result} target="_blank" className="text-xs font-bold text-indigo-600 underline">গ্যালারিতে সেভ করতে এখানে ক্লিক করুন</a>
                                 </div>
                             </div>
                         )}
                     </div>
-                    <p className="mt-8 text-slate-400 text-[10px] text-center max-w-xs">ফাইলগুলো প্রসেসিংয়ের জন্য সাময়িকভাবে ক্লাউডে আপলোড করা হয় এবং কাজ শেষে মুছে ফেলা হয়।</p>
                 </div>
             );
         };
