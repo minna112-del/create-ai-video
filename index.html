@@ -1,229 +1,181 @@
-```react
-import React, { useState } from 'react';
-import { Settings, Image as ImageIcon, Video, User, CheckCircle2, AlertCircle, Loader2, PlaySquare, Upload } from 'lucide-react';
+```html
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ভিডিও মেকার - সরাসরি আপলোড</title>
+    <!-- স্টাইলিং এবং লাইব্রেরি -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Hind Siliguri', sans-serif; }
+        .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
 
-export default function App() {
-  const [apiKey, setApiKey] = useState('');
-  const [activeTab, setActiveTab] = useState('faceSwap');
-  const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [statusMsg, setStatusMsg] = useState('');
-  const [resultVideo, setResultVideo] = useState(null);
-  const [errorMsg, setErrorMsg] = useState('');
-  
-  // ফেস সোয়াপ স্টেট (URLs)
-  const [targetVideoUrl, setTargetVideoUrl] = useState('');
-  const [faceImageUrl, setFaceImageUrl] = useState('');
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-  // ছবি থেকে ভিডিও স্টেট
-  const [referenceImageUrl, setReferenceImageUrl] = useState('');
+        function App() {
+            const [apiKey, setApiKey] = useState('');
+            const [activeTab, setActiveTab] = useState('faceSwap');
+            const [loading, setLoading] = useState(false);
+            const [uploading, setUploading] = useState(false);
+            const [status, setStatus] = useState('');
+            const [error, setError] = useState('');
+            const [result, setResult] = useState(null);
 
-  // ফাইলে আপলোড করার ফাংশন (tmpfiles.org ব্যবহার করে যা ব্রাউজার সাপোর্ট করে)
-  const uploadFile = async (file) => {
-    setUploading(true);
-    setErrorMsg('');
-    const formData = new FormData();
-    formData.append('file', file);
+            // ফাইল URLs
+            const [targetVid, setTargetVid] = useState('');
+            const [sourceImg, setSourceImg] = useState('');
+            const [refImg, setRefImg] = useState('');
 
-    try {
-      const response = await fetch('https://tmpfiles.org/api/v1/upload', {
-        method: 'POST',
-        body: formData,
-      });
+            const proxy = "https://corsproxy.io/?";
 
-      const data = await response.json();
-      if (data.status === 'success') {
-        // tmpfiles.org/dl/ ফরম্যাটে লিংক পরিবর্তন করতে হয় সরাসরি ডাউনলোডের জন্য
-        const rawUrl = data.data.url;
-        const directUrl = rawUrl.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
-        setUploading(false);
-        return directUrl;
-      } else {
-        throw new Error('ফাইল আপলোড ব্যর্থ হয়েছে।');
-      }
-    } catch (err) {
-      setUploading(false);
-      setErrorMsg('ফাইল আপলোড এরর: ' + err.message);
-      return null;
-    }
-  };
+            // ফাইল আপলোড করার ফাংশন
+            const handleUpload = async (e, setter) => {
+                const file = e.target.files[0];
+                if (!file) return;
 
-  const handleFileChange = async (e, type) => {
-    const file = e.target.files[0];
-    if (!file) return;
+                setUploading(true);
+                setError('');
+                const formData = new FormData();
+                formData.append('file', file);
 
-    const uploadedUrl = await uploadFile(file);
-    if (uploadedUrl) {
-      if (type === 'targetVideo') setTargetVideoUrl(uploadedUrl);
-      if (type === 'faceImage') setFaceImageUrl(uploadedUrl);
-      if (type === 'refImage') setReferenceImageUrl(uploadedUrl);
-    }
-  };
+                try {
+                    const res = await fetch('https://tmpfiles.org/api/v1/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+                    if (data.status === 'success') {
+                        const directLink = data.data.url.replace('tmpfiles.org/', 'tmpfiles.org/dl/');
+                        setter(directLink);
+                    } else {
+                        throw new Error("আপলোড ব্যর্থ হয়েছে");
+                    }
+                } catch (err) {
+                    setError("ফাইল আপলোড করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।");
+                } finally {
+                    setUploading(false);
+                }
+            };
 
-  const runReplicateModel = async (modelName, inputData) => {
-    if (!apiKey) {
-      setErrorMsg('অনুগ্রহ করে আপনার Replicate API টোকেন দিন!');
-      return;
-    }
+            const runAI = async () => {
+                if (!apiKey) return setError("দয়া করে API Key দিন");
+                setLoading(true);
+                setError('');
+                setResult(null);
+                setStatus("রিকোয়েস্ট পাঠানো হচ্ছে...");
 
-    setLoading(true);
-    setErrorMsg('');
-    setResultVideo(null);
-    setStatusMsg('এআই মডেলের সাথে কানেক্ট করা হচ্ছে...');
+                const model = activeTab === 'faceSwap' 
+                    ? "9a4298548422074c3f57258c5d544497314ae4112df80d116f0d2109e843d20d" 
+                    : "3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438";
+                
+                const input = activeTab === 'faceSwap' 
+                    ? { target_video: targetVid, swap_image: sourceImg }
+                    : { input_image: refImg };
 
-    try {
-      // CORS এড়াতে প্রক্সি ব্যবহার
-      const proxyUrl = 'https://corsproxy.io/?';
-      const targetUrl = encodeURIComponent('https://api.replicate.com/v1/predictions');
-      
-      const startResponse = await fetch(proxyUrl + targetUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Token ${apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ version: modelName, input: inputData })
-      });
+                try {
+                    const response = await fetch(proxy + encodeURIComponent("https://api.replicate.com/v1/predictions"), {
+                        method: 'POST',
+                        headers: { 'Authorization': `Token ${apiKey}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ version: model, input })
+                    });
+                    
+                    let prediction = await response.json();
+                    if (!response.ok) throw new Error(prediction.detail || "API Error");
 
-      const prediction = await startResponse.json();
-      if (!startResponse.ok) throw new Error(prediction.detail || 'API Request ব্যর্থ।');
+                    while (prediction.status !== 'succeeded' && prediction.status !== 'failed') {
+                        await new Promise(r => setTimeout(r, 4000));
+                        setStatus(`প্রসেস হচ্ছে... (${prediction.status})`);
+                        const check = await fetch(proxy + encodeURIComponent(prediction.urls.get), {
+                            headers: { 'Authorization': `Token ${apiKey}` }
+                        });
+                        prediction = await check.json();
+                    }
 
-      let isComplete = false;
-      while (!isComplete) {
-        await new Promise(r => setTimeout(r, 4000));
-        const checkRes = await fetch(proxyUrl + encodeURIComponent(prediction.urls.get), {
-          headers: { 'Authorization': `Token ${apiKey}` }
-        });
-        const result = await checkRes.json();
+                    if (prediction.status === 'succeeded') {
+                        setResult(prediction.output);
+                    } else {
+                        throw new Error("ভিডিও তৈরি ব্যর্থ হয়েছে।");
+                    }
+                } catch (err) {
+                    setError(err.message);
+                } finally {
+                    setLoading(false);
+                }
+            };
 
-        if (result.status === 'succeeded') {
-          setResultVideo(result.output);
-          setLoading(false);
-          isComplete = true;
-        } else if (result.status === 'failed') {
-          throw new Error('ভিডিও তৈরিতে এআই ব্যর্থ হয়েছে।');
-        } else {
-          setStatusMsg(`প্রসেস চলছে... (${result.status})`);
+            return (
+                <div className="max-w-md mx-auto p-4 pt-10">
+                    <div className="bg-white rounded-3xl shadow-2xl p-6 border border-slate-100">
+                        <h1 class="text-2xl font-bold text-indigo-600 text-center mb-6">AI ভিডিও মেকার</h1>
+                        
+                        <div className="mb-6">
+                            <label className="text-xs font-bold text-slate-400 block mb-1">REPLICATE API KEY</label>
+                            <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="r8_..." className="w-full p-3 bg-slate-50 border rounded-xl outline-none focus:ring-2 focus:ring-indigo-500" />
+                        </div>
+
+                        <div className="flex bg-slate-100 p-1 rounded-xl mb-6">
+                            <button onClick={() => setActiveTab('faceSwap')} className={`flex-1 py-2 text-sm font-bold rounded-lg ${activeTab === 'faceSwap' ? 'bg-white shadow text-indigo-600' : 'text-slate-500'}`}>ফেস সোয়াপ</button>
+                            <button onClick={() => setActiveTab('imgToVideo')} className={`flex-1 py-2 text-sm font-bold rounded-lg ${activeTab === 'imgToVideo' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}>ছবি থেকে ভিডিও</button>
+                        </div>
+
+                        <div className="space-y-4">
+                            {activeTab === 'faceSwap' ? (
+                                <>
+                                    <div className="border-2 border-dashed rounded-2xl p-4 text-center">
+                                        <input type="file" accept="video/*" onChange={e => handleUpload(e, setTargetVid)} className="hidden" id="vfile" />
+                                        <label htmlFor="vfile" className="cursor-pointer block text-sm text-slate-600">
+                                            {targetVid ? "✅ ভিডিও আপলোড হয়েছে" : "📁 ভিডিও ফাইল আপলোড করুন"}
+                                        </label>
+                                    </div>
+                                    <div className="border-2 border-dashed rounded-2xl p-4 text-center">
+                                        <input type="file" accept="image/*" onChange={e => handleUpload(e, setSourceImg)} className="hidden" id="ifile" />
+                                        <label htmlFor="ifile" className="cursor-pointer block text-sm text-slate-600">
+                                            {sourceImg ? "✅ ছবি আপলোড হয়েছে" : "📁 মুখের ছবি আপলোড করুন"}
+                                        </label>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="border-2 border-dashed rounded-2xl p-4 text-center">
+                                    <input type="file" accept="image/*" onChange={e => handleUpload(e, setRefImg)} className="hidden" id="rfile" />
+                                    <label htmlFor="rfile" className="cursor-pointer block text-sm text-slate-600">
+                                        {refImg ? "✅ ছবি আপলোড হয়েছে" : "📁 রেফারেন্স ছবি আপলোড করুন"}
+                                    </label>
+                                </div>
+                            )}
+
+                            <button onClick={runAI} disabled={loading || uploading} className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-indigo-100 disabled:bg-slate-300">
+                                {loading ? status : uploading ? "ফাইল আপলোড হচ্ছে..." : "ভিডিও তৈরি শুরু করুন"}
+                            </button>
+                        </div>
+
+                        {error && <div className="mt-4 p-3 bg-red-50 text-red-500 text-xs rounded-xl text-center font-medium">{error}</div>}
+
+                        {result && (
+                            <div className="mt-6">
+                                <video src={result} controls className="w-full rounded-2xl shadow-lg border-4 border-white" autoPlay loop />
+                                <a href={result} target="_blank" className="block text-center mt-3 text-indigo-600 text-sm font-bold">ভিডিও ডাউনলোড করুন</a>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
         }
-      }
-    } catch (err) {
-      setErrorMsg(err.message);
-      setLoading(false);
-    }
-  };
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 font-sans text-gray-800">
-      <div className="max-w-xl mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-        
-        {/* Header */}
-        <div className="bg-indigo-600 p-6 text-white text-center">
-          <h1 className="text-2xl font-bold">AI ভিডিও জেনারেটর</h1>
-          <p className="opacity-80 text-sm">সরাসরি ফাইল আপলোড করে ভিডিও বানান</p>
-        </div>
-
-        <div className="p-6">
-          {/* API Key */}
-          <div className="mb-6">
-            <label className="text-xs font-bold text-gray-400 uppercase">Replicate API Token</label>
-            <input 
-              type="password" 
-              value={apiKey} 
-              onChange={(e) => setApiKey(e.target.value)}
-              placeholder="r8_..." 
-              className="w-full mt-1 p-3 bg-gray-50 border rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
-          </div>
-
-          {/* Tab Switcher */}
-          <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
-            <button onClick={() => setActiveTab('faceSwap')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${activeTab === 'faceSwap' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}>ফেস সোয়াপ</button>
-            <button onClick={() => setActiveTab('imgToVideo')} className={`flex-1 py-2 rounded-lg text-sm font-bold transition ${activeTab === 'imgToVideo' ? 'bg-white shadow text-indigo-600' : 'text-gray-500'}`}>ছবি থেকে ভিডিও</button>
-          </div>
-
-          {/* Form */}
-          <div className="space-y-4">
-            {activeTab === 'faceSwap' ? (
-              <>
-                <div>
-                  <label className="text-sm font-bold block mb-2">টার্গেট ভিডিও (আপনার গ্যালারি থেকে)</label>
-                  <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:bg-gray-50 transition">
-                    <input type="file" accept="video/*" onChange={(e) => handleFileChange(e, 'targetVideo')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                    <Upload className="mx-auto text-gray-400 mb-2" />
-                    <p className="text-xs text-gray-500 truncate">{targetVideoUrl ? "ভিডিও আপলোড হয়েছে ✅" : "ভিডিও ফাইল সিলেক্ট করুন"}</p>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-bold block mb-2">মুখের ছবি (আপনার গ্যালারি থেকে)</label>
-                  <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:bg-gray-50 transition">
-                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'faceImage')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                    <Upload className="mx-auto text-gray-400 mb-2" />
-                    <p className="text-xs text-gray-500 truncate">{faceImageUrl ? "ছবি আপলোড হয়েছে ✅" : "মুখের ছবি সিলেক্ট করুন"}</p>
-                  </div>
-                </div>
-                <button 
-                  disabled={loading || uploading || !targetVideoUrl || !faceImageUrl}
-                  onClick={() => runReplicateModel("9a4298548422074c3f57258c5d544497314ae4112df80d116f0d2109e843d20d", { target_video: targetVideoUrl, swap_image: faceImageUrl })}
-                  className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-700 disabled:bg-gray-300 transition shadow-lg shadow-indigo-200"
-                >
-                  {loading ? "ভিডিও তৈরি হচ্ছে..." : uploading ? "ফাইল আপলোড হচ্ছে..." : "ফেস সোয়াপ শুরু করুন"}
-                </button>
-              </>
-            ) : (
-              <>
-                <div>
-                  <label className="text-sm font-bold block mb-2">রেফারেন্স ছবি (আপনার গ্যালারি থেকে)</label>
-                  <div className="relative border-2 border-dashed border-gray-200 rounded-xl p-4 text-center hover:bg-gray-50 transition">
-                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, 'refImage')} className="absolute inset-0 opacity-0 cursor-pointer" />
-                    <Upload className="mx-auto text-gray-400 mb-2" />
-                    <p className="text-xs text-gray-500 truncate">{referenceImageUrl ? "ছবি আপলোড হয়েছে ✅" : "ছবি সিলেক্ট করুন"}</p>
-                  </div>
-                </div>
-                <button 
-                  disabled={loading || uploading || !referenceImageUrl}
-                  onClick={() => runReplicateModel("3f0457e4619daac51203dedb472816fd4af51f3149fa7a9e0b5ffcf1b8172438", { input_image: referenceImageUrl, video_length: "14_frames_with_svd", fps: 6 })}
-                  className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl hover:bg-indigo-700 disabled:bg-gray-300 transition shadow-lg shadow-indigo-200"
-                >
-                  {loading ? "ভিডিও তৈরি হচ্ছে..." : uploading ? "ফাইল আপলোড হচ্ছে..." : "ভিডিও তৈরি করুন"}
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Result / Status */}
-          <div className="mt-8 p-4 bg-gray-50 rounded-2xl border border-gray-100 min-h-[100px] flex flex-col items-center justify-center">
-            {loading && (
-              <div className="text-center">
-                <Loader2 className="animate-spin text-indigo-600 mx-auto mb-2" />
-                <p className="text-sm font-medium text-gray-600">{statusMsg}</p>
-              </div>
-            )}
-            
-            {errorMsg && (
-              <div className="text-red-500 text-center text-sm p-2 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-2" /> {errorMsg}
-              </div>
-            )}
-
-            {resultVideo && !loading && (
-              <div className="w-full">
-                <p className="text-green-600 font-bold text-center mb-2 flex items-center justify-center">
-                  <CheckCircle2 className="w-4 h-4 mr-1" /> ভিডিও রেডি!
-                </p>
-                <video src={resultVideo} controls className="w-full rounded-xl shadow-lg border border-white" autoPlay loop />
-                <a href={resultVideo} target="_blank" download className="block text-center mt-4 text-indigo-600 font-bold text-sm underline">ডাউনলোড করুন</a>
-              </div>
-            )}
-
-            {!loading && !resultVideo && !errorMsg && (
-              <p className="text-gray-400 text-sm">আপনার ভিডিও এখানে দেখা যাবে</p>
-            )}
-          </div>
-        </div>
-      </div>
-      <p className="text-center text-gray-400 text-xs mt-6">বিঃদ্রঃ ফাইলগুলো আপলোডের পর অটোমেটিক ডিলিট হয়ে যাবে।</p>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
 
 ```
