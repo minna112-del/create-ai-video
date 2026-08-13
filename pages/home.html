@@ -29,9 +29,9 @@
         </div>
 
         <div class="home-hero-proof" aria-label="মূল সুবিধা">
-          <span><span class="ic ic-check" aria-hidden="true"></span>Cash on Delivery</span>
-          <span><span class="ic ic-check" aria-hidden="true"></span>Local Support</span>
-          <span><span class="ic ic-check" aria-hidden="true"></span>Order Tracking</span>
+          <span><span class="ic ic-check" aria-hidden="true"></span>ডেলিভারির সময় পেমেন্ট</span>
+          <span><span class="ic ic-check" aria-hidden="true"></span>লোকাল সাপোর্ট</span>
+          <span><span class="ic ic-check" aria-hidden="true"></span>অর্ডারের খবর</span>
         </div>
 
         <button type="button" class="home-location-check" onclick="LocationPicker.open(d=>{ toast(d.zone ? '✓ আপনার এলাকা কভার করি — '+d.zone.label : '⚠ দুঃখিত, এই এলাকায় এখনো ডেলিভারি নেই', d.zone?'success':'error') })">
@@ -67,9 +67,9 @@
   <section class="sec home-section home-product-section home-special-products" id="homeSpecialProducts" aria-labelledby="specialProductsTitle">
     <div class="home-section-head">
       <div>
-        <span class="home-section-kicker">নির্বাচিত সাশ্রয়</span>
-        <h2 id="specialProductsTitle" class="tiro">বিশেষ মূল্যের পণ্য</h2>
-        <p>বর্তমানে বিশেষ মূল্যে পাওয়া যাচ্ছে এমন পণ্য।</p>
+        <span class="home-section-kicker">আজকের ছাড়</span>
+        <h2 id="specialProductsTitle" class="tiro">কম দামের পণ্য</h2>
+        <p>আজকে যেগুলো কম দামে আছে।</p>
       </div>
       <button type="button" class="home-section-link" onclick="Router.go('listing',{cat:'flash'})">সব অফার <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
     </div>
@@ -79,9 +79,9 @@
   <section class="sec home-section home-product-section" id="homePopularProducts" aria-labelledby="popularProductsTitle">
     <div class="home-section-head">
       <div>
-        <span class="home-section-kicker" id="popularProductsKicker">গ্রাহকের পছন্দ</span>
+        <span class="home-section-kicker" id="popularProductsKicker">বেশি অর্ডার হওয়া পণ্য</span>
         <h2 id="popularProductsTitle" class="tiro">জনপ্রিয় পণ্য</h2>
-        <p id="popularProductsDesc">বাস্তব বিক্রির তথ্য অনুযায়ী বেশি অর্ডার হওয়া পণ্য।</p>
+        <p id="popularProductsDesc">যেগুলো বেশি অর্ডার হচ্ছে।</p>
       </div>
       <button type="button" class="home-section-link" onclick="Router.go('listing',{cat:'bestseller'})">সব দেখুন <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
     </div>
@@ -103,9 +103,9 @@
   <section class="sec home-section home-service-section" aria-labelledby="homeServiceTitle">
     <div class="home-section-head">
       <div>
-        <span class="home-section-kicker">শুধু পণ্য নয়</span>
-        <h2 id="homeServiceTitle" class="tiro">আপনার প্রয়োজন অনুযায়ী সঠিক সেবা</h2>
-        <p>লম্বা পথ ঘুরতে হবে না—প্রতিটি কাজের জন্য পরিষ্কার একটি প্রবেশপথ।</p>
+        <span class="home-section-kicker">যেভাবে সুবিধা, সেভাবেই অর্ডার করুন</span>
+        <h2 id="homeServiceTitle" class="tiro">আপনার দরকার অনুযায়ী সহজ অর্ডার</h2>
+        <p>লম্বা পথ ঘুরতে হবে না—যে কাজটি দরকার, সরাসরি সেখানেই যান।</p>
       </div>
     </div>
     <div class="home-service-grid">
@@ -124,9 +124,9 @@
         <button type="button" onclick="Router.go('medical')">স্বাস্থ্য সেবা <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
       </article>
       <article class="home-service-card home-service-orders">
-        <span class="home-service-badge">স্বচ্ছ অগ্রগতি</span>
+        <span class="home-service-badge">অর্ডারের খবর</span>
         <span class="home-service-icon"><span class="ic ic-package" aria-hidden="true"></span></span>
-        <h3>অর্ডারের বর্তমান অবস্থা</h3>
+        <h3>আপনার অর্ডার কোথায় আছে</h3>
         <p>অর্ডার জমা দেওয়ার পর প্রস্তুতি, ডেলিভারি ও সম্পন্ন হওয়ার অবস্থা এক জায়গা থেকে দেখুন।</p>
         <button type="button" onclick="Router.go('myorders')">আমার অর্ডার <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
       </article>

@@ -51,12 +51,12 @@ const Home = {
       const popularKickerEl = document.getElementById('popularProductsKicker');
       const popularTitleEl = document.getElementById('popularProductsTitle');
       const popularDescEl = document.getElementById('popularProductsDesc');
-      if(popularKickerEl) popularKickerEl.textContent = hasEnoughSalesData ? 'গ্রাহকের পছন্দ' : 'সদ্য যোগ হয়েছে';
+      if(popularKickerEl) popularKickerEl.textContent = hasEnoughSalesData ? 'বেশি অর্ডার হওয়া পণ্য' : 'সদ্য যোগ হয়েছে';
       if(popularTitleEl) popularTitleEl.innerHTML = hasEnoughSalesData
         ? '<span class="ic ic-star" aria-hidden="true"></span>জনপ্রিয় পণ্য'
         : '<span class="ic ic-sparkle" aria-hidden="true"></span>নতুন যোগ হয়েছে';
       if(popularDescEl) popularDescEl.textContent = hasEnoughSalesData
-        ? 'বাস্তব বিক্রির তথ্য অনুযায়ী বেশি অর্ডার হওয়া পণ্য।'
+        ? 'যেগুলো বেশি অর্ডার হচ্ছে।'
         : 'সম্প্রতি যোগ হওয়া পণ্য দেখুন।';
       const prioritisedIds = new Set([...special,...popular].map(p=>p.id));
       // ⚠️ আগে এলোমেলোভাবে (ডেটাবেজে যেভাবে ছিল সেভাবেই) দেখাতো — মুদি-চা-গ্যাস-ন্যাপকিন
@@ -144,7 +144,7 @@ const Listing = {
     }
     if(!document.getElementById('filterCategoryList')?.children.length) this.renderCategoryFilters();
     let items = zoneProducts();
-    let title = currentLang==='bn' ? 'সব প্রোডাক্ট' : 'All Products';
+    let title = currentLang==='bn' ? 'সব পণ্য' : 'All Products';
     if(cat==='flash'){ items = items.filter(p=>p.isFlash); title = currentLang==='bn' ? '🔥 ফ্ল্যাশ সেল' : '🔥 Flash Sale'; }
     else if(cat==='bestseller'){ items = [...items].sort((a,b)=>b.sold-a.sold); title = currentLang==='bn' ? '⭐ বেস্ট সেলার' : '⭐ Best Seller'; }
     else if(cat!=='all'){ items = items.filter(p=>p.category===cat); const catObj=CATEGORIES.find(c=>c.id===cat); title = (currentLang==='bn' ? catObj?.label : (catObj?.labelEn||catObj?.label)) || cat; }
@@ -172,7 +172,7 @@ const Listing = {
       subtitleEl.textContent = q
         ? (currentLang==='bn' ? 'সার্চের সঙ্গে মিলে এমন পণ্য দেখানো হচ্ছে। প্রয়োজন হলে ফিল্টার বদলে দেখুন।' : 'Showing products that match your search. Adjust filters if needed.')
         : (cat==='all'
-          ? (currentLang==='bn' ? 'আপনার প্রয়োজন অনুযায়ী পণ্য খুঁজুন, ফিল্টার করুন এবং দ্রুত কার্টে যোগ করুন।' : 'Find what you need, filter quickly, and add items to cart.')
+          ? (currentLang==='bn' ? 'যা লাগবে খুঁজে কার্টে যোগ করুন।' : 'Find what you need, filter quickly, and add items to cart.')
           : (currentLang==='bn' ? 'এই বিভাগের উপলভ্য পণ্যগুলো দেখুন।' : 'Browse available products in this category.'));
     }
     const grid=document.getElementById('listingGrid');

@@ -2,9 +2,9 @@
   <section class="sec checkout-shell">
     <header class="checkout-heading">
       <div>
-        <span class="checkout-kicker" data-bn="নিরাপদ অর্ডার প্রক্রিয়া" data-en="Secure Order Process">নিরাপদ অর্ডার প্রক্রিয়া</span>
+        <span class="checkout-kicker" data-bn="অর্ডার সম্পন্ন করুন" data-en="Secure Order Process">অর্ডার সম্পন্ন করুন</span>
         <h1 class="tiro" data-bn="চেকআউট" data-en="Checkout">চেকআউট</h1>
-        <p data-bn="ঠিকানা, পেমেন্ট ও অর্ডারের তথ্য যাচাই করে অর্ডার সম্পন্ন করুন।" data-en="Verify your address, payment, and order details to complete your order.">ঠিকানা, পেমেন্ট ও অর্ডারের তথ্য যাচাই করে অর্ডার সম্পন্ন করুন।</p>
+        <p data-bn="ঠিকানা, পেমেন্ট ও পণ্যের হিসাব দেখে অর্ডার দিন।" data-en="Verify your address, payment, and order details to complete your order.">ঠিকানা, পেমেন্ট ও পণ্যের হিসাব দেখে অর্ডার দিন।</p>
       </div>
       <button type="button" class="checkout-back-link" onclick="Cart.open()" aria-label="কার্টে ফিরে যান" data-bn="← কার্ট দেখুন" data-en="← View Cart">← কার্ট দেখুন</button>
     </header>
@@ -32,7 +32,7 @@
 
           <button type="button" class="checkout-location-btn" onclick="Checkout.openLocationPicker()">
             <span class="checkout-location-btn__icon"><span class="ic ic-pin"></span></span>
-            <span><strong data-bn="ম্যাপে সঠিক লোকেশন পিন করুন *" data-en="Pin Exact Location on Map *">ম্যাপে সঠিক লোকেশন পিন করুন *</strong><small data-bn="ডেলিভারি জোন, দূরত্ব ও চার্জ যাচাই করতে প্রয়োজন" data-en="Needed to verify delivery zone, distance, and charge">ডেলিভারি জোন, দূরত্ব ও চার্জ যাচাই করতে প্রয়োজন</small></span>
+            <span><strong data-bn="ম্যাপে সঠিক লোকেশন পিন করুন *" data-en="Pin Exact Location on Map *">ম্যাপে সঠিক লোকেশন পিন করুন *</strong><small data-bn="চার্জ ও এলাকা ঠিক করতে দরকার" data-en="Needed to verify delivery zone, distance, and charge">চার্জ ও এলাকা ঠিক করতে দরকার</small></span>
             <span aria-hidden="true">→</span>
           </button>
           <div id="ckLocationSummary" class="checkout-location-summary" hidden></div>
@@ -54,7 +54,7 @@
         <section id="ckStep2" class="card-box checkout-card" hidden aria-labelledby="ckPaymentTitle">
           <div class="checkout-card__head">
             <span class="checkout-card__number">২</span>
-            <div><h2 id="ckPaymentTitle" data-bn="পেমেন্ট পদ্ধতি" data-en="Payment Method">পেমেন্ট পদ্ধতি</h2><p data-bn="আপনার সুবিধাজনক ও উপলভ্য পদ্ধতি নির্বাচন করুন।" data-en="Choose a payment method that's convenient and available to you.">আপনার সুবিধাজনক ও উপলভ্য পদ্ধতি নির্বাচন করুন।</p></div>
+            <div><h2 id="ckPaymentTitle" data-bn="পেমেন্ট পদ্ধতি" data-en="Payment Method">পেমেন্ট পদ্ধতি</h2><p data-bn="যেভাবে পেমেন্ট করবেন, সেটি বেছে নিন।" data-en="Choose a payment method that's convenient and available to you.">যেভাবে পেমেন্ট করবেন, সেটি বেছে নিন।</p></div>
           </div>
           <div class="checkout-payment-list" role="radiogroup" aria-label="পেমেন্ট পদ্ধতি">
             <button type="button" class="radio-card selected" onclick="Checkout.selectPay(this,'cod')" role="radio" aria-checked="true"><input type="radio" name="ckpay" checked tabindex="-1"><span class="payment-mark">৳</span><span><strong data-bn="ক্যাশ অন ডেলিভারি" data-en="Cash on Delivery">ক্যাশ অন ডেলিভারি</strong><small data-bn="পণ্য গ্রহণের সময় মূল্য পরিশোধ করুন" data-en="Pay when you receive the items">পণ্য গ্রহণের সময় মূল্য পরিশোধ করুন</small></span><span class="payment-check">✓</span></button>
@@ -98,8 +98,8 @@
       <aside class="checkout-assurance" aria-label="অর্ডার সহায়তা">
         <h2 data-bn="নিশ্চিন্তে অর্ডার করুন" data-en="Order with Confidence">নিশ্চিন্তে অর্ডার করুন</h2>
         <div><span>01</span><p><strong data-bn="লোকেশন যাচাই" data-en="Location Verification">লোকেশন যাচাই</strong><small data-bn="ম্যাপের মাধ্যমে ডেলিভারি এলাকা ও চার্জ নির্ধারিত হয়।" data-en="Delivery area and charge are determined via the map.">ম্যাপের মাধ্যমে ডেলিভারি এলাকা ও চার্জ নির্ধারিত হয়।</small></p></div>
-        <div><span>02</span><p><strong data-bn="মূল্য পর্যালোচনা" data-en="Price Review">মূল্য পর্যালোচনা</strong><small data-bn="কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।" data-en="See items, charges, and discounts before confirming.">কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।</small></p></div>
-        <div><span>03</span><p><strong data-bn="অর্ডার ট্র্যাকিং" data-en="Order Tracking">অর্ডার ট্র্যাকিং</strong><small data-bn="অর্ডারের বর্তমান অবস্থা “আমার অর্ডার” থেকে দেখুন।" data-en="Check current order status from &quot;My Orders&quot;.">অর্ডারের বর্তমান অবস্থা "আমার অর্ডার" থেকে দেখুন।</small></p></div>
+        <div><span>02</span><p><strong data-bn="দাম আগে দেখে নিন" data-en="Price Review">দাম আগে দেখে নিন</strong><small data-bn="কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।" data-en="See items, charges, and discounts before confirming.">কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।</small></p></div>
+        <div><span>03</span><p><strong data-bn="অর্ডারের খবর" data-en="Order Tracking">অর্ডারের খবর</strong><small data-bn="অর্ডারের বর্তমান অবস্থা “আমার অর্ডার” থেকে দেখুন।" data-en="Check current order status from &quot;My Orders&quot;.">অর্ডারের বর্তমান অবস্থা "আমার অর্ডার" থেকে দেখুন।</small></p></div>
       </aside>
     </div>
   </section>
