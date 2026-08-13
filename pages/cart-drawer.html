@@ -23,12 +23,12 @@
     <div class="cart-summary" aria-label="অর্ডারের হিসাব">
       <div class="cart-summary__row"><span>পণ্যের মূল্য</span><strong id="cartSub">৳০</strong></div>
       <div class="cart-summary__row"><span>আনুমানিক ডেলিভারি</span><strong id="cartDel">—</strong></div>
-      <div class="cart-summary__note" id="cartDeliveryNote">ঠিকানা ও দূরত্ব অনুযায়ী চেকআউটে চূড়ান্ত চার্জ দেখানো হবে।</div>
+      <div class="cart-summary__note" id="cartDeliveryNote">ঠিকানা ও দূরত্ব অনুযায়ী ডেলিভারি চার্জ চেকআউটে দেখাবে।</div>
       <div class="cart-summary__total"><span>আনুমানিক মোট</span><strong id="cartTot">৳০</strong></div>
     </div>
 
     <button type="button" class="btn btn-gold btn-block cart-checkout-btn" onclick="Cart.goCheckout()">
-      চেকআউটে এগিয়ে যান
+      অর্ডার করতে এগিয়ে যান
       <span aria-hidden="true">→</span>
     </button>
     <button type="button" class="cart-continue-btn" onclick="Cart.close();Router.go('listing',{cat:'all'})">আরও কেনাকাটা করুন</button>

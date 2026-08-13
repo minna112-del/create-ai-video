@@ -51,6 +51,12 @@ service cloud.firestore {
     function isMarketingStaff() {
       return isStaff() && (staffRole() == 'marketing' || staffRole() == 'crm_manager' || staffRole() == 'growth_automation_manager');
     }
+    // NEW — MT Studio security audit (2026-08): HR-এর নিজস্ব কোনো role-check
+    // function আগে ছিল না, ফলে নিচের ~৭টা HR ERP collection-এ isStaff()
+    // (যেকোনো staff — driver/marketing/support সহ) ব্লেন্কেট অ্যাক্সেস পেত।
+    function isHR() {
+      return isStaff() && (staffRole() == 'hr' || staffRole() == 'people_officer' || staffRole() == 'talent_development_manager');
+    }
     function isOrderOwnerOrGuest() {
       return resource.data.userId == null ||
         (isSignedIn() && resource.data.userId == request.auth.uid);
@@ -60,11 +66,23 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if request.auth != null && request.auth.uid == userId;
       allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if isStaff() ||
+      // ⚠️ MT Studio security audit (2026-08) fix: আগে এখানে "isStaff() ||"
+      // ছিল — অর্থাৎ যেকোনো staff role (driver, marketing, support, যে-কেউ)
+      // যেকোনো কাস্টমারের walletBalance (আসল টাকা) এবং name/phone/address-এর
+      // মতো PII কোনো field-restriction ছাড়াই বদলাতে পারতো। এখন:
+      //  - wallet বাড়ানো/কমানো (bonus/refund/adjustment) শুধু admin/finance।
+      //  - CRM/support staff শুধু কনট্যাক্ট/ঠিকানা ফিল্ড এডিট করতে পারবে,
+      //    walletBalance স্পর্শ করতে পারবে না।
+      //  - কাস্টমার নিজে আগের মতোই শুধু wallet কমাতে পারবে (checkout স্বনির্ভর
+      //    transaction-এর জন্য দরকার)।
+      allow update: if (isAdmin() || isFinance()) ||
+        (
+          isCrmSupportStaff() &&
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['name','phone','address','village','branchZone','district','updatedAt']) &&
+          request.resource.data.walletBalance == resource.data.walletBalance
+        ) ||
         (request.auth != null && request.auth.uid == userId &&
-          // কাস্টমার নিজে শুধু wallet 'খরচ' করতে পারবে (কমাতে পারবে, বাড়াতে না) —
-          // checkout-এর নিজস্ব transaction-এর জন্য দরকার। বাড়ানো (bonus/refund/topup)
-          // সবসময় isStaff() অথবা Cloud Function (Admin SDK, rules bypass করে) থেকে আসবে।
           request.resource.data.walletBalance <= resource.data.walletBalance &&
           request.resource.data.walletBalance >= 0 &&
           request.resource.data.referralBonusGiven == resource.data.referralBonusGiven &&
@@ -76,34 +94,22 @@ service cloud.firestore {
 
     // ─── Staff ───
     match /staff/{staffId} {
-      // ⚠️ MT Studio audit fix: আগে এখানে শুধু self-read (request.auth.uid ==
-      // staffId) ছিল। কিন্তু payroll.js, attendance.js, employee-management.js,
-      // branch.js, hr-erp.js — এই সবগুলো পুরো staff collection list-query করে
-      // (getDocs(collection(db,'staff'))). Firestore self-read rule দিয়ে কোনো
-      // list query পাস করানো সম্ভব না (rule প্রতিটা সম্ভাব্য ডকুমেন্টের জন্য
-      // সত্যি হতে হয়) — ফলে admin সহ সবার জন্যই staff roster খালি/error দেখাতো।
-      // এখন admin/finance (payroll) এবং write rule-এ যাদের branch/HR field
-      // এডিটের অনুমতি আগে থেকেই আছে (branch_manager, zone_manager, hr,
-      // people_officer, talent_development_manager) — তারাও roster read করতে
-      // পারবে; বাকিরা শুধু নিজের ডকুমেন্ট পড়তে পারবে।
       allow read: if request.auth != null &&
         (
           request.auth.uid == staffId ||
           isAdmin() || isFinance() ||
           (isStaff() && staffRole() in ['branch_manager','zone_manager','hr','people_officer','talent_development_manager'])
         );
-      // ⚠️ আগে এখানে সবসময় 'if false' ছিল — কোনো role/isAdmin() branch ছাড়াই।
-      // এতে staff collection-এ কোনো write (কর্মী নিয়োগ, edit, activate/suspend,
-      // branch assignment, HR onboarding/promotion) কখনো সফল হতো না — এমনকি
-      // admin নিজেও পারতেন না। এখন isAdmin() সব field লিখতে পারবে; নির্দিষ্ট
-      // trusted non-admin role (branch_manager/zone_manager — branch.js staff
-      // assignment; hr/people_officer/talent_development_manager — hr-erp.js
-      // onboarding/promotion) শুধুমাত্র তাদের প্রয়োজনীয় operational field
-      // লিখতে পারবে — 'role' field স্পষ্টভাবে বাদ, যাতে কেউ নিজেকে বা অন্য কাউকে
-      // admin/finance-এর মতো privileged role-এ self-escalate করতে না পারে।
+      // ⚠️ MT Studio security audit (2026-08) fix: নন-admin HR/branch role
+      // (branch_manager/zone_manager/hr/people_officer/talent_development_manager)
+      // আগে নিজের নিজের staffId টার্গেট করেও baseSalary বদলাতে পারতো (কোনো
+      // self-target-নিষেধ ছিল না) — অর্থাৎ একজন zone_manager নিজেই নিজের বেতন
+      // বাড়িয়ে দিতে পারতো, যেটা সরাসরি payroll.js-এ ব্যবহার হয়। এখন এই non-admin
+      // role-দের জন্য নিজের ডকুমেন্ট টার্গেট করা (self-edit) নিষিদ্ধ।
       allow write: if isAdmin() ||
         (
           isStaff() &&
+          request.auth.uid != staffId &&
           staffRole() in ['branch_manager','zone_manager','hr','people_officer','talent_development_manager'] &&
           request.resource.data.role == resource.data.role &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -116,7 +122,9 @@ service cloud.firestore {
 
     // ─── FCM Push Tokens ───
     match /fcmTokens/{userId} {
-      allow read: if isStaff() || (request.auth != null && request.auth.uid == userId);
+      // ⚠️ MT Studio security audit (2026-08) fix: আগে isStaff() (যেকোনো staff
+      // role) সব কাস্টমার/staff-এর push token পড়তে পারতো — শুধু admin দরকার।
+      allow read: if isAdmin() || (request.auth != null && request.auth.uid == userId);
       allow write: if request.auth != null && request.auth.uid == userId;
       allow delete: if false;
     }
@@ -132,22 +140,11 @@ service cloud.firestore {
                         .hasOnly(['stock','status','updatedAt'])
                     )
                     || (
-                      // Procurement Office receivePo() — goods receiving বাড়ায় stock, status
-                      // 'active' করে। আগে এই role-এর জন্য কোনো branch ছিল না, তাই non-admin
-                      // procurement staff-এর জন্য পুরো receiving flow permission-denied দিতো।
                       isProcurementStaff() &&
                       request.resource.data.diff(resource.data).affectedKeys()
                         .hasOnly(['stock','status','updatedAt'])
                     )
                     || (
-                      // ⚠️ MT Studio audit fix: এই branch-এ আগে isSignedIn() ছিল
-                      // না — সম্পূর্ণ অ্যানোনিমাস (কোনো auth ছাড়াই) রিকোয়েস্ট দিয়ে
-                      // বারবার স্টক কমিয়ে/sold বাড়িয়ে (ব্যাচে সর্বোচ্চ ৫০) কোনো
-                      // প্রকৃত অর্ডার ছাড়াই ইনভেন্টরি নষ্ট করা যেত। এখন সাইন-ইন
-                      // বাধ্যতামূলক — order creation নিজেই এখন createOrderSecure
-                      // Cloud Function দিয়ে হয় (Admin SDK, এই rule bypass করে),
-                      // তাই এই branch শুধু legacy/ফলব্যাক client transaction path
-                      // (যদি কখনো ব্যবহৃত হয়) সুরক্ষিত রাখার জন্য।
                       isSignedIn()
                       && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock','sold'])
                       && resource.data.stock is number
@@ -165,27 +162,20 @@ service cloud.firestore {
     }
 
     match /orders/{orderId} {
-      allow read: if isAdmin() || isZoneManager() || isDriver() || isFinance() || isSupport()
+      // ⚠️ MT Studio security audit (2026-08) fix: আগে isDriver()-এর কোনো
+      // scoping ছিল না — যেকোনো ড্রাইভার DevTools থেকে সরাসরি Firestore SDK
+      // কল করে পুরো orders collection (সব কাস্টমারের নাম/ফোন/ঠিকানা, সব
+      // ড্রাইভারের earning) পড়ে ফেলতে পারতো। এখন নিজের assign করা অর্ডারেই
+      // সীমাবদ্ধ — অ্যাপ UI আগে থেকেই এভাবে query করতো, শুধু rule-টা এখন সেটা
+      // সার্ভার-সাইডেও নিশ্চিত করছে।
+      allow read: if isAdmin() || isZoneManager() || isFinance() || isSupport()
+                  || (isDriver() && resource.data.driverId == request.auth.uid)
                   || (isSignedIn() && resource.data.userId == request.auth.uid);
 
-      // ⚠️ MT Studio audit fix: আগে এখানে client যেকোনো total/subtotal/
-      // items[].unitPrice/paymentStatus লিখে order তৈরি করতে পারতো — শুধু
-      // status/driverId/userId চেক হতো, দাম না। এখন সব order createOrderSecure
-      // Cloud Function দিয়ে তৈরি হয় (Admin SDK দিয়ে, price/discount/wallet/
-      // shipping সব server-side live Firestore ডেটা থেকে recalculate করে) —
-      // client-side direct create সম্পূর্ণ বন্ধ।
       allow create: if false;
 
       allow update: if isAdmin() || isZoneManager()
                     || (
-                      // ড্রাইভার শুধু নিজের assign করা অর্ডারের status/লোকেশন
-                      // ফিল্ড বদলাতে পারবে — total/driverEarning/paymentStatus/
-                      // customerNid-এর মতো sensitive ফিল্ড কখনো না। আগে isDriver()
-                      // এখানে unrestricted ছিল, তাই যেকোনো ড্রাইভার যেকোনো
-                      // অর্ডারের যেকোনো ফিল্ড (এমনকি driverEarning, total) বদলে
-                      // নিজের আয় বাড়িয়ে দেখাতে পারতো — এটা payout trust bug
-                      // (DriverContext.tsx-এর client-side walletBalance)-এর root
-                      // cause ছিল।
                       isDriver() &&
                       resource.data.driverId == request.auth.uid &&
                       request.resource.data.diff(resource.data).affectedKeys().hasOnly([
@@ -202,7 +192,6 @@ service cloud.firestore {
                     || (
                       isOrderOwnerOrGuest() &&
                       (
-                        // Customer/guest online payment submission from payment.js.
                         (
                           request.resource.data.diff(resource.data).affectedKeys()
                             .hasOnly(['paymentMethod','paymentStatus','paymentTrxId','paymentVerifiedAt'])
@@ -214,7 +203,6 @@ service cloud.firestore {
                           && request.resource.data.paymentVerifiedAt == null
                         )
                         ||
-                        // Payment modal "switch to COD".
                         (
                           request.resource.data.diff(resource.data).affectedKeys()
                             .hasOnly(['paymentMethod','paymentStatus'])
@@ -224,10 +212,6 @@ service cloud.firestore {
                           && request.resource.data.paymentStatus == 'cod'
                         )
                         ||
-                        // Pre-pickup customer/guest cancel. Refund/stock restore
-                        // stays in Cloud Function for signed-in users; this branch
-                        // only allows a narrow status change when no refund fields
-                        // are being edited by the client.
                         (
                           resource.data.status in ['pending','confirmed','packed','assigned']
                           && request.resource.data.diff(resource.data).affectedKeys()
@@ -237,7 +221,6 @@ service cloud.firestore {
                           && request.resource.data.cancelledAt != null
                         )
                         ||
-                        // Customer edits address/instructions before pickup.
                         (
                           resource.data.status in ['pending','confirmed','packed','assigned']
                           && request.resource.data.diff(resource.data).affectedKeys()
@@ -247,7 +230,6 @@ service cloud.firestore {
                           && request.resource.data.address.size() <= 500
                         )
                         ||
-                        // Delivered-order refund request from My Orders.
                         (
                           resource.data.status == 'delivered'
                           && resource.data.refundRequested != true
@@ -265,22 +247,20 @@ service cloud.firestore {
       allow delete: if isAdmin();
 
       match /messages/{messageId} {
-        allow read: if isAdmin() || isZoneManager() || isDriver()
+        // ⚠️ MT Studio security audit (2026-08) fix: আগে isDriver()-এর কোনো
+        // scoping ছিল না — যেকোনো ড্রাইভার অন্য অর্ডারের চ্যাট থ্রেড পড়তে/জাল
+        // মেসেজ পাঠাতে পারতো। এখন শুধু নিজের assign করা অর্ডারের চ্যাটেই।
+        allow read: if isAdmin() || isZoneManager()
+                    || (isDriver() && get(/databases/$(database)/documents/orders/$(orderId)).data.driverId == request.auth.uid)
                     || (isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid);
-        allow create: if isAdmin() || isZoneManager() || isDriver()
-                      || (isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid);
+        allow create: if isAdmin() || isZoneManager()
+                      || (isDriver() && get(/databases/$(database)/documents/orders/$(orderId)).data.driverId == request.auth.uid
+                          && request.resource.data.senderId == request.auth.uid)
+                      || (isSignedIn() && get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid
+                          && request.resource.data.senderId == request.auth.uid);
         allow update, delete: if isAdmin();
       }
 
-      // ─── কাস্টমারের NID (sensitive PII) — MT Studio audit fix ───
-      // আগে customerNid সরাসরি orders ডকুমেন্টে থাকতো, আর উপরের orders read
-      // rule isDriver()-কে পুরো ডকুমেন্ট পড়ার অনুমতি দেয় — তাই ডেলিভারির জন্য
-      // অপ্রয়োজনীয় হওয়া সত্ত্বেও প্রতিটি ড্রাইভার প্রতিটি অর্ডারের NID দেখতে
-      // পারতো। Firestore rules এক ডকুমেন্টের ভেতরে field-level read filter
-      // করতে পারে না, তাই NID এখন এই আলাদা subcollection-এ — শুধু
-      // admin/finance পড়তে পারবে, driver/zone_manager/support কেউ না। লেখা
-      // শুধু createOrderSecure Cloud Function (Admin SDK, rules bypass করে)
-      // থেকেই হয় — client-side write-এর দরকারই নেই।
       match /private/{docId} {
         allow read: if isAdmin() || isFinance();
         allow write: if false;
@@ -289,7 +269,10 @@ service cloud.firestore {
 
     // ─── Drivers ───
     match /drivers/{driverId} {
-      allow read: if isStaff();
+      // ⚠️ MT Studio security audit (2026-08) fix: আগে isStaff() (যেকোনো staff
+      // role) সব ড্রাইভারের live lat/lng ট্র্যাক করতে পারতো। এখন admin/zone
+      // manager অথবা নিজের প্রোফাইলেই সীমাবদ্ধ।
+      allow read: if isAdmin() || isZoneManager() || isOwnDriverProfile(driverId);
       allow create, delete: if isAdmin();
       allow update: if isAdmin() ||
         (
@@ -302,33 +285,22 @@ service cloud.firestore {
           ])
         );
 
-      // NEW — আগে কোনো rule ছিল না, তাই driver app-এর Discover/Opportunities
-      // tab-এর opt-in লেখা সবসময় permission-denied দিত।
       match /opportunityOptIns/{optInId} {
-        allow read: if isStaff();
+        allow read: if isAdmin() || isMarketingStaff() || isOwnDriverProfile(driverId);
         allow create: if isStaff() && request.auth.uid != null
                       && request.resource.data.driverUid == request.auth.uid;
         allow update, delete: if isAdmin();
       }
     }
 
-    // ─── Driver Opportunities (bonus/incentive programs) — NEW ───
-    // আগে কোনো rule ছিল না, তাই driver app-এর "Active Opportunities" list
-    // (read) এবং Marketing ERP-এর publish (write) দুটোই ব্যর্থ হতো।
     match /driverOpportunities/{oppId} {
       allow read: if isStaff();
       allow write: if isAdmin() || isMarketingStaff();
     }
 
     // ─── Driver Payout Requests (cash-out) ───
-    // ⚠️ MT Studio audit fix: আগে এখানে driver নিজে amount client-side
-    // (walletBalance = earned - paidOrPending, দুটোই client হিসাব করত) লিখে
-    // সরাসরি create করতে পারতো — কোনো server-side verification ছাড়া। এখন
-    // create শুধু requestPayoutSecure Cloud Function দিয়ে হয়, যেটা driver-এর
-    // আসল delivered orders + আগের payout Firestore থেকে নিজে যোগ করে amount
-    // যাচাই করে।
     match /payoutRequests/{reqId} {
-      allow read: if isStaff() || (isDriver() && resource.data.driverId == request.auth.uid);
+      allow read: if isAdmin() || isFinance() || (isDriver() && resource.data.driverId == request.auth.uid);
       allow create: if false;
       allow update: if isAdmin() || isFinance();
       allow delete: if isAdmin();
@@ -336,12 +308,15 @@ service cloud.firestore {
 
     // ─── Coupons ───
     match /coupons/{couponId} {
-      allow read: if true;
+      // ⚠️ MT Studio security audit (2026-08) fix: আগে read:true পুরো coupon
+      // ডকুমেন্ট (unpublished/inactive সহ) সবাইকে দেখাতো — marketing strategy
+      // leak। এখন শুধু সক্রিয় কুপন public read করতে পারবে; পুরো তালিকা
+      // (inactive সহ) শুধু admin/marketing দেখবে। createOrderSecure Cloud
+      // Function-এ (Admin SDK) এই rule প্রযোজ্য না, তাই checkout অপ্রভাবিত।
+      allow read: if resource.data.active == true || isAdmin() || isMarketingStaff();
       allow create, delete: if isAdmin();
       allow update: if isAdmin() ||
         (
-          // Guest checkout still needs coupon redemption, but clients may only
-          // increment usedCount once while the coupon is active and under limit.
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedCount']) &&
           resource.data.active == true &&
           request.resource.data.code == resource.data.code &&
@@ -365,11 +340,24 @@ service cloud.firestore {
     // ─── Reviews ───
     match /reviews/{reviewId} {
       allow read: if true;
-      allow create: if request.resource.data.verified == false ||
+      allow create: if
         (request.auth != null &&
          request.resource.data.orderId is string &&
          get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.userId == request.auth.uid &&
-         get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.status == 'delivered');
+         get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.status == 'delivered')
+        &&
+        // ⚠️ MT Studio security audit (2026-08) fix: আগে verified==false হলে
+        // সম্পূর্ণ অ্যানোনিমাস (কোনো auth ছাড়াই) যেকোনো কনটেন্ট নিয়ে review
+        // create করা যেত — photoUrl-এ HTML/JS payload বসিয়ে site-wide stored
+        // XSS সম্ভব ছিল (services.js photoUrl escape করে না)। এখন signed-in +
+        // সত্যিকারের delivered অর্ডারের মালিক হওয়া বাধ্যতামূলক, আর photoUrl
+        // থাকলে অবশ্যই আমাদের নিজস্ব Firebase Storage থেকেই আসতে হবে।
+        (
+          !('photoUrl' in request.resource.data) ||
+          request.resource.data.photoUrl == null ||
+          (request.resource.data.photoUrl is string &&
+           request.resource.data.photoUrl.matches('^https://firebasestorage\\.googleapis\\.com/.*'))
+        );
       allow update: if false;
       allow delete: if isAdmin();
     }
@@ -403,24 +391,30 @@ service cloud.firestore {
 
     // ─── Inventory Manager: স্টক পরবর্তনের অডিট লগ ───
     match /stock_logs/{logId} {
-      allow read: if isStaff();
+      allow read: if isAdmin() || isFinance() || isInventoryManager() || isProcurementStaff();
       allow create: if isAdmin() || isZoneManager() || isInventoryManager();
       allow update, delete: if false;
     }
 
     // ─── রস্টক রিকোয়েস্ট ───
     match /restock_requests/{reqId} {
-      allow read: if isStaff();
+      allow read: if isAdmin() || isInventoryManager() || isProcurementStaff();
       allow create: if isInventoryManager();
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
     // ─── রিফান্ড রিকোয়েস্ট ───
+    // ⚠️ MT Studio security audit (2026-08) fix: আগে isCrmSupportStaff() যে
+    // request create করত, সেই একই role update (approve)-ও করতে পারতো —
+    // অর্থাৎ একজন support agent নিজেই ভুয়া refund তৈরি করে নিজেই approve করে
+    // দিতে পারতো (segregation-of-duties ভাঙা)। এখন approve/reject শুধু
+    // admin/finance — request তৈরি support/CRM করবে কিন্তু নিজে চূড়ান্ত করতে
+    // পারবে না।
     match /refund_requests/{reqId} {
       allow read: if isStaff();
       allow create: if isCrmSupportStaff() || isAdmin();
-      allow update: if isFinance() || isAdmin() || isCrmSupportStaff();
+      allow update: if isFinance() || isAdmin();
       allow delete: if isAdmin();
     }
 
@@ -463,66 +457,80 @@ service cloud.firestore {
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // নিচের সব collection এই সেশনে প্রতিটা staff-workspace ফাইল (hr-erp.js,
-    // bi-erp.js, asset-erp.js, workflow-erp.js, crm.js, finance-erp.js,
-    // crm-erp.js, facilities-erp.js, procurement-erp.js, warehouse-erp.js,
-    // documents.js, features.js) সরাসরি পড়ে, প্রতিটা FB.collection()/
-    // FB.doc() কল বের করে যোগ করা হয়েছে — অনুমান না।
-    //
-    // ⚠️ গুরুত্বপূর্ণ সততার নোট: এই ~৫৭টা collection-এর একটারও rule আগে এই
-    // ফাইলে ছিল না (যেটা আমাকে দেওয়া হয়েছিল)। এত বড় সংখ্যা দেখে সবচেয়ে
-    // সম্ভাব্য ব্যাখ্যা হলো — আমাকে দেওয়া rules ফাইলটা আসল deployed rules-এর
-    // পুরনো/আংশিক কপি, কারণ একটা "production audited v2.4" সিস্টেমে পুরো ২৭টা
-    // workspace-এর ব্যাকএন্ড শুরু থেকেই সম্পূর্ণ অরক্ষিত থাকা অস্বাভাবিক। যদি
-    // Firebase Console-এ এখনই গিয়ে বর্তমান rules দেখো এবং সেখানে এই
-    // collection-গুলোর rule আগে থেকেই থাকে — তাহলে এই ব্লকটা স্রেফ বাদ দিয়ে
-    // দাও, deploy করার দরকার নেই। যদি সত্যিই না থাকে, নিচের rule নিরাপদ ও
-    // কার্যকর একটা starting point (isStaff() broad access — role-ভিত্তিক আরও
-    // সূক্ষ্ম বিভাজন করতে চাইলে সেটা পরের ধাপ, এখানে অনুমান করে নতুন role
-    // বানাইনি)।
+    // MT Studio security audit (2026-08): নিচের ~৪০টা ERP/HR/Finance-adjacent
+    // collection-এ আগে শুধু bare isStaff() (যেকোনো staff role — driver,
+    // marketing, support সহ) ছিল, কোনো role-scoping ছাড়াই। এতে যেকোনো
+    // staff-এর employee salary slip/warning letter পড়া, নিজেকে loyalty
+    // points দেওয়া, নিজের company asset assign+dispose+approve করা, নিজের
+    // attendance জাল করে payroll বাড়ানো সম্ভব ছিল। এখন প্রতিটা collection তার
+    // প্রকৃত দায়িত্বপ্রাপ্ত role-এ scope করা হয়েছে।
     // ═══════════════════════════════════════════════════════════════
 
     // ─── HR ERP ───
-    match /job_requisitions/{id} { allow read, write: if isStaff(); }
-    match /job_candidates/{id} { allow read, write: if isStaff(); }
-    match /employee_onboarding/{id} { allow read, write: if isStaff(); }
-    match /performance_reviews/{id} { allow read, write: if isStaff(); }
-    match /training_programs/{id} { allow read, write: if isStaff(); }
-    match /employee_promotions/{id} { allow read, write: if isStaff(); }
-    match /employee_documents/{id} { allow read, write: if isStaff(); }
+    match /job_requisitions/{id} { allow read, write: if isAdmin() || isHR(); }
+    match /job_candidates/{id} { allow read, write: if isAdmin() || isHR(); }
+    match /employee_onboarding/{id} { allow read, write: if isAdmin() || isHR(); }
+    match /performance_reviews/{id} { allow read, write: if isAdmin() || isHR(); }
+    match /training_programs/{id} { allow read: if isStaff(); allow write: if isAdmin() || isHR(); }
+    match /employee_promotions/{id} { allow read, write: if isAdmin() || isHR(); }
+    match /employee_documents/{id} { allow read, write: if isAdmin() || isHR(); }
 
     // ─── Attendance & Payroll ───
-    match /attendance_records/{id} { allow read, write: if isStaff(); }
-    match /leave_requests/{id} { allow read, write: if isStaff(); }
+    // ⚠️ audit fix: attendance এখন self-scoped — নিজের চেক-ইন/আউট নিজেই,
+    // অন্যের রেকর্ড শুধু admin/HR এডিট করতে পারবে (আগে payroll.js এই ডেটা
+    // থেকেই overtime/deduction হিসাব করত, তাই forge করা মানে সরাসরি টাকা)।
+    match /attendance_records/{id} {
+      allow read: if isAdmin() || isFinance() || isHR() || (isStaff() && resource.data.uid == request.auth.uid);
+      allow create: if isAdmin() || isHR() || (isStaff() && request.resource.data.uid == request.auth.uid);
+      allow update: if isAdmin() || isHR() || (isStaff() && resource.data.uid == request.auth.uid && request.resource.data.uid == resource.data.uid);
+      allow delete: if isAdmin();
+    }
+    match /leave_requests/{id} {
+      allow read: if isAdmin() || isHR() || (isStaff() && resource.data.uid == request.auth.uid);
+      allow create: if isStaff() && request.resource.data.uid == request.auth.uid;
+      allow update: if isAdmin() || isHR();
+      allow delete: if isAdmin();
+    }
     match /company_holidays/{id} { allow read: if isStaff(); allow write: if isAdmin(); }
     match /payroll_records/{id} { allow read, write: if isAdmin() || isFinance(); }
     match /salary_adjustments/{id} { allow read, write: if isAdmin() || isFinance(); }
 
     // ─── Business Intelligence ───
-    match /customer_profiles/{id} { allow read, write: if isStaff(); }
+    match /customer_profiles/{id} { allow read: if isStaff(); allow write: if isAdmin() || isCrmSupportStaff() || isMarketingStaff(); }
     match /business_kpis/{id} { allow read: if isStaff(); allow write: if isAdmin() || isFinance(); }
     match /expense_requests/{id} { allow read, write: if isAdmin() || isFinance(); }
 
     // ─── Asset Management ───
-    match /company_assets/{id} { allow read, write: if isStaff(); }
+    match /company_assets/{id} { allow read: if isStaff(); allow write: if isAdmin() || isProcurementStaff(); }
     match /asset_assignments/{id} { allow read, write: if isStaff(); }
     match /asset_maintenance/{id} { allow read, write: if isStaff(); }
-    match /asset_audits/{id} { allow read, write: if isStaff(); }
-    match /asset_disposals/{id} { allow read, write: if isStaff(); }
+    match /asset_audits/{id} { allow read, write: if isAdmin() || isProcurementStaff(); }
+    // ⚠️ audit fix: disposal তৈরি যে কেউ করতে পারবে (রিকোয়েস্ট), কিন্তু status
+    // বদলানো (approve/complete) শুধু admin — আগে requester নিজেই নিজের
+    // disposal approve করে ফেলতে পারতো (self-authorization)।
+    match /asset_disposals/{id} {
+      allow read: if isStaff();
+      allow create: if isStaff();
+      allow update: if isAdmin() || (isStaff() && request.resource.data.status == resource.data.status);
+      allow delete: if isAdmin();
+    }
 
     // ─── Workflow Automation ───
     match /workflow_definitions/{id} { allow read, write: if isStaff(); }
     match /workflow_instances/{id} { allow read, write: if isStaff(); }
-    match /workflow_approvals/{id} { allow read, write: if isStaff(); }
+    // ⚠️ audit fix: approval নিজে-নিজে দেওয়া ঠেকাতে admin-only write।
+    match /workflow_approvals/{id} { allow read: if isStaff(); allow write: if isAdmin(); }
     match /workflow_tasks/{id} { allow read, write: if isStaff(); }
-    match /workflow_logs/{id} { allow read, write: if isStaff(); }
+    match /workflow_logs/{id} { allow read: if isStaff(); allow create: if isStaff(); allow update, delete: if false; }
 
     // ─── CRM (Office ও ERP উভয়ে ব্যবহৃত) ───
-    match /customer_loyalty/{id} { allow read, write: if isStaff(); }
-    match /customer_wallets/{id} { allow read, write: if isStaff(); }
-    match /crm_campaigns/{id} { allow read, write: if isStaff(); }
-    match /crm_activities/{id} { allow read, write: if isStaff(); }
-    match /customer_interactions/{id} { allow read, write: if isStaff(); }
+    // ⚠️ audit fix: customer_loyalty (redeemable points) আগে যেকোনো staff
+    // লিখতে পারতো — নিজেকে/বন্ধুকে unlimited point দেওয়া সম্ভব ছিল।
+    match /customer_loyalty/{id} { allow read: if isStaff(); allow write: if isAdmin() || isCrmSupportStaff() || isMarketingStaff(); }
+    match /customer_wallets/{id} { allow read, write: if isAdmin() || isFinance(); }
+    match /crm_campaigns/{id} { allow read: if isStaff(); allow write: if isAdmin() || isCrmSupportStaff() || isMarketingStaff(); }
+    match /crm_activities/{id} { allow read: if isStaff(); allow write: if isAdmin() || isCrmSupportStaff() || isMarketingStaff(); }
+    match /customer_interactions/{id} { allow read: if isStaff(); allow write: if isAdmin() || isCrmSupportStaff() || isMarketingStaff(); }
     match /support_knowledge_base/{id} { allow read: if isStaff(); allow write: if isAdmin() || isCrmSupportStaff(); }
 
     // ─── Finance ERP ───
@@ -541,31 +549,30 @@ service cloud.firestore {
     match /facility_checklists/{id} { allow read, write: if isStaff(); }
 
     // ─── Procurement & Vendor ERP ───
-    match /vendors/{id} { allow read, write: if isStaff(); }
-    match /suppliers/{id} { allow read, write: if isStaff(); }
-    match /purchase_requests/{id} { allow read, write: if isStaff(); }
-    match /vendor_quotations/{id} { allow read, write: if isStaff(); }
-    match /purchase_orders/{id} { allow read, write: if isStaff(); }
-    match /goods_receipts/{id} { allow read, write: if isStaff(); }
+    // ⚠️ audit fix: purchase_orders/goods_receipts/vendor_contracts আগে বেয়ার
+    // isStaff()-এ ছিল — যেকোনো staff জাল গুডস-রিসিভ/ভেন্ডর-দায়বদ্ধতা রেকর্ড
+    // বানাতে পারতো, vendor_invoices-এর মতোই role-scope করা হলো।
+    match /vendors/{id} { allow read: if isStaff(); allow write: if isAdmin() || isProcurementStaff(); }
+    match /suppliers/{id} { allow read: if isStaff(); allow write: if isAdmin() || isProcurementStaff(); }
+    match /purchase_requests/{id} { allow read: if isStaff(); allow write: if isAdmin() || isProcurementStaff(); }
+    match /vendor_quotations/{id} { allow read: if isStaff(); allow write: if isAdmin() || isProcurementStaff(); }
+    match /purchase_orders/{id} { allow read, write: if isAdmin() || isFinance() || isProcurementStaff(); }
+    match /goods_receipts/{id} { allow read, write: if isAdmin() || isFinance() || isProcurementStaff(); }
     match /vendor_invoices/{id} { allow read, write: if isAdmin() || isFinance() || isProcurementStaff(); }
 
     // ─── Warehouse ERP ───
-    match /warehouse_locations/{id} { allow read, write: if isStaff(); }
-    match /warehouse_bin_inventory/{id} { allow read, write: if isStaff(); }
-    match /warehouse_transfers/{id} { allow read, write: if isStaff(); }
-    match /warehouse_cycle_counts/{id} { allow read, write: if isStaff(); }
-    match /warehouse_damage_records/{id} { allow read, write: if isStaff(); }
+    match /warehouse_locations/{id} { allow read: if isStaff(); allow write: if isAdmin() || isInventoryManager() || isProcurementStaff(); }
+    match /warehouse_bin_inventory/{id} { allow read: if isStaff(); allow write: if isAdmin() || isInventoryManager() || isProcurementStaff(); }
+    match /warehouse_transfers/{id} { allow read: if isStaff(); allow write: if isAdmin() || isInventoryManager() || isProcurementStaff(); }
+    match /warehouse_cycle_counts/{id} { allow read: if isStaff(); allow write: if isAdmin() || isInventoryManager() || isProcurementStaff(); }
+    match /warehouse_damage_records/{id} { allow read: if isStaff(); allow write: if isAdmin() || isInventoryManager() || isProcurementStaff(); }
 
     // ─── Company OS ───
     match /company_notices/{id} { allow read: if isStaff(); allow write: if isAdmin(); }
     match /company_notifications/{id} { allow read: if isStaff(); allow write: if isAdmin(); }
     match /company_os_activity/{id} { allow read, create: if isStaff(); allow update, delete: if false; }
 
-    // ─── Company Settings (Access Control / Permission Matrix) — NEW ───
-    // 'setting' (একবচন, উপরে) থেকে সম্পূর্ণ আলাদা collection — router.js
-    // (StaffAccess.load) এখান থেকে permission matrix পড়ে সব staff workspace-এর
-    // অ্যাক্সেস গেট করে, company-settings.js এখানে লেখে। rule ছিল না, তাই
-    // Permission Matrix সেভ করলে সবসময় ব্যর্থ হতো ("Permission সংরক্ষণ হয়নি" error)।
+    // ─── Company Settings (Access Control / Permission Matrix) ───
     match /company_settings/{docId} {
       allow read: if isStaff();
       allow write: if isAdmin();
@@ -575,11 +582,11 @@ service cloud.firestore {
     match /settings_audit_logs/{id} { allow read: if isAdmin(); allow create: if isStaff(); allow update, delete: if false; }
 
     // ─── Branch Office (audits/transfers) ───
-    match /branch_audits/{id} { allow read, write: if isStaff(); }
-    match /branch_transfers/{id} { allow read, write: if isStaff(); }
+    match /branch_audits/{id} { allow read: if isStaff(); allow write: if isAdmin() || isZoneManager() || (isStaff() && staffRole() == 'branch_manager'); }
+    match /branch_transfers/{id} { allow read: if isStaff(); allow write: if isAdmin() || isZoneManager() || (isStaff() && staffRole() == 'branch_manager'); }
 
     // ─── BI snapshots ───
-    match /business_intelligence_snapshots/{id} { allow read, write: if isStaff(); }
+    match /business_intelligence_snapshots/{id} { allow read: if isStaff(); allow write: if isAdmin() || isFinance(); }
 
     // ─── Marketing ERP (campaigns/coupons/loyalty/automation) ───
     match /marketing_campaigns/{id} { allow read, write: if isAdmin() || isMarketingStaff(); }
@@ -593,18 +600,17 @@ service cloud.firestore {
     match /payroll_runs/{id} { allow read, write: if isAdmin() || isFinance(); }
 
     // ─── Procurement (quotations/vendor contracts & documents) ───
-    match /quotation_requests/{id} { allow read, write: if isStaff(); }
-    match /quotation_responses/{id} { allow read, write: if isStaff(); }
-    match /vendor_contracts/{id} { allow read, write: if isStaff(); }
-    match /vendor_documents/{id} { allow read, write: if isStaff(); }
+    match /quotation_requests/{id} { allow read: if isStaff(); allow write: if isAdmin() || isProcurementStaff(); }
+    match /quotation_responses/{id} { allow read: if isStaff(); allow write: if isAdmin() || isProcurementStaff(); }
+    match /vendor_contracts/{id} { allow read, write: if isAdmin() || isFinance() || isProcurementStaff(); }
+    match /vendor_documents/{id} { allow read, write: if isAdmin() || isFinance() || isProcurementStaff(); }
 
     // ─── AI Control Center (forecast/recommendation automations) ───
-    match /ai_automations/{id} { allow read, write: if isStaff(); }
-    match /ai_reports/{id} { allow read, write: if isStaff(); }
-    match /ai_decision_logs/{id} { allow read, write: if isStaff(); }
+    match /ai_automations/{id} { allow read: if isStaff(); allow write: if isAdmin(); }
+    match /ai_reports/{id} { allow read: if isStaff(); allow write: if isAdmin(); }
+    match /ai_decision_logs/{id} { allow read: if isStaff(); allow write: if isAdmin(); }
 
-    // ─── Customer saved addresses (features.js — users/{uid}.addresses থেকে
-    //      আলাদা, standalone collection; owner-only) ───
+    // ─── Customer saved addresses ───
     match /addresses/{id} {
       allow read, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;

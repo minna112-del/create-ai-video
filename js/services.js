@@ -197,7 +197,9 @@ const ReviewService = {
           <span style="color:var(--gold);font-size:13px">${stars}</span>
         </div>
         <p style="font-size:12.5px;color:var(--ink-soft);line-height:1.6">${esc(r.text)}</p>
-        ${r.photoUrl?`<img src="${r.photoUrl}" style="width:90px;height:90px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid var(--line);cursor:pointer" onclick="window.open('${r.photoUrl}','_blank')">`:''}
+        <!-- MT Studio audit fix: photoUrl আগে esc() ছাড়াই raw HTML attribute-এ বসতো (stored XSS
+             ভেক্টর, rules-level fix-এর পরও defense-in-depth) — এখন domain whitelist + esc() দুটোই -->
+        ${(typeof r.photoUrl==='string' && /^https:\/\/firebasestorage\.googleapis\.com\//.test(r.photoUrl))?`<img src="${esc(r.photoUrl)}" style="width:90px;height:90px;object-fit:cover;border-radius:10px;margin-top:8px;border:1px solid var(--line);cursor:pointer" onclick="window.open('${esc(r.photoUrl)}','_blank')">`:''}
         <span style="font-size:10.5px;color:var(--ink-dim);display:block;margin-top:6px">${date}</span>
       </div>`;
     }).join('');

@@ -88,15 +88,20 @@ const CustomBazar = {
     if(!FB){ msgEl.textContent='সংযোগ সমস্যা'; msgEl.className='form-msg err'; return; }
     const btn=document.getElementById('cbSubmitBtn'); const orig=btn.textContent; btn.textContent='জমা হচ্ছে...'; btn.disabled=true;
     const typeLabels={weekly:'সাপ্তাহিক',monthly:'মাসিক',wedding:'বিয়ের',ramadan:'রমজানের',qurbani:'কুরবানির',other:'অন্যান্য'};
-    const orderNo = 'CB-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*900000)+100000);
     try{
-      await FB.addDoc(FB.collection(FB.db,'orders'),{
-        orderNumber:orderNo, orderType:'custom-bazar', bazarType:type, bazarTypeLabel:typeLabels[type]||type,
-        customerName:name, customerPhone:phone, address, village, instructions, branchZone:district, district:AREA_LABELS[district]||'',
-        zone, bazarList:list, notes, bkashTrxId:trxId, advanceAmount:100, paymentMethod:'bkash+cod',
-        billPhotoUrl:null, billAmount:null,
-        status:'pending', userId:Auth.currentUser?.uid||null, createdAt:FB.serverTimestamp()
+      // MT Studio audit fix: আগে এখান থেকে সরাসরি orders কালেকশনে addDoc() করার
+      // চেষ্টা হতো, কিন্তু firestore.rules-এ orders create সম্পূর্ণ বন্ধ (createOrderSecure
+      // চালু হওয়ার পর থেকে) — ফলে এই ফিচার প্রতিটি গ্রাহকের জন্য silently ব্যর্থ হতো।
+      // এখন createOrderSecure-এর মতোই একটা dedicated, server-side validated Cloud
+      // Function (createCustomBazarOrderSecure) দিয়ে অর্ডার তৈরি হয় — orderNumber ও
+      // ডুপ্লিকেট bKash ট্রানজেকশন ID চেকও এখন সার্ভার-সাইডে হয়।
+      const createBazarOrder = FB.httpsCallable(FB.functions, 'createCustomBazarOrderSecure');
+      const res = await createBazarOrder({
+        customerName:name, customerPhone:phone, address, village, instructions,
+        branchZone:district, district:AREA_LABELS[district]||'',
+        zone, bazarType:type, bazarList:list, notes, bkashTrxId:trxId
       });
+      const orderNo = res.data.orderNumber;
       const submittedOrder = {orderNumber:orderNo, orderType:'custom-bazar', bazarType:type, bazarTypeLabel:typeLabels[type]||type, customerName:name, customerPhone:phone, address, village, instructions, notes, bazarList:list, advanceAmount:100};
       const memoKey = BazarMemo.register(submittedOrder);
 

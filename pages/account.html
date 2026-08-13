@@ -21,7 +21,7 @@
       <div class="account-guest__icon" aria-hidden="true">🔐</div>
       <div>
         <h2>আপনার অ্যাকাউন্টে লগইন করুন</h2>
-        <p>অর্ডার, সংরক্ষিত ঠিকানা ও অ্যাকাউন্ট তথ্য এক জায়গা থেকে পরিচালনা করুন।</p>
+        <p>অর্ডার, ঠিকানা ও অ্যাকাউন্টের তথ্য এক জায়গায় দেখুন।</p>
       </div>
       <button class="btn btn-gold" type="button" onclick="AuthUI.open()">লগইন / রেজিস্ট্রেশন</button>
     </section>
@@ -60,7 +60,7 @@
       <div class="account-quick-grid" aria-label="অ্যাকাউন্ট সুবিধা">
         <button class="account-quick-card" type="button" onclick="Router.go('myorders')">
           <span class="account-quick-card__icon" aria-hidden="true">▣</span>
-          <span><strong>আমার অর্ডার</strong><small>অর্ডার ও ডেলিভারি স্ট্যাটাস দেখুন</small></span>
+          <span><strong>আমার অর্ডার</strong><small>অর্ডার ও ডেলিভারির খবর দেখুন</small></span>
           <span class="account-quick-card__arrow" aria-hidden="true">›</span>
         </button>
         <button class="account-quick-card" type="button" onclick="Router.go('account-addresses')">
@@ -103,10 +103,10 @@
           </div>
         </div>
         <button class="account-setting-row" type="button" onclick="AccountPage.requestNotifications()">
-          <span aria-hidden="true">♢</span><span><strong>অর্ডার নোটিফিকেশন</strong><small>ব্রাউজারের অনুমতি থাকলে আপডেট পান</small></span><span aria-hidden="true">›</span>
+          <span aria-hidden="true">♢</span><span><strong>অর্ডার নোটিফিকেশন</strong><small>অনুমতি দিলে অর্ডারের খবর পাবেন</small></span><span aria-hidden="true">›</span>
         </button>
         <button class="account-setting-row account-setting-row--danger" type="button" onclick="AccountPage.signOut()">
-          <span aria-hidden="true">↪</span><span><strong>লগআউট</strong><small>এই ডিভাইসে আপনার সেশন শেষ করুন</small></span><span aria-hidden="true">›</span>
+          <span aria-hidden="true">↪</span><span><strong>লগআউট</strong><small>এই ডিভাইস থেকে লগআউট করুন</small></span><span aria-hidden="true">›</span>
         </button>
       </section>
     </section>

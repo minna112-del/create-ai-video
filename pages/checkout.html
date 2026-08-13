@@ -12,7 +12,7 @@
     <nav class="steps-row checkout-steps" id="ckSteps" aria-label="চেকআউট ধাপ">
       <div class="step-item active" data-s="1"><div class="num">১</div><span data-bn="ঠিকানা" data-en="Address">ঠিকানা</span></div>
       <div class="step-item" data-s="2"><div class="num">২</div><span data-bn="পেমেন্ট" data-en="Payment">পেমেন্ট</span></div>
-      <div class="step-item" data-s="3"><div class="num">৩</div><span data-bn="রিভিউ" data-en="Review">রিভিউ</span></div>
+      <div class="step-item" data-s="3"><div class="num">৩</div><span data-bn="শেষবার দেখুন" data-en="Review">শেষবার দেখুন</span></div>
     </nav>
 
     <div class="checkout-layout">
@@ -47,7 +47,7 @@
             <input type="file" id="ckPrescriptionFile" accept="image/*" aria-label="প্রেসক্রিপশনের ছবি">
           </div>
 
-          <div class="checkout-info-note"><span>✓</span><p data-bn="<strong>অর্ডারের অগ্রগতি দেখুন</strong> প্যাকিং, পিকআপ ও ডেলিভারি স্ট্যাটাস “আমার অর্ডার” পেজে দেখা যাবে।" data-en="<strong>Track your order</strong> Packing, pickup, and delivery status will be visible on the &quot;My Orders&quot; page."><strong>অর্ডারের অগ্রগতি দেখুন</strong> প্যাকিং, পিকআপ ও ডেলিভারি স্ট্যাটাস "আমার অর্ডার" পেজে দেখা যাবে।</p></div>
+          <div class="checkout-info-note"><span>✓</span><p data-bn="<strong>অর্ডার কোথায় আছে</strong> — “আমার অর্ডার” পেজে দেখতে পারবেন।" data-en="<strong>Track your order</strong> Packing, pickup, and delivery status will be visible on the &quot;My Orders&quot; page."><strong>অর্ডার কোথায় আছে</strong> — "আমার অর্ডার" পেজে দেখতে পারবেন।</p></div>
           <button type="button" class="btn btn-gold btn-block checkout-primary" onclick="Checkout.goStep(2)" data-bn="পেমেন্ট ধাপে যান <span>→</span>" data-en="Go to Payment <span>→</span>">পেমেন্ট ধাপে যান <span>→</span></button>
         </section>
 
@@ -79,7 +79,7 @@
           </div>
 
           <div id="ckWalletBox" class="checkout-wallet" hidden>
-            <label for="ckUseWallet"><span><strong data-bn="ওয়ালেট ব্যালেন্স ব্যবহার করুন" data-en="Use Wallet Balance">ওয়ালেট ব্যালেন্স ব্যবহার করুন</strong><small data-bn="উপলভ্য: <b id=&quot;ckWalletAvail&quot;>৳০</b>" data-en="Available: <b id=&quot;ckWalletAvail&quot;>৳0</b>">উপলভ্য: <b id="ckWalletAvail">৳০</b></small></span><input type="checkbox" id="ckUseWallet" onchange="Checkout.renderSummary()"></label>
+            <label for="ckUseWallet"><span><strong data-bn="ওয়ালেট ব্যালেন্স ব্যবহার করুন" data-en="Use Wallet Balance">ওয়ালেট ব্যালেন্স ব্যবহার করুন</strong><small data-bn="ব্যবহার করা যাবে: <b id=&quot;ckWalletAvail&quot;>৳০</b>" data-en="Available: <b id=&quot;ckWalletAvail&quot;>৳0</b>">ব্যবহার করা যাবে: <b id="ckWalletAvail">৳০</b></small></span><input type="checkbox" id="ckUseWallet" onchange="Checkout.renderSummary()"></label>
           </div>
 
           <div class="checkout-totals">
@@ -91,15 +91,15 @@
           </div>
 
           <label class="checkout-terms"><input type="checkbox" id="ckTerms" checked><span data-bn="আমি <button type=&quot;button&quot; onclick=&quot;Router.go('terms')&quot;>শর্তাবলী</button> পড়েছি এবং সম্মত আছি।" data-en="I have read and agree to the <button type=&quot;button&quot; onclick=&quot;Router.go('terms')&quot;>Terms &amp; Conditions</button>.">আমি <button type="button" onclick="Router.go('terms')">শর্তাবলী</button> পড়েছি এবং সম্মত আছি।</span></label>
-          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(2)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" id="ckPlaceOrderBtn" class="btn btn-rose" onclick="Checkout.placeOrder()"><span class="ck-btn-label" data-bn="অর্ডার কনফার্ম করুন" data-en="Confirm Order">অর্ডার কনফার্ম করুন</span><span class="ck-btn-loader" hidden data-bn="প্রক্রিয়াধীন…" data-en="Processing…">প্রক্রিয়াধীন…</span></button></div>
+          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(2)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" id="ckPlaceOrderBtn" class="btn btn-rose" onclick="Checkout.placeOrder()"><span class="ck-btn-label" data-bn="অর্ডার কনফার্ম করুন" data-en="Confirm Order">অর্ডার কনফার্ম করুন</span><span class="ck-btn-loader" hidden data-bn="অর্ডার জমা হচ্ছে…" data-en="Processing…">অর্ডার জমা হচ্ছে…</span></button></div>
         </section>
       </main>
 
       <aside class="checkout-assurance" aria-label="অর্ডার সহায়তা">
         <h2 data-bn="নিশ্চিন্তে অর্ডার করুন" data-en="Order with Confidence">নিশ্চিন্তে অর্ডার করুন</h2>
-        <div><span>01</span><p><strong data-bn="লোকেশন যাচাই" data-en="Location Verification">লোকেশন যাচাই</strong><small data-bn="ম্যাপের মাধ্যমে ডেলিভারি এলাকা ও চার্জ নির্ধারিত হয়।" data-en="Delivery area and charge are determined via the map.">ম্যাপের মাধ্যমে ডেলিভারি এলাকা ও চার্জ নির্ধারিত হয়।</small></p></div>
+        <div><span>01</span><p><strong data-bn="লোকেশন যাচাই" data-en="Location Verification">লোকেশন যাচাই</strong><small data-bn="ম্যাপ দেখে ডেলিভারি এলাকা ও চার্জ ঠিক হবে।" data-en="Delivery area and charge are determined via the map.">ম্যাপ দেখে ডেলিভারি এলাকা ও চার্জ ঠিক হবে।</small></p></div>
         <div><span>02</span><p><strong data-bn="দাম আগে দেখে নিন" data-en="Price Review">দাম আগে দেখে নিন</strong><small data-bn="কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।" data-en="See items, charges, and discounts before confirming.">কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।</small></p></div>
-        <div><span>03</span><p><strong data-bn="অর্ডারের খবর" data-en="Order Tracking">অর্ডারের খবর</strong><small data-bn="অর্ডারের বর্তমান অবস্থা “আমার অর্ডার” থেকে দেখুন।" data-en="Check current order status from &quot;My Orders&quot;.">অর্ডারের বর্তমান অবস্থা "আমার অর্ডার" থেকে দেখুন।</small></p></div>
+        <div><span>03</span><p><strong data-bn="অর্ডারের খবর" data-en="Order Tracking">অর্ডারের খবর</strong><small data-bn="আপনার অর্ডার কোথায় আছে, “আমার অর্ডার” থেকে দেখুন।" data-en="Check current order status from &quot;My Orders&quot;.">আপনার অর্ডার কোথায় আছে, "আমার অর্ডার" থেকে দেখুন।</small></p></div>
       </aside>
     </div>
   </section>

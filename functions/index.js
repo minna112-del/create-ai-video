@@ -98,7 +98,11 @@ exports.cancelOrderSecure = onCall(async (request) => {
   }
 
   const staffDoc = await db.collection('staff').doc(uid).get();
-  const isStaff = staffDoc.exists;
+  const staffRole = staffDoc.exists ? staffDoc.data()?.role : null;
+  // MT Studio audit fix: আগে "যেকোনো staff role" (isStaff = staffDoc.exists) দিয়ে
+  // অন্যের অর্ডার বাতিল করা যেত — যেকোনো নিচু-স্তরের staff (যেমন CRM/procurement)
+  // চাইলেই যেকোনো গ্রাহকের অর্ডার cancel করতে পারত। এখন শুধু admin/zone_manager।
+  const isStaff = staffRole === 'admin' || staffRole === 'zone_manager';
 
   const result = await db.runTransaction(async (tx) => {
     const orderRef = db.collection('orders').doc(orderId);
@@ -112,8 +116,11 @@ exports.cancelOrderSecure = onCall(async (request) => {
     if (order.status === 'cancelled') {
       return { alreadyCancelled: true };
     }
-    if (order.status === 'delivered') {
-      throw new HttpsError('failed-precondition', 'ডেলিভার হয়ে যাওয়া অর্ডার বাতিল করা যায় না।');
+    // MT Studio audit fix: আগে শুধু 'cancelled'/'delivered' status ব্লক করা হতো —
+    // 'picked_up'/'in_transit' অবস্থায়ও (ডেলিভারি ম্যান রাস্তায় থাকা অবস্থায়) বাতিল
+    // করা যেত, যেটা স্টক/রিফান্ড হিসাব এলোমেলো করে দিতে পারত।
+    if (['delivered', 'picked_up', 'in_transit'].includes(order.status)) {
+      throw new HttpsError('failed-precondition', 'ডেলিভারি প্রক্রিয়া শুরু হয়ে যাওয়া অর্ডার বাতিল করা যায় না।');
     }
 
     // --- reads আগে (transaction rule) ---
@@ -185,7 +192,10 @@ const NID_RE = /^\d{10}$|^\d{13}$/;
 
 function calcDeliveryChargeServer(itemCount, subtotal, distanceKm, settings) {
   if (subtotal >= settings.freeAboveSubtotal) return 0;
-  const km = Number.isFinite(distanceKm) ? distanceKm : settings.avgDistanceKm;
+  // MT Studio audit fix: client-supplied distanceKm আগে সরাসরি বিশ্বাস করা হতো —
+  // negative/অস্বাভাবিক মান পাঠিয়ে ডেলিভারি ফি কমানো/শূন্য করা সম্ভব ছিল। এখন
+  // 0..50km রেঞ্জে clamp করা হয় (bounds validation)।
+  const km = Number.isFinite(distanceKm) ? Math.min(Math.max(distanceKm, 0), 50) : settings.avgDistanceKm;
   const fee = settings.baseFee + km * settings.perKmFee + itemCount * settings.perItemFee;
   return Math.max(0, Math.round(fee));
 }
@@ -222,8 +232,8 @@ exports.createOrderSecure = onCall(async (request) => {
   const wantsWallet = !!data.useWallet && !!uid;
   const prescriptionUrl = typeof data.prescriptionUrl === 'string' ? data.prescriptionUrl.slice(0, 1000) : null;
   const distanceKm = Number.isFinite(Number(data.distanceKm)) ? Number(data.distanceKm) : null;
-  const deliveryZoneId = typeof data.deliveryZoneId === 'string' ? data.deliveryZoneId : null;
-  const deliveryZoneLabel = typeof data.deliveryZoneLabel === 'string' ? data.deliveryZoneLabel : null;
+  const deliveryZoneId = typeof data.deliveryZoneId === 'string' ? data.deliveryZoneId.slice(0, 100) : null;
+  const deliveryZoneLabel = typeof data.deliveryZoneLabel === 'string' ? data.deliveryZoneLabel.slice(0, 200) : null;
   const etaMinutes = Number.isFinite(Number(data.etaMinutes)) ? Number(data.etaMinutes) : null;
   const customerLat = Number.isFinite(Number(data.customerLat)) ? Number(data.customerLat) : null;
   const customerLng = Number.isFinite(Number(data.customerLng)) ? Number(data.customerLng) : null;
@@ -348,6 +358,68 @@ exports.createOrderSecure = onCall(async (request) => {
   });
 
   return result;
+});
+
+/* ---------------------------------------------------------------------
+ * ৪.৫) নিরাপদ, server-side Custom Bazar (কাস্টম বাজার লিস্ট) অর্ডার তৈরি —
+ *      MT Studio audit fix
+ *
+ *      আগে js/custom-bazar.js নিজে সরাসরি orders কালেকশনে addDoc() করার
+ *      চেষ্টা করত — advanceAmount:100, paymentMethod ইত্যাদি সব client-trusted
+ *      মান দিয়ে। কিন্তু firestore.rules-এ orders create rule সম্পূর্ণ বন্ধ
+ *      (allow create: if false, createOrderSecure চালু হওয়ার পর থেকে) — ফলে
+ *      হোমপেজে প্রচারিত এই ফিচারটা প্রতিটি গ্রাহকের জন্য সম্পূর্ণ অকার্যকর হয়ে
+ *      গিয়েছিল (প্রতিটি সাবমিট silently ব্যর্থ হতো)। এখন createOrderSecure-এর
+ *      মতোই একটা dedicated, server-side validated Cloud Function — advance
+ *      amount/paymentMethod সার্ভারে ফিক্সড, bkashTrxId ডুপ্লিকেট-চেক করা হয়
+ *      (client-side sessionStorage গার্ড সহজেই বাইপাসযোগ্য ছিল)।
+ * ------------------------------------------------------------------- */
+const BAZAR_TYPE_LABELS = { weekly: 'সাপ্তাহিক', monthly: 'মাসিক', wedding: 'বিয়ের', ramadan: 'রমজানের', qurbani: 'কুরবানির', other: 'অন্যান্য' };
+
+exports.createCustomBazarOrderSecure = onCall(async (request) => {
+  const uid = request.auth?.uid || null;
+  const data = request.data || {};
+
+  const customerName = typeof data.customerName === 'string' ? data.customerName.trim().slice(0, 120) : '';
+  const customerPhone = typeof data.customerPhone === 'string' ? data.customerPhone.trim().replace(/[\s-]/g, '') : '';
+  const address = typeof data.address === 'string' ? data.address.trim().slice(0, 500) : '';
+  const village = typeof data.village === 'string' ? data.village.trim().slice(0, 200) : '';
+  const instructions = typeof data.instructions === 'string' ? data.instructions.trim().slice(0, 500) : '';
+  const branchZone = typeof data.branchZone === 'string' ? data.branchZone : '';
+  const district = typeof data.district === 'string' ? data.district.slice(0, 100) : '';
+  const zone = typeof data.zone === 'string' ? data.zone : '';
+  const bazarType = Object.keys(BAZAR_TYPE_LABELS).includes(data.bazarType) ? data.bazarType : 'weekly';
+  const bazarList = typeof data.bazarList === 'string' ? data.bazarList.trim().slice(0, 3000) : '';
+  const notes = typeof data.notes === 'string' ? data.notes.trim().slice(0, 500) : '';
+  const bkashTrxId = typeof data.bkashTrxId === 'string' ? data.bkashTrxId.trim().toUpperCase().slice(0, 50) : '';
+
+  if (!customerName) throw new HttpsError('invalid-argument', 'নাম প্রয়োজন।');
+  if (!PHONE_RE.test(customerPhone)) throw new HttpsError('invalid-argument', 'সঠিক মোবাইল নম্বর প্রয়োজন।');
+  if (address.length < 5) throw new HttpsError('invalid-argument', 'ঠিকানা বিস্তারিত লিখুন।');
+  if (!branchZone || !zone || !village || !instructions) throw new HttpsError('invalid-argument', 'ডেলিভারি তথ্য অসম্পূর্ণ।');
+  if (!bazarList) throw new HttpsError('invalid-argument', 'বাজারের লিস্ট দিন।');
+  if (bkashTrxId.length < 6) throw new HttpsError('invalid-argument', 'সঠিক bKash ট্রানজেকশন ID দিন।');
+
+  // ডুপ্লিকেট পেমেন্ট গার্ড — server-side (client sessionStorage গার্ড বাইপাস করা সহজ ছিল)
+  const dupQuery = await db.collection('orders')
+    .where('orderType', '==', 'custom-bazar')
+    .where('bkashTrxId', '==', bkashTrxId)
+    .limit(1).get();
+  if (!dupQuery.empty) {
+    throw new HttpsError('already-exists', 'এই ট্রানজেকশন ID দিয়ে ইতিমধ্যে একটি অর্ডার জমা হয়েছে।');
+  }
+
+  const orderNo = 'CB-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900000) + 100000);
+  const orderRef = db.collection('orders').doc();
+  await orderRef.set({
+    orderNumber: orderNo, orderType: 'custom-bazar', bazarType, bazarTypeLabel: BAZAR_TYPE_LABELS[bazarType],
+    customerName, customerPhone, address, village, instructions, branchZone, district,
+    zone, bazarList, notes, bkashTrxId, advanceAmount: 100, paymentMethod: 'bkash+cod',
+    billPhotoUrl: null, billAmount: null,
+    status: 'pending', userId: uid, createdAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+
+  return { orderId: orderRef.id, orderNumber: orderNo };
 });
 
 /* ---------------------------------------------------------------------
