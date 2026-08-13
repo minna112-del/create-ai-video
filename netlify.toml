@@ -1,0 +1,135 @@
+# netlify.toml — Golapi Shop SPA Rewrites + Security Headers
+# Place this file in the ROOT of your golapishop.online repository
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# ─── SPA Rewrites ─────────────────────────────────────────────
+# All unknown paths serve index.html so the JS router can handle them
+
+[[redirects]]
+  from = "/driver"
+  to = "/driver/index.html"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/manager"
+  to = "/index.html"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/driver/*"
+  to = "/driver/index.html"
+  status = 200
+  force = false
+
+[[redirects]]
+  from = "/manager/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# SPA fallback — any path that doesn't match a real file
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+
+# ─── Security Headers ──────────────────────────────────────────
+# ⚠️ CSP নোট: এই সাইট প্রচুর inline onclick="..." attribute ও inline <script>
+# ব্যবহার করে (GTM snippet, JSON-LD, theme-detection)। তাই script-src/style-src-এ
+# 'unsafe-inline' রাখা বাধ্যতামূলক — নইলে পুরো সাইটের বাটন/ইন্টারঅ্যাকশন ভেঙে যাবে।
+# এটা CSP-এর XSS-বিরোধী সর্বোচ্চ সুরক্ষা কিছুট কমায়, কিন্তু তারপরও কোন ডোমেইন থেকে
+# script/style/connection আসতে পারবে তা কডকড়িভাবে সীমাবদ্ধ রাখে (data exfiltration,
+# অননুমোদিত iframe embedding, অচেন third-party script injection আটকায়)।
+# ভবিষ্যতে সব onclick-কে addEventListener-এ রূপান্তর করলে 'unsafe-inline' সরিয়ে
+# আরও কড়া nonce-based CSP করা সম্ভব হবে।
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(self)"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://maps.googleapis.com https://unpkg.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.googleapis.com https://firestore.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://firebasestorage.googleapis.com https://golapi-chat-proxy.studiomt46.workers.dev https://golapi-sms-proxy.studiomt46.workers.dev https://www.google-analytics.com https://analytics.google.com wss://*.firebaseio.com; frame-src 'self' https://www.googletagmanager.com; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; upgrade-insecure-requests"
+
+# Asset Links — required for TWA deep linking
+[[headers]]
+  for = "/.well-known/assetlinks.json"
+  [headers.values]
+    Content-Type = "application/json"
+    Access-Control-Allow-Origin = "*"
+
+# Manifest
+[[headers]]
+  for = "/manifest.json"
+  [headers.values]
+    Content-Type = "application/manifest+json"
+    Access-Control-Allow-Origin = "*"
+
+# ─── Fresh Deploy / Browser Cache Control ─────────────────────
+# HTML, scripts, styles, page fragments and service workers must always be
+# revalidated so customers receive the latest deployment without manual cache clear.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/pages/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# ⚠️ আগে এখানে "no-cache" ছিল — মানে প্রতিবার browser server-এর সাথে
+# revalidate করতো (round-trip লাগতো, যদিও content না বদলালে সম্পূর্ণ ফাইল
+# আবার ডাউনলোড হতো না)। এখন ৬০ সেকেন্ডের একটা ছোট max-age যোগ করা হলো —
+# এই সময়ের মধ্যে বারবার navigation/reload হলে কোনো network round-trip
+# ছাড়াই সরাসরি browser cache থেকে ব্যবহার হবে (আসল speed boost), কিন্তু
+# ৬০ সেকেন্ড পার হলেই নতুন deploy থাকলে সাথে সাথে ধরা পড়বে — বেশিদিন stale
+# থাকার ঝুঁকি নেই। Service Worker-এর network-first strategy-র সাথেও এখন
+# আর সাংঘর্ষিক না, বরং একে অপরের পরিপূরক।
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=60, must-revalidate"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=60, must-revalidate"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/driver/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+[[headers]]
+  for = "/app-version.json"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/driver/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+# ─── Static images/icons — এগুলো কার্যত অপরিবর্তনীয়, তাই দীর্ঘমেয়াদি cache ───
+# (নতুন ছবি সবসময় নতুন filename-এ যোগ হয়, তাই stale হওয়ার ঝুঁকি নেই)
+[[headers]]
+  for = "/icons/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"

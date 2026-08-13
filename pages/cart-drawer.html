@@ -1,0 +1,36 @@
+<div class="overlay cart-overlay" id="cartOverlay" onclick="Cart.close()" aria-hidden="true"></div>
+<aside class="drawer cart-drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle" aria-hidden="true">
+  <header class="cart-drawer__header">
+    <div>
+      <p class="cart-drawer__eyebrow">আপনার নির্বাচিত পণ্য</p>
+      <h2 class="cart-drawer__title tiro" id="cartTitle">
+        <span class="ic ic-cart" aria-hidden="true"></span>
+        শপিং কার্ট
+        <span class="cart-drawer__count" id="cartDrawerCount">০</span>
+      </h2>
+    </div>
+    <button type="button" class="cart-drawer__close" onclick="Cart.close()" aria-label="কার্ট বন্ধ করুন">✕</button>
+  </header>
+
+  <div class="cart-drawer__body" id="cartBody" aria-live="polite"></div>
+
+  <footer class="cart-drawer__footer" id="cartFoot" hidden>
+    <button type="button" class="cart-save-list" onclick="SavedLists.saveCurrentCart()">
+      <span aria-hidden="true">♡</span>
+      এই বাজারের তালিকা সংরক্ষণ করুন
+    </button>
+
+    <div class="cart-summary" aria-label="অর্ডারের হিসাব">
+      <div class="cart-summary__row"><span>পণ্যের মূল্য</span><strong id="cartSub">৳০</strong></div>
+      <div class="cart-summary__row"><span>আনুমানিক ডেলিভারি</span><strong id="cartDel">—</strong></div>
+      <div class="cart-summary__note" id="cartDeliveryNote">ঠিকানা ও দূরত্ব অনুযায়ী চেকআউটে চূড়ান্ত চার্জ দেখানো হবে।</div>
+      <div class="cart-summary__total"><span>আনুমানিক মোট</span><strong id="cartTot">৳০</strong></div>
+    </div>
+
+    <button type="button" class="btn btn-gold btn-block cart-checkout-btn" onclick="Cart.goCheckout()">
+      চেকআউটে এগিয়ে যান
+      <span aria-hidden="true">→</span>
+    </button>
+    <button type="button" class="cart-continue-btn" onclick="Cart.close();Router.go('listing',{cat:'all'})">আরও কেনাকাটা করুন</button>
+  </footer>
+</aside>

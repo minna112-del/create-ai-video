@@ -1,0 +1,172 @@
+<div class="page hr-erp-page" id="page-hr-erp">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('company-os')">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span><small>Golapi Shop Online</small><strong>Human Resources ERP</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="hrErpUpdated" class="admin-updated"></span>
+      <button class="admin-icon-btn" onclick="HRERP.refresh()">↻ <span>রিফ্রেশ</span></button>
+      <button class="admin-icon-btn" onclick="Router.go('company-os')">◈ <span>Company OS</span></button>
+    </div>
+  </header>
+
+  <div id="hrErpEmployeeWorkspace"></div>
+
+  <main class="sec hr-erp">
+    <section class="hr-erp-hero">
+      <div>
+        <span class="office-kicker">PEOPLE · TALENT · PERFORMANCE</span>
+        <h1>নিয়োগ থেকে উন্নয়ন—সম্পূর্ণ কর্মী জীবনচক্র</h1>
+        <p>Job requisition, candidate pipeline, interview, onboarding, probation, performance review, promotion এবং training একই People ERP থেকে পরিচালনা করুন।</p>
+      </div>
+      <div class="hr-erp-hero-actions">
+        <button class="btn btn-gold" onclick="HRERP.openJobForm()">+ Job Requisition</button>
+        <button class="btn" onclick="HRERP.openCandidateForm()">+ Candidate</button>
+      </div>
+    </section>
+
+    <section class="hr-erp-stats">
+      <article><span>Open Positions</span><strong id="hrStatJobs">০</strong><small>Recruitment</small></article>
+      <article><span>Active Candidates</span><strong id="hrStatCandidates">০</strong><small>Pipeline</small></article>
+      <article><span>Interviews</span><strong id="hrStatInterviews">০</strong><small>Scheduled</small></article>
+      <article><span>Probation Due</span><strong id="hrStatProbation">০</strong><small>Review needed</small></article>
+      <article><span>Training Due</span><strong id="hrStatTraining">০</strong><small>Pending completion</small></article>
+      <article><span>Performance Risk</span><strong id="hrStatPerformance">০</strong><small>Needs action</small></article>
+    </section>
+
+    <section id="hrPriorityDesk" class="hr-erp-priority"></section>
+
+    <section class="hr-erp-tabs">
+      <button class="active" onclick="HRERP.tab('recruitment',this)">Recruitment</button>
+      <button onclick="HRERP.tab('onboarding',this)">Onboarding</button>
+      <button onclick="HRERP.tab('performance',this)">Performance</button>
+      <button onclick="HRERP.tab('training',this)">Training</button>
+      <button onclick="HRERP.tab('promotion',this)">Promotion</button>
+    </section>
+
+    <section id="hrRecruitmentPane" class="hr-erp-pane">
+      <div class="hr-erp-grid">
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">JOB REQUISITIONS</span><h2>Open Positions</h2></div></div>
+          <div id="hrJobList" class="hr-erp-list"></div>
+        </article>
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">CANDIDATE PIPELINE</span><h2>Applicants</h2></div></div>
+          <div id="hrCandidateList" class="hr-erp-list"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="hrOnboardingPane" class="hr-erp-pane" hidden>
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">ONBOARDING CONTROL</span><h2>New Hire Onboarding</h2></div></div>
+        <div class="table-scroll"><table class="data-table"><thead><tr><th>Employee</th><th>Joining</th><th>Checklist</th><th>Probation</th><th>Status</th><th>Action</th></tr></thead><tbody id="hrOnboardingTable"></tbody></table></div>
+      </article>
+    </section>
+
+    <section id="hrPerformancePane" class="hr-erp-pane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">PERFORMANCE MANAGEMENT</span><h2>Review Cycle</h2></div><button class="btn btn-gold" onclick="HRERP.openReviewForm()">+ Performance Review</button></div>
+      <div id="hrPerformanceGrid" class="hr-performance-grid"></div>
+    </section>
+
+    <section id="hrTrainingPane" class="hr-erp-pane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">LEARNING & DEVELOPMENT</span><h2>Training Programs</h2></div><button class="btn btn-gold" onclick="HRERP.openTrainingForm()">+ Training</button></div>
+      <div id="hrTrainingGrid" class="hr-training-grid"></div>
+    </section>
+
+    <section id="hrPromotionPane" class="hr-erp-pane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">CAREER MOVEMENT</span><h2>Promotion & Transfer History</h2></div><button class="btn btn-gold" onclick="HRERP.openPromotionForm()">+ Promotion</button></div>
+      <div id="hrPromotionList" class="hr-erp-list"></div>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="hrJobModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="HRERP.closeModal('hrJobModal')"></div>
+    <div class="employee-modal-card hr-erp-modal">
+      <button class="employee-modal-close" onclick="HRERP.closeModal('hrJobModal')">×</button>
+      <h2>Job Requisition</h2>
+      <div class="hr-erp-form-grid">
+        <label>Position Title<input id="hrJobTitle"></label>
+        <label>Department<input id="hrJobDepartment"></label>
+        <label>Branch<input id="hrJobBranch"></label>
+        <label>Vacancies<input id="hrJobVacancies" type="number" min="1" value="1"></label>
+        <label>Employment Type<select id="hrJobType"><option value="full_time">Full Time</option><option value="part_time">Part Time</option><option value="contract">Contract</option><option value="internship">Internship</option></select></label>
+        <label>Priority<select id="hrJobPriority"><option value="normal">Normal</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select></label>
+        <label class="hr-erp-form-full">Job Summary<textarea id="hrJobSummary" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="HRERP.saveJob()">Requisition তৈরি</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="hrCandidateModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="HRERP.closeModal('hrCandidateModal')"></div>
+    <div class="employee-modal-card hr-erp-modal">
+      <button class="employee-modal-close" onclick="HRERP.closeModal('hrCandidateModal')">×</button>
+      <h2>Candidate Profile</h2>
+      <div class="hr-erp-form-grid">
+        <label>Candidate Name<input id="hrCandidateName"></label>
+        <label>Phone<input id="hrCandidatePhone"></label>
+        <label>Email<input id="hrCandidateEmail" type="email"></label>
+        <label>Position<select id="hrCandidateJob"></select></label>
+        <label>Stage<select id="hrCandidateStage"><option value="applied">Applied</option><option value="screening">Screening</option><option value="interview">Interview</option><option value="offer">Offer</option><option value="hired">Hired</option><option value="rejected">Rejected</option></select></label>
+        <label>Interview Date<input id="hrCandidateInterview" type="datetime-local"></label>
+        <label class="hr-erp-form-full">Notes<textarea id="hrCandidateNotes" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="HRERP.saveCandidate()">Candidate সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="hrReviewModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="HRERP.closeModal('hrReviewModal')"></div>
+    <div class="employee-modal-card hr-erp-modal">
+      <button class="employee-modal-close" onclick="HRERP.closeModal('hrReviewModal')">×</button>
+      <h2>Performance Review</h2>
+      <div class="hr-erp-form-grid">
+        <label>Employee<select id="hrReviewEmployee"></select></label>
+        <label>Review Period<input id="hrReviewPeriod" placeholder="2026 Q3"></label>
+        <label>Performance Score<input id="hrReviewScore" type="number" min="1" max="100"></label>
+        <label>Attendance Score<input id="hrReviewAttendance" type="number" min="1" max="100"></label>
+        <label>Customer/Quality Score<input id="hrReviewQuality" type="number" min="1" max="100"></label>
+        <label>Recommendation<select id="hrReviewRecommendation"><option value="continue">Continue</option><option value="training">Training</option><option value="promotion">Promotion</option><option value="pip">Performance Improvement Plan</option></select></label>
+        <label class="hr-erp-form-full">Manager Feedback<textarea id="hrReviewFeedback" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="HRERP.saveReview()">Review সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="hrTrainingModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="HRERP.closeModal('hrTrainingModal')"></div>
+    <div class="employee-modal-card hr-erp-modal">
+      <button class="employee-modal-close" onclick="HRERP.closeModal('hrTrainingModal')">×</button>
+      <h2>Training Program</h2>
+      <div class="hr-erp-form-grid">
+        <label>Training Title<input id="hrTrainingTitle"></label>
+        <label>Category<input id="hrTrainingCategory" placeholder="Safety, Customer Care, Systems"></label>
+        <label>Start Date<input id="hrTrainingStart" type="date"></label>
+        <label>Due Date<input id="hrTrainingDue" type="date"></label>
+        <label class="hr-erp-form-full">Participants<div id="hrTrainingParticipants" class="hr-participant-grid"></div></label>
+        <label class="hr-erp-form-full">Description<textarea id="hrTrainingDescription" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="HRERP.saveTraining()">Training তৈরি</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="hrPromotionModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="HRERP.closeModal('hrPromotionModal')"></div>
+    <div class="employee-modal-card hr-erp-modal">
+      <button class="employee-modal-close" onclick="HRERP.closeModal('hrPromotionModal')">×</button>
+      <h2>Promotion / Career Movement</h2>
+      <div class="hr-erp-form-grid">
+        <label>Employee<select id="hrPromotionEmployee"></select></label>
+        <label>Movement Type<select id="hrPromotionType"><option value="promotion">Promotion</option><option value="transfer">Transfer</option><option value="salary_revision">Salary Revision</option><option value="designation_change">Designation Change</option></select></label>
+        <label>New Designation<input id="hrPromotionDesignation"></label>
+        <label>New Department<input id="hrPromotionDepartment"></label>
+        <label>Effective Date<input id="hrPromotionDate" type="date"></label>
+        <label>New Salary<input id="hrPromotionSalary" type="number" min="0"></label>
+        <label class="hr-erp-form-full">Reason<textarea id="hrPromotionReason" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="HRERP.savePromotion()">Movement সংরক্ষণ</button>
+    </div>
+  </div>
+</div>

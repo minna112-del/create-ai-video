@@ -1,0 +1,171 @@
+<div class="page finance-erp-page" id="page-finance-erp">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('company-os')">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span><small>Golapi Shop Online</small><strong>Finance ERP</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="financeErpUpdated" class="admin-updated"></span>
+      <button class="admin-icon-btn" onclick="FinanceERP.refresh()">↻ <span>রিফ্রেশ</span></button>
+      <button class="admin-icon-btn" onclick="FinanceERP.exportLedger()">CSV <span>Ledger</span></button>
+      <button class="admin-icon-btn" onclick="Router.go('company-os')">◈ <span>Company OS</span></button>
+    </div>
+  </header>
+
+  <div id="financeErpEmployeeWorkspace"></div>
+
+  <main class="sec finance-erp">
+    <section class="finance-erp-hero">
+      <div>
+        <span class="office-kicker">ACCOUNTING · CONTROL · PLANNING</span>
+        <h1>টাকা কোথা থেকে এলো, কোথায় গেল, এবং সামনে কী প্রয়োজন</h1>
+        <p>Chart of Accounts, journal, expense approval, budget, bank reconciliation এবং financial statements একটি নিয়ন্ত্রিত Finance ERP-তে পরিচালনা করুন।</p>
+      </div>
+      <div class="finance-erp-hero-actions">
+        <button class="btn btn-gold" onclick="FinanceERP.openJournalForm()">+ Journal Entry</button>
+        <button class="btn" onclick="FinanceERP.openExpenseForm()">+ Expense Request</button>
+      </div>
+    </section>
+
+    <section class="finance-erp-stats">
+      <article><span>Total Revenue</span><strong id="ferpRevenue">৳০</strong><small>Posted data</small></article>
+      <article><span>Total Expense</span><strong id="ferpExpense">৳০</strong><small>Approved/posted</small></article>
+      <article><span>Net Position</span><strong id="ferpNet">৳০</strong><small>Revenue − Expense</small></article>
+      <article><span>Receivable</span><strong id="ferpReceivable">৳০</strong><small>COD ও dues</small></article>
+      <article><span>Payable</span><strong id="ferpPayable">৳০</strong><small>Vendor/expense due</small></article>
+      <article><span>Unreconciled</span><strong id="ferpUnreconciled">০</strong><small>Bank items</small></article>
+    </section>
+
+    <section id="financeErpPriority" class="finance-erp-priority"></section>
+
+    <section class="finance-erp-tabs">
+      <button class="active" onclick="FinanceERP.tab('ledger',this)">General Ledger</button>
+      <button onclick="FinanceERP.tab('expenses',this)">Expenses</button>
+      <button onclick="FinanceERP.tab('budgets',this)">Budgets</button>
+      <button onclick="FinanceERP.tab('banking',this)">Bank Reconciliation</button>
+      <button onclick="FinanceERP.tab('statements',this)">Statements</button>
+    </section>
+
+    <section id="ferpLedgerPane" class="finance-erp-pane">
+      <div class="finance-erp-grid">
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">CHART OF ACCOUNTS</span><h2>Accounts</h2></div><button onclick="FinanceERP.openAccountForm()">+ Account</button></div>
+          <div id="ferpAccountList" class="finance-erp-list"></div>
+        </article>
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">JOURNAL</span><h2>Recent Entries</h2></div></div>
+          <div id="ferpJournalList" class="finance-erp-list"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="ferpExpensesPane" class="finance-erp-pane" hidden>
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">EXPENSE CONTROL</span><h2>Expense Approval Queue</h2></div></div>
+        <div class="table-scroll"><table class="data-table"><thead><tr><th>Expense</th><th>Department</th><th>Amount</th><th>Requested By</th><th>Status</th><th>Action</th></tr></thead><tbody id="ferpExpenseTable"></tbody></table></div>
+      </article>
+    </section>
+
+    <section id="ferpBudgetsPane" class="finance-erp-pane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">BUDGET PLANNING</span><h2>Department Budgets</h2></div><button class="btn btn-gold" onclick="FinanceERP.openBudgetForm()">+ Budget</button></div>
+      <div id="ferpBudgetGrid" class="finance-budget-grid"></div>
+    </section>
+
+    <section id="ferpBankingPane" class="finance-erp-pane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">BANK CONTROL</span><h2>Bank Reconciliation</h2></div><button class="btn btn-gold" onclick="FinanceERP.openBankItemForm()">+ Bank Item</button></div>
+      <div id="ferpBankList" class="finance-erp-list"></div>
+    </section>
+
+    <section id="ferpStatementsPane" class="finance-erp-pane" hidden>
+      <div class="finance-statement-grid">
+        <article class="office-panel"><h2>Income Statement</h2><div id="ferpIncomeStatement"></div></article>
+        <article class="office-panel"><h2>Balance Sheet Summary</h2><div id="ferpBalanceSheet"></div></article>
+        <article class="office-panel"><h2>Cash Flow Summary</h2><div id="ferpCashFlow"></div></article>
+      </div>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="ferpJournalModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="FinanceERP.closeModal('ferpJournalModal')"></div>
+    <div class="employee-modal-card finance-erp-modal">
+      <button class="employee-modal-close" onclick="FinanceERP.closeModal('ferpJournalModal')">×</button>
+      <h2>Journal Entry</h2>
+      <div class="finance-erp-form-grid">
+        <label>Date<input id="ferpJournalDate" type="date"></label>
+        <label>Reference<input id="ferpJournalReference"></label>
+        <label>Debit Account<select id="ferpDebitAccount"></select></label>
+        <label>Credit Account<select id="ferpCreditAccount"></select></label>
+        <label>Amount<input id="ferpJournalAmount" type="number" min="0" step="0.01"></label>
+        <label>Department<input id="ferpJournalDepartment"></label>
+        <label class="finance-erp-form-full">Description<textarea id="ferpJournalDescription" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="FinanceERP.saveJournal()">Post Journal</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="ferpExpenseModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="FinanceERP.closeModal('ferpExpenseModal')"></div>
+    <div class="employee-modal-card finance-erp-modal">
+      <button class="employee-modal-close" onclick="FinanceERP.closeModal('ferpExpenseModal')">×</button>
+      <h2>Expense Request</h2>
+      <div class="finance-erp-form-grid">
+        <label>Expense Title<input id="ferpExpenseTitle"></label>
+        <label>Category<input id="ferpExpenseCategory"></label>
+        <label>Department<input id="ferpExpenseDepartment"></label>
+        <label>Amount<input id="ferpExpenseAmount" type="number" min="0"></label>
+        <label>Payment Method<select id="ferpExpenseMethod"><option value="bank">Bank</option><option value="cash">Cash</option><option value="mobile_banking">Mobile Banking</option><option value="card">Card</option></select></label>
+        <label>Due Date<input id="ferpExpenseDue" type="date"></label>
+        <label class="finance-erp-form-full">Business Justification<textarea id="ferpExpenseReason" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="FinanceERP.saveExpense()">Submit Expense</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="ferpAccountModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="FinanceERP.closeModal('ferpAccountModal')"></div>
+    <div class="employee-modal-card finance-erp-modal">
+      <button class="employee-modal-close" onclick="FinanceERP.closeModal('ferpAccountModal')">×</button>
+      <h2>Chart of Account</h2>
+      <div class="finance-erp-form-grid">
+        <label>Account Code<input id="ferpAccountCode"></label>
+        <label>Account Name<input id="ferpAccountName"></label>
+        <label>Type<select id="ferpAccountType"><option value="asset">Asset</option><option value="liability">Liability</option><option value="equity">Equity</option><option value="revenue">Revenue</option><option value="expense">Expense</option></select></label>
+        <label>Opening Balance<input id="ferpAccountOpening" type="number" step="0.01"></label>
+      </div>
+      <button class="btn btn-gold" onclick="FinanceERP.saveAccount()">Account সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="ferpBudgetModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="FinanceERP.closeModal('ferpBudgetModal')"></div>
+    <div class="employee-modal-card finance-erp-modal">
+      <button class="employee-modal-close" onclick="FinanceERP.closeModal('ferpBudgetModal')">×</button>
+      <h2>Department Budget</h2>
+      <div class="finance-erp-form-grid">
+        <label>Department<input id="ferpBudgetDepartment"></label>
+        <label>Period<input id="ferpBudgetPeriod" placeholder="2026-08"></label>
+        <label>Budget Amount<input id="ferpBudgetAmount" type="number" min="0"></label>
+        <label>Owner<input id="ferpBudgetOwner"></label>
+        <label class="finance-erp-form-full">Notes<textarea id="ferpBudgetNotes" rows="3"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="FinanceERP.saveBudget()">Budget সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="ferpBankModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="FinanceERP.closeModal('ferpBankModal')"></div>
+    <div class="employee-modal-card finance-erp-modal">
+      <button class="employee-modal-close" onclick="FinanceERP.closeModal('ferpBankModal')">×</button>
+      <h2>Bank Statement Item</h2>
+      <div class="finance-erp-form-grid">
+        <label>Bank Account<input id="ferpBankAccount"></label>
+        <label>Date<input id="ferpBankDate" type="date"></label>
+        <label>Description<input id="ferpBankDescription"></label>
+        <label>Amount<input id="ferpBankAmount" type="number" step="0.01"></label>
+        <label>Direction<select id="ferpBankDirection"><option value="credit">Credit</option><option value="debit">Debit</option></select></label>
+        <label>Reference<input id="ferpBankReference"></label>
+      </div>
+      <button class="btn btn-gold" onclick="FinanceERP.saveBankItem()">Bank Item সংরক্ষণ</button>
+    </div>
+  </div>
+</div>

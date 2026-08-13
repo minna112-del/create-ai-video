@@ -1,0 +1,57 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn() &&
+        firestore.exists(/databases/(default)/documents/staff/$(request.auth.uid)) &&
+        firestore.get(/databases/(default)/documents/staff/$(request.auth.uid)).data.role == 'admin';
+    }
+    function isStaff() {
+      return isSignedIn() &&
+        firestore.exists(/databases/(default)/documents/staff/$(request.auth.uid));
+    }
+    function staffRole() {
+      return firestore.get(/databases/(default)/documents/staff/$(request.auth.uid)).data.role;
+    }
+    function isProductEditor() {
+      return isStaff() && (staffRole() == 'admin' || staffRole() == 'zone_manager');
+    }
+    function isImageUnder5Mb() {
+      return request.resource.size < 5 * 1024 * 1024 &&
+        request.resource.contentType.matches('image/.*');
+    }
+
+    match /staff/{staffId}/{fileName=**} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() && isImageUnder5Mb();
+    }
+
+    match /products/{fileName=**} {
+      allow read: if true;
+      allow write: if isProductEditor() && isImageUnder5Mb();
+    }
+
+    match /staff-chat/{fileName=**} {
+      allow read: if isStaff();
+      allow write: if isStaff() && isImageUnder5Mb();
+    }
+
+    match /review_photos/{fileName=**} {
+      allow read: if true;
+      allow write: if isSignedIn() && isImageUnder5Mb();
+    }
+
+    match /prescriptions/{fileName=**} {
+      allow read: if isStaff();
+      allow write: if isSignedIn() && isImageUnder5Mb();
+    }
+
+    match /{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

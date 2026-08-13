@@ -1,0 +1,43 @@
+/* Shared runtime states: language direction and Company OS wake-lock control */
+:root[data-language="en"] body {
+  font-family: Poppins, "Hind Siliguri", system-ui, sans-serif;
+}
+
+.company-os-wake-lock {
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.company-os-wake-lock[data-state="active"] {
+  border-color: rgba(74, 222, 128, 0.55);
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+}
+
+.company-os-wake-lock[data-state="error"],
+.company-os-wake-lock[data-state="unsupported"] {
+  border-color: rgba(251, 191, 36, 0.5);
+  color: #fde68a;
+}
+
+@media (max-width: 720px) {
+  .company-os-wake-lock {
+    max-width: 132px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .company-os-wake-lock {
+    transition: none;
+  }
+}

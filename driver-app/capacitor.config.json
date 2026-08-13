@@ -1,0 +1,25 @@
+{
+  "appId": "online.golapishop.driver",
+  "appName": "Golapi Driver",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://www.golapishop.online/driver/",
+    "androidScheme": "https",
+    "cleartext": false,
+    "allowNavigation": [
+      "www.golapishop.online",
+      "golapishop.online"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#09090b",
+      "showSpinner": false
+    },
+    "Geolocation": {
+      "requestAlwaysAuthorization": true
+    }
+  }
+}

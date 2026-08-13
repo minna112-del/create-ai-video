@@ -1,0 +1,160 @@
+<div class="page" id="page-procurement-dash">
+  <div class="staff-login-shell" id="procLoginBox">
+    <div class="staff-login-card">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span class="eyebrow">Supply Chain Division</span>
+      <h1>Procurement Office</h1>
+      <p>অনুমোদিত Procurement Officer অ্যাকাউন্ট দিয়ে প্রবেশ করুন।</p>
+      <label>ইমেইল<input id="procEmail" type="email" autocomplete="username" placeholder="office@golapishop.online"></label>
+      <label>পাসওয়ার্ড<input id="procPassword" type="password" autocomplete="current-password" placeholder="••••••••"></label>
+      <div id="procLoginMsg" class="form-msg"></div>
+      <button class="btn btn-gold btn-block" onclick="ProcurementDash.login()">অফিসে প্রবেশ করুন</button>
+      <button class="btn btn-outline btn-block" onclick="Router.go('home')">স্টোরে ফিরে যান</button>
+    </div>
+  </div>
+
+  <div id="procDashBox" style="display:none">
+    <header class="staff-office-topbar">
+      <a href="#" onclick="event.preventDefault();Router.go('home')" class="staff-office-brand">
+        <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+        <span><small>Supply Chain Division</small><strong>Procurement Office</strong></span>
+      </a>
+      <div class="staff-office-actions">
+        <span id="procUserLabel"></span>
+        <button onclick="ProcurementDash.refresh()">↻ রিফ্রেশ</button>
+        <button onclick="ProcurementDash.logout()">লগআউট</button>
+      </div>
+    </header>
+
+    <main class="sec procurement-shell">
+      <div id="procEmployeeWorkspace"></div>
+      <nav class="zm-tabs procurement-tabs" aria-label="Procurement Office navigation">
+        <button class="active" onclick="ProcurementDash.tab(this,'overview')">কমান্ড ভিউ</button>
+        <button onclick="ProcurementDash.tab(this,'requests')">রিস্টক অনুমোদন</button>
+        <button onclick="ProcurementDash.tab(this,'orders')">ক্রয় আদেশ</button>
+        <button onclick="ProcurementDash.tab(this,'suppliers')">সাপ্লায়ার রেজিস্ট্রি</button>
+        <button onclick="ProcurementDash.tab(this,'receiving')">পণ্য গ্রহণ</button>
+        <button onclick="ProcurementDash.tab(this,'quotations')">RFQ ও Quotation</button>
+        <button onclick="ProcurementDash.tab(this,'vendorcontrol')">Vendor Ledger ও Compliance</button>
+      </nav>
+
+      <section id="procOverviewPane">
+        <div class="procurement-hero">
+          <div><span>SUPPLY CHAIN CONTROL</span><h1>ক্রয়, সরবরাহ ও স্টক পুনঃপূরণের সিদ্ধান্তকেন্দ্র</h1><p>Inventory Control Room-এর চাহিদা যাচাই করে সাপ্লায়ার নির্বাচন, Purchase Order এবং পণ্য গ্রহণ এক জায়গা থেকে পরিচালনা করুন।</p></div>
+          <div class="procurement-health"><small>Procurement Health</small><strong id="procHealthScore">০</strong><span id="procHealthLabel">ডেটা বিশ্লেষণ হচ্ছে</span></div>
+        </div>
+        <div class="stat-grid procurement-stats">
+          <div class="stat-card"><div class="lbl">পেন্ডিং রিকোয়েস্ট</div><div class="val rose" id="procStatPending">০</div></div>
+          <div class="stat-card"><div class="lbl">অনুমোদিত ক্রয়</div><div class="val" id="procStatApproved">০</div></div>
+          <div class="stat-card"><div class="lbl">চলমান PO</div><div class="val" id="procStatOpenPo">০</div></div>
+          <div class="stat-card"><div class="lbl">সক্রিয় সাপ্লায়ার</div><div class="val" id="procStatSuppliers">০</div></div>
+          <div class="stat-card"><div class="lbl">বকেয়া ক্রয়মূল্য</div><div class="val rose" id="procStatOutstanding">৳০</div></div>
+        </div>
+        <div class="procurement-grid">
+          <div class="card-box"><div class="proc-card-head"><div><span class="eyebrow">Priority Queue</span><h2>আজকের জরুরি সিদ্ধান্ত</h2></div></div><div id="procPriorityList" class="proc-priority-list"></div></div>
+          <div class="card-box"><div class="proc-card-head"><div><span class="eyebrow">Branch Risk</span><h2>শাখাভিত্তিক সরবরাহ ঝুঁকি</h2></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>শাখা</th><th>পেন্ডিং</th><th>স্টক আউট</th><th>ঝুঁকি</th></tr></thead><tbody id="procBranchRisk"></tbody></table></div></div>
+        </div>
+      </section>
+
+      <section id="procRequestsPane" style="display:none">
+        <div class="proc-card-head"><div><span class="eyebrow">Inventory Requests</span><h2>রিস্টক অনুমোদন ডেস্ক</h2></div><div class="proc-toolbar"><input id="procRequestSearch" placeholder="প্রোডাক্ট বা শাখা খুঁজুন" oninput="ProcurementDash.renderRequests()"><select id="procRequestStatus" onchange="ProcurementDash.renderRequests()"><option value="">সব স্ট্যাটাস</option><option value="pending">পেন্ডিং</option><option value="approved">অনুমোদিত</option><option value="rejected">বাতিল</option><option value="ordered">PO তৈরি</option><option value="received">গৃহীত</option></select></div></div>
+        <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>প্রোডাক্ট</th><th>শাখা</th><th>বর্তমান স্টক</th><th>প্রস্তাবিত পরিমাণ</th><th>রিকোয়েস্ট</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead><tbody id="procRequestsTable"></tbody></table></div>
+      </section>
+
+      <section id="procOrdersPane" style="display:none">
+        <div class="proc-card-head"><div><span class="eyebrow">Purchase Orders</span><h2>ক্রয় আদেশ রেজিস্টার</h2></div><button class="btn btn-gold" onclick="ProcurementDash.openPoModal()">+ ম্যানুয়াল PO</button></div>
+        <div class="proc-toolbar proc-toolbar-wide"><input id="procPoSearch" placeholder="PO, পণ্য বা সাপ্লায়ার" oninput="ProcurementDash.renderPurchaseOrders()"><select id="procPoStatus" onchange="ProcurementDash.renderPurchaseOrders()"><option value="">সব স্ট্যাটাস</option><option value="draft">খসড়া</option><option value="placed">অর্ডার করা</option><option value="partial">আংশিক গৃহীত</option><option value="received">সম্পন্ন</option><option value="cancelled">বাতিল</option></select><button class="btn btn-outline" onclick="ProcurementDash.exportCsv()">CSV Export</button></div>
+        <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>PO নম্বর</th><th>প্রোডাক্ট</th><th>সাপ্লায়ার</th><th>পরিমাণ</th><th>মোট</th><th>ডেলিভারি</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead><tbody id="procPoTable"></tbody></table></div>
+      </section>
+
+      <section id="procSuppliersPane" style="display:none">
+        <div class="proc-card-head"><div><span class="eyebrow">Approved Vendor List</span><h2>সাপ্লায়ার রেজিস্ট্রি</h2></div><button class="btn btn-gold" onclick="ProcurementDash.openSupplierModal()">+ নতুন সাপ্লায়ার</button></div>
+        <div id="procSupplierGrid" class="supplier-grid"></div>
+      </section>
+
+      <section id="procReceivingPane" style="display:none">
+        <div class="proc-card-head"><div><span class="eyebrow">Goods Receiving</span><h2>পণ্য গ্রহণ ও স্টক হস্তান্তর</h2></div><span class="proc-note">সম্পন্ন করলে প্রোডাক্ট স্টক স্বয়ংক্রিয়ভাবে বাড়বে</span></div>
+        <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>PO</th><th>প্রোডাক্ট</th><th>অর্ডার</th><th>আগে গৃহীত</th><th>এখন গ্রহণ</th><th>ইনভয়েস</th><th>একশন</th></tr></thead><tbody id="procReceivingTable"></tbody></table></div>
+      </section>
+
+      <section id="procQuotationsPane" class="proc-pane" style="display:none">
+        <div class="office-panel-head">
+          <div><span class="office-kicker">RFQ · PRICE CONTROL</span><h2>Quotation Comparison Desk</h2><p>একই ক্রয় প্রয়োজনের জন্য একাধিক vendor quotation তুলনা ও winner নির্বাচন করুন।</p></div>
+          <button class="btn btn-gold" onclick="ProcurementDash.openRfqModal()">+ নতুন RFQ</button>
+        </div>
+        <div id="procQuotationSummary" class="procurement-stats"></div>
+        <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>RFQ</th><th>প্রোডাক্ট</th><th>পরিমাণ</th><th>Quotation</th><th>সেরা মূল্য</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead><tbody id="procQuotationTable"></tbody></table></div>
+      </section>
+
+      <section id="procVendorcontrolPane" class="proc-pane" style="display:none">
+        <div class="office-panel-head">
+          <div><span class="office-kicker">VENDOR GOVERNANCE</span><h2>Vendor Ledger, Contract & Document Control</h2><p>Vendor due, payment history, contract expiry এবং compliance documents নিয়ন্ত্রণ করুন।</p></div>
+          <div class="proc-vendor-actions">
+            <button class="btn" onclick="ProcurementDash.openVendorPaymentModal()">+ Payment</button>
+            <button class="btn" onclick="ProcurementDash.openVendorContractModal()">+ Contract</button>
+            <button class="btn btn-gold" onclick="ProcurementDash.openVendorDocumentModal()">+ Document</button>
+          </div>
+        </div>
+        <div id="procVendorRiskDesk" class="proc-vendor-risk"></div>
+        <div class="proc-vendor-grid">
+          <article class="card-box">
+            <h3>Vendor Ledger</h3>
+            <div class="table-scroll"><table class="data-table"><thead><tr><th>Vendor</th><th>PO Value</th><th>Paid</th><th>Due</th><th>Performance</th></tr></thead><tbody id="procVendorLedgerTable"></tbody></table></div>
+          </article>
+          <article class="card-box">
+            <h3>Contracts & Compliance</h3>
+            <div id="procVendorContractList" class="proc-control-list"></div>
+          </article>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="employee-modal" id="procSupplierModal"><div class="employee-modal-backdrop" onclick="ProcurementDash.closeSupplierModal()"></div><div class="employee-modal-panel proc-modal"><header><div><span>SUPPLIER PROFILE</span><h3 id="procSupplierModalTitle">নতুন সাপ্লায়ার</h3></div><button onclick="ProcurementDash.closeSupplierModal()">×</button></header><div class="employee-form-columns proc-form-grid"><label class="form-group"><span>প্রতিষ্ঠানের নাম</span><input id="supplierName"></label><label class="form-group"><span>যোগাযোগ ব্যক্তি</span><input id="supplierContact"></label><label class="form-group"><span>মোবাইল</span><input id="supplierPhone" type="tel"></label><label class="form-group"><span>ইমেইল</span><input id="supplierEmail" type="email"></label><label class="form-group"><span>ঠিকানা</span><input id="supplierAddress"></label><label class="form-group"><span>পেমেন্ট শর্ত</span><select id="supplierTerms"><option value="cod">তাৎক্ষণিক</option><option value="7-days">৭ দিন</option><option value="15-days">১৫ দিন</option><option value="30-days">৩০ দিন</option></select></label><label class="form-group"><span>স্ট্যাটাস</span><select id="supplierStatus"><option value="active">সক্রিয়</option><option value="review">পর্যালোচনাধীন</option><option value="inactive">নিষ্ক্রিয়</option></select></label><label class="form-group"><span>রেটিং</span><select id="supplierRating"><option value="5">৫ — অসাধারণ</option><option value="4">৪ — ভালো</option><option value="3">৩ — গ্রহণযোগ্য</option><option value="2">২ — দুর্বল</option><option value="1">১ — ঝুঁকিপূর্ণ</option></select></label></div><footer><button class="btn btn-outline" onclick="ProcurementDash.closeSupplierModal()">বাতিল</button><button class="btn btn-gold" onclick="ProcurementDash.saveSupplier()">সংরক্ষণ</button></footer></div></div>
+
+  <div class="employee-modal" id="procPoModal"><div class="employee-modal-backdrop" onclick="ProcurementDash.closePoModal()"></div><div class="employee-modal-panel proc-modal"><header><div><span>PURCHASE ORDER</span><h3>ক্রয় আদেশ তৈরি</h3></div><button onclick="ProcurementDash.closePoModal()">×</button></header><div class="employee-form-columns proc-form-grid"><label class="form-group"><span>প্রোডাক্ট</span><select id="procPoProduct"></select></label><label class="form-group"><span>সাপ্লায়ার</span><select id="procPoSupplier"></select></label><label class="form-group"><span>পরিমাণ</span><input id="procPoQty" type="number" min="1" value="1"></label><label class="form-group"><span>প্রতি ইউনিট ক্রয়মূল্য</span><input id="procPoUnitCost" type="number" min="0" step="0.01"></label><label class="form-group"><span>প্রত্যাশিত ডেলিভারি</span><input id="procPoDelivery" type="date"></label><label class="form-group"><span>শাখা</span><select id="procPoZone"></select></label><label class="form-group" style="grid-column:1/-1"><span>নোট</span><textarea id="procPoNotes" rows="3"></textarea></label></div><footer><button class="btn btn-outline" onclick="ProcurementDash.closePoModal()">বাতিল</button><button class="btn btn-gold" onclick="ProcurementDash.savePurchaseOrder()">PO তৈরি করুন</button></footer></div></div>
+
+  <div class="employee-modal" id="procRfqModal"><div class="employee-modal-backdrop" onclick="ProcurementDash.closeExtraModal('procRfqModal')"></div><div class="employee-modal-panel proc-modal"><header><div><span>REQUEST FOR QUOTATION</span><h3>নতুন RFQ</h3></div><button onclick="ProcurementDash.closeExtraModal('procRfqModal')">×</button></header><div class="employee-form-columns proc-form-grid">
+    <label class="form-group"><span>প্রোডাক্ট</span><select id="procRfqProduct"></select></label>
+    <label class="form-group"><span>পরিমাণ</span><input id="procRfqQty" type="number" min="1" value="1"></label>
+    <label class="form-group"><span>শেষ তারিখ</span><input id="procRfqDeadline" type="date"></label>
+    <label class="form-group"><span>Branch</span><select id="procRfqZone"></select></label>
+    <label class="form-group" style="grid-column:1/-1"><span>Vendor নির্বাচন</span><div id="procRfqVendors" class="proc-check-grid"></div></label>
+    <label class="form-group" style="grid-column:1/-1"><span>Specifications</span><textarea id="procRfqNotes" rows="3"></textarea></label>
+  </div><footer><button class="btn btn-outline" onclick="ProcurementDash.closeExtraModal('procRfqModal')">বাতিল</button><button class="btn btn-gold" onclick="ProcurementDash.saveRfq()">RFQ তৈরি</button></footer></div></div>
+
+  <div class="employee-modal" id="procQuoteModal"><div class="employee-modal-backdrop" onclick="ProcurementDash.closeExtraModal('procQuoteModal')"></div><div class="employee-modal-panel proc-modal"><header><div><span>VENDOR QUOTATION</span><h3>Quotation এন্ট্রি</h3></div><button onclick="ProcurementDash.closeExtraModal('procQuoteModal')">×</button></header><input type="hidden" id="procQuoteRfqId"><div class="employee-form-columns proc-form-grid">
+    <label class="form-group"><span>Vendor</span><select id="procQuoteVendor"></select></label>
+    <label class="form-group"><span>Unit Price</span><input id="procQuoteUnitPrice" type="number" min="0" step="0.01"></label>
+    <label class="form-group"><span>Delivery Days</span><input id="procQuoteDeliveryDays" type="number" min="0"></label>
+    <label class="form-group"><span>Payment Terms</span><input id="procQuoteTerms"></label>
+    <label class="form-group" style="grid-column:1/-1"><span>নোট</span><textarea id="procQuoteNotes" rows="3"></textarea></label>
+  </div><footer><button class="btn btn-outline" onclick="ProcurementDash.closeExtraModal('procQuoteModal')">বাতিল</button><button class="btn btn-gold" onclick="ProcurementDash.saveQuotation()">Quotation সংরক্ষণ</button></footer></div></div>
+
+  <div class="employee-modal" id="procVendorPaymentModal"><div class="employee-modal-backdrop" onclick="ProcurementDash.closeExtraModal('procVendorPaymentModal')"></div><div class="employee-modal-panel proc-modal"><header><div><span>VENDOR PAYMENT</span><h3>Payment Record</h3></div><button onclick="ProcurementDash.closeExtraModal('procVendorPaymentModal')">×</button></header><div class="employee-form-columns proc-form-grid">
+    <label class="form-group"><span>Vendor</span><select id="procPaymentVendor"></select></label>
+    <label class="form-group"><span>Purchase Order</span><select id="procPaymentPo"></select></label>
+    <label class="form-group"><span>Amount</span><input id="procPaymentAmount" type="number" min="0"></label>
+    <label class="form-group"><span>Method</span><select id="procPaymentMethod"><option value="bank">Bank</option><option value="cash">Cash</option><option value="mobile_banking">Mobile Banking</option><option value="cheque">Cheque</option></select></label>
+    <label class="form-group"><span>Reference</span><input id="procPaymentReference"></label>
+    <label class="form-group"><span>Date</span><input id="procPaymentDate" type="date"></label>
+  </div><footer><button class="btn btn-outline" onclick="ProcurementDash.closeExtraModal('procVendorPaymentModal')">বাতিল</button><button class="btn btn-gold" onclick="ProcurementDash.saveVendorPayment()">Payment সংরক্ষণ</button></footer></div></div>
+
+  <div class="employee-modal" id="procVendorContractModal"><div class="employee-modal-backdrop" onclick="ProcurementDash.closeExtraModal('procVendorContractModal')"></div><div class="employee-modal-panel proc-modal"><header><div><span>VENDOR CONTRACT</span><h3>Contract Record</h3></div><button onclick="ProcurementDash.closeExtraModal('procVendorContractModal')">×</button></header><div class="employee-form-columns proc-form-grid">
+    <label class="form-group"><span>Vendor</span><select id="procContractVendor"></select></label>
+    <label class="form-group"><span>Contract Title</span><input id="procContractTitle"></label>
+    <label class="form-group"><span>Start Date</span><input id="procContractStart" type="date"></label>
+    <label class="form-group"><span>End Date</span><input id="procContractEnd" type="date"></label>
+    <label class="form-group" style="grid-column:1/-1"><span>Terms / Notes</span><textarea id="procContractNotes" rows="3"></textarea></label>
+  </div><footer><button class="btn btn-outline" onclick="ProcurementDash.closeExtraModal('procVendorContractModal')">বাতিল</button><button class="btn btn-gold" onclick="ProcurementDash.saveVendorContract()">Contract সংরক্ষণ</button></footer></div></div>
+
+  <div class="employee-modal" id="procVendorDocumentModal"><div class="employee-modal-backdrop" onclick="ProcurementDash.closeExtraModal('procVendorDocumentModal')"></div><div class="employee-modal-panel proc-modal"><header><div><span>VENDOR DOCUMENT</span><h3>Compliance Document</h3></div><button onclick="ProcurementDash.closeExtraModal('procVendorDocumentModal')">×</button></header><div class="employee-form-columns proc-form-grid">
+    <label class="form-group"><span>Vendor</span><select id="procDocumentVendor"></select></label>
+    <label class="form-group"><span>Document Type</span><select id="procDocumentType"><option value="trade_license">Trade License</option><option value="tin">TIN</option><option value="bin">BIN/VAT</option><option value="bank">Bank Document</option><option value="agreement">Agreement</option><option value="other">Other</option></select></label>
+    <label class="form-group"><span>Document Number</span><input id="procDocumentNumber"></label>
+    <label class="form-group"><span>Expiry Date</span><input id="procDocumentExpiry" type="date"></label>
+    <label class="form-group" style="grid-column:1/-1"><span>File URL / Drive Link</span><input id="procDocumentUrl" type="url"></label>
+  </div><footer><button class="btn btn-outline" onclick="ProcurementDash.closeExtraModal('procVendorDocumentModal')">বাতিল</button><button class="btn btn-gold" onclick="ProcurementDash.saveVendorDocument()">Document সংরক্ষণ</button></footer></div></div>
+
+</div>

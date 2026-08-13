@@ -1,0 +1,136 @@
+<div class="page zone-manager-page" id="page-finance-dash">
+  <section class="sec zone-manager-shell">
+    <a class="zm-back-link" href="#" onclick="event.preventDefault();Router.go('home')">← সাইটে ফিরে যান</a>
+
+    <div id="finLoginBox" class="zm-login-wrap">
+      <div class="zm-login-intro">
+        <span class="eyebrow">আর্থিক কার্যক্রম</span>
+        <h1 class="tiro">ফাইন্যান্স অফিস</h1>
+        <p>নিজস্ব অনুমোদিত অ্যাকাউন্ট দিয়ে লগইন করুন। রেভিনিউ, COD ও রিফান্ড এখান থেকে নিয়ন্ত্রণ করা যাবে।</p>
+      </div>
+      <div class="card-box zm-login-card">
+        <div id="finLoginMsg" class="form-msg" role="status" aria-live="polite"></div>
+        <div class="field"><label for="finEmail">ইমেইল</label><input type="email" id="finEmail" autocomplete="username" inputmode="email"></div>
+        <div class="field"><label for="finPassword">পাসওয়ার্ড</label><input type="password" id="finPassword" autocomplete="current-password"></div>
+        <button class="btn btn-primary btn-block" type="button" onclick="FinanceDash.login()">নিরাপদ লগইন</button>
+      </div>
+    </div>
+
+    <div id="finDashBox" class="zm-dashboard" style="display:none">
+      <header class="zm-dashboard-head finance-office-head">
+        <div><span class="eyebrow">FINANCE OFFICE</span><h1 class="tiro">আর্থিক নিয়ন্ত্রণ ও জবাবদিহি</h1><p id="finUserLabel"></p></div>
+        <div class="finance-head-actions">
+          <button class="btn btn-outline" type="button" onclick="FinanceDash.exportFinanceReport()">⬇ রিপোর্ট</button>
+          <button class="btn btn-outline" type="button" onclick="FinanceDash.refresh()">↻ রিফ্রেশ</button>
+          <button class="btn btn-outline" type="button" onclick="FinanceDash.logout()">লগআউট</button>
+        </div>
+      </header>
+      <div id="finEmployeeWorkspace"></div>
+
+      <nav class="zm-tabs" aria-label="ফাইন্যান্স নেভিগেশন">
+        <button class="active" type="button" onclick="FinanceDash.tab(this,'overview')">ওভারভিউ</button>
+        <button type="button" onclick="FinanceDash.tab(this,'refunds')">রিফান্ড/রিটার্ন</button>
+        <button type="button" onclick="FinanceDash.tab(this,'payouts')">ড্রাইভার পে-আউট</button>
+        <button type="button" onclick="FinanceDash.tab(this,'zones')">শাখাভিত্তিক হিসাব</button>
+        <button type="button" onclick="FinanceDash.tab(this,'cod')">COD রিকনসিলিয়েশন</button>
+        <button type="button" onclick="FinanceDash.tab(this,'ledger')">লেনদেন লেজার</button>
+      </nav>
+
+      <main class="zm-content">
+        <section id="finOverviewPane">
+          <div class="stat-grid zm-stat-grid">
+            <article class="stat-card"><div class="lbl">এই মাসের সেল</div><div class="val rose" id="finMonthSales">৳০</div></article>
+            <article class="stat-card"><div class="lbl">COD পেন্ডিং (জমা বাকি)</div><div class="val" id="finCodPending">৳০</div></article>
+            <article class="stat-card"><div class="lbl">অনলাইন পেমেন্ট</div><div class="val" id="finOnlineTotal">৳০</div></article>
+            <article class="stat-card"><div class="lbl">রিফান্ড পেন্ডিং</div><div class="val rose" id="finRefundPendingCount">০</div></article>
+            <article class="stat-card"><div class="lbl">পে-আউট পেন্ডিং</div><div class="val rose" id="finPayoutPendingCount">০</div></article>
+          </div>
+          <section class="finance-command-board" aria-labelledby="financeCommandTitle">
+            <div class="finance-command-head">
+              <div><span>FINANCIAL CONTROL BOARD</span><h2 id="financeCommandTitle">আজকের আর্থিক সিদ্ধান্ত</h2><p>নগদ প্রবাহ, পাওনা, রিফান্ড ও ঝুঁকি একসাথে দেখুন।</p></div>
+              <div class="finance-health-badge"><small>Finance Health</small><strong id="finHealthScore">—</strong><span id="finHealthLabel">বিশ্লেষণ হচ্ছে</span></div>
+            </div>
+            <div class="finance-kpi-grid">
+              <article><small>আজকের রেভিনিউ</small><strong id="finTodayRevenue">৳০</strong><span>নন-ক্যানসেলড অর্ডার</span></article>
+              <article><small>নেট ক্যাশ পজিশন</small><strong id="finNetCash">৳০</strong><span>অনলাইন + জমাকৃত COD − রিফান্ড</span></article>
+              <article><small>আদায়যোগ্য COD</small><strong id="finReceivableCod">৳০</strong><span>শাখা থেকে জমা বাকি</span></article>
+              <article><small>রিফান্ড দায়</small><strong id="finRefundLiability">৳০</strong><span>অনুমোদনের অপেক্ষায়</span></article>
+              <article><small>গড় অর্ডার মূল্য</small><strong id="finAvgOrder">৳০</strong><span>সক্রিয় অর্ডার</span></article>
+              <article><small>অনলাইন পেমেন্ট শেয়ার</small><strong id="finOnlineShare">০%</strong><span>মোট বিক্রয়ের অংশ</span></article>
+            </div>
+            <div class="finance-alert-grid">
+              <div>
+                <div class="finance-subhead"><h3>অগ্রাধিকার অ্যাকশন</h3><span id="finActionCount">০টি</span></div>
+                <div id="finActionList" class="finance-action-list"></div>
+              </div>
+              <div>
+                <div class="finance-subhead"><h3>৭ দিনের ক্যাশ মুভমেন্ট</h3><span id="finCashFlowTotal">৳০</span></div>
+                <div id="finCashFlowBars" class="finance-cashflow-bars"></div>
+              </div>
+            </div>
+          </section>
+
+          <div class="zm-overview-grid">
+            <article class="card-box">
+              <div class="section-head"><div><span class="eyebrow">পারফরম্যান্স</span><h2>গত ৭ দিনের সেল</h2></div></div>
+              <div id="finRevenueChart" class="zm-chart"></div>
+              <div id="finChartLabels" class="zm-chart-labels"></div>
+            </article>
+            <article class="card-box">
+              <div class="section-head"><div><span class="eyebrow">পেমেন্ট</span><h2>পদ্ধতি অনুযায়ী বিভাজন</h2></div></div>
+              <div id="finPayBreakdown"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="finRefundsPane" style="display:none">
+          <div class="zm-pane-head">
+            <div><span class="eyebrow">অ্যাকশন প্রয়োজন</span><h2>রিফান্ড/রিটার্ন অনুমোদন সারি</h2></div>
+            <span id="finRefundPendingTag" style="font-size:12.5px;color:var(--rose);font-weight:700"></span>
+          </div>
+          <div class="table-scroll card-box">
+            <table class="data-table"><thead><tr><th>অর্ডার</th><th>কাস্টমার</th><th>পরিমাণ</th><th>কারণ</th><th>অনুরোধের সময়</th><th>স্ট্যাটাস</th><th></th></tr></thead><tbody id="finRefundTable"></tbody></table>
+          </div>
+        </section>
+
+        <section id="finPayoutsPane" style="display:none">
+          <div class="zm-pane-head">
+            <div><span class="eyebrow">অ্যাকশন প্রয়োজন</span><h2>ড্রাইভার পে-আউট অনুমোদন সারি</h2></div>
+            <span id="finPayoutPendingTag" style="font-size:12.5px;color:var(--rose);font-weight:700"></span>
+          </div>
+          <div class="table-scroll card-box">
+            <table class="data-table"><thead><tr><th>ড্রাইভার</th><th>পরিমাণ</th><th>মাধ্যম</th><th>অ্যাকাউন্ট নম্বর</th><th>অনুরোধের সময়</th><th>স্ট্যাটাস</th><th></th></tr></thead><tbody id="finPayoutTable"></tbody></table>
+          </div>
+        </section>
+
+        <section id="finZonesPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">বিশ্লেষণ</span><h2>শাখাভিত্তিক আর্থিক বিভাজন</h2></div></div>
+          <div class="table-scroll card-box">
+            <table class="data-table"><thead><tr><th>শাখা</th><th>মোট রেভিনিউ</th><th>COD</th><th>অনলাইন</th><th>পেন্ডিং রিফান্ড</th></tr></thead><tbody id="finZoneTable"></tbody></table>
+          </div>
+        </section>
+
+        <section id="finLedgerPane" style="display:none">
+          <div class="zm-pane-head">
+            <div><span class="eyebrow">অডিট ট্রেইল</span><h2>লেনদেন লেজার</h2></div>
+            <div class="finance-ledger-filters">
+              <select id="finLedgerMethod" onchange="FinanceDash.renderLedger()"><option value="">সব পেমেন্ট</option><option value="cod">COD</option><option value="bkash">bKash</option><option value="nagad">Nagad</option></select>
+              <select id="finLedgerStatus" onchange="FinanceDash.renderLedger()"><option value="">সব স্ট্যাটাস</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="processing">Processing</option><option value="shipped">Shipped</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select>
+            </div>
+          </div>
+          <div class="table-scroll card-box">
+            <table class="data-table"><thead><tr><th>তারিখ</th><th>অর্ডার</th><th>শাখা</th><th>পদ্ধতি</th><th>গ্রস</th><th>COD জমা</th><th>স্ট্যাটাস</th></tr></thead><tbody id="finLedgerTable"></tbody></table>
+          </div>
+        </section>
+
+        <section id="finCodPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">নগদ ব্যবস্থাপনা</span><h2>COD রিকনসিলিয়েশন — সব শাখা</h2></div></div>
+          <p style="font-size:12px;color:var(--ink-muted);margin-bottom:14px">প্রতিটা শাখার Zone Manager COD জমা দেওয়ার পর এখানে আপডেট হয়। ✅ = সম্পূর্ণ জমা, ⏳ = আংশিক/বাকি।</p>
+          <div class="table-scroll card-box">
+            <table class="data-table"><thead><tr><th>শাখা</th><th>মোট কালেকশন</th><th>জমা হয়েছে</th><th>বাকি</th><th>স্ট্যাটাস</th></tr></thead><tbody id="finCodTable"></tbody></table>
+          </div>
+        </section>
+      </main>
+    </div>
+  </section>
+</div>

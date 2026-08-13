@@ -1,0 +1,398 @@
+<div class="page admin-shell" id="page-admin-dash">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('home')" aria-label="স্টোর হোমে ফিরুন">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span><small>Golapi Shop Online</small><strong>Executive Command Center</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="adminLastUpdated" class="admin-updated" aria-live="polite"></span>
+      <button id="adminNotifBell" data-count="0" class="admin-icon-btn admin-alert-btn" style="display:none" onclick="this.style.display='none';this.dataset.count=0" aria-label="নতুন নোটিফিকেশন">🔔</button>
+      <button onclick="AdminDash.refresh()" class="admin-icon-btn">↻ <span>রিফ্রেশ</span></button>
+      <button onclick="OwnerAuth.lock()" class="admin-icon-btn admin-lock-btn">🔒 <span>লক</span></button>
+    </div>
+  </header>
+  <div id="adminEmployeeWorkspace"></div>
+  <section class="sec admin-content">
+    <div class="dash-layout admin-layout">
+      <aside class="dash-side admin-nav" aria-label="Executive Office নেভিগেশন">
+        <a class="active" onclick="AdminDash.tab(this,'overview')">📊 ওভারভিউ</a>
+        <a onclick="AdminDash.tab(this,'products')">📦 প্রোডাক্ট</a>
+        <a onclick="AdminDash.tab(this,'orders')">🧾 অর্ডার</a>
+        <a onclick="AdminDash.tab(this,'analytics')">📈 অ্যানালিটিক্স</a>
+        <a onclick="Router.go('analytics-dash')">🧠 Analytics & Reports Center</a>
+        <a onclick="AdminDash.tab(this,'customers')">👥 কাস্টমার</a>
+        <a onclick="AdminDash.tab(this,'coupons')">🎟️ কুপন</a>
+        <a onclick="AdminDash.tab(this,'payments')">💳 পেমেন্ট ভেরিফিকেশন</a>
+        <a onclick="AdminDash.tab(this,'employees')">🪪 কর্মী ও অফিস ডেস্ক</a>
+        <a onclick="Router.go('procurement-dash')">🛒 Procurement Operations Office</a>
+        <a onclick="Router.go('warehouse-dash')">🏭 Warehouse Control Room</a>
+        <a onclick="Router.go('support-dash')">🎧 Customer Care Center</a>
+        <a onclick="AdminDash.tab(this,'branches')">🏢 শাখা ব্যবস্থাপনা</a>
+        <a onclick="Router.go('documents-dash')">📄 Document Management Office</a>
+        <a onclick="Router.go('attendance-dash')">⏱️ Attendance & Time Office</a>
+        <a onclick="Router.go('payroll-dash')">💳 Payroll Office</a>
+        <a onclick="Router.go('branch-dash')">🏢 Branch Management Office</a>
+        <a onclick="Router.go('crm-dash')">🤝 Customer Relationship Office</a>
+        <a onclick="Router.go('company-os')">◈ Golapi Company OS</a>
+        <a onclick="Router.go('ai-control')">✦ AI Control Center</a>
+        <a onclick="Router.go('hr-erp')">👥 Human Resources ERP</a>
+        <a onclick="Router.go('finance-erp')">📒 Finance ERP</a>
+        <a onclick="Router.go('warehouse-erp')">🏬 Advanced Warehouse ERP</a>
+        <a onclick="Router.go('marketing-erp')">📣 Marketing Automation Center</a>
+        <a onclick="Router.go('workflow-erp')">🔄 Workflow Automation Engine</a>
+        <a onclick="Router.go('bi-erp')">📊 Business Intelligence Center</a>
+        <a onclick="Router.go('asset-erp')">💼 Company Asset Management</a>
+        <a onclick="Router.go('crm-erp')">🎧 Customer Service CRM</a>
+        <a onclick="Router.go('procurement-erp')">🧾 Procurement & Vendor ERP</a>
+        <a onclick="Router.go('facilities-erp')">🏢 Facilities & Branch Operations ERP</a>
+        <a onclick="Router.go('company-settings')">🔐 Company Settings & Access Control</a>
+        <a onclick="AdminDash.tab(this,'settings')">⚙️ সেটিংস</a>
+      </aside>
+      <div>
+        <div id="adminOverviewPane">
+          <div class="stat-grid stat-grid--tight">
+            <div class="stat-card"><div class="lbl">আজকের সেল</div><div class="val rose" id="aStatToday">৳০</div></div>
+            <div class="stat-card"><div class="lbl">মোট সেল</div><div class="val" id="aStatGmv">৳০</div></div>
+            <div class="stat-card"><div class="lbl">মোট অর্ডার</div><div class="val" id="aStatOrders">০</div></div>
+            <div class="stat-card"><div class="lbl">পেন্ডিং</div><div class="val rose" id="aStatPending">০</div></div>
+            <div class="stat-card"><div class="lbl">প্রোডাক্ট</div><div class="val" id="aStatProducts">০</div></div>
+            <div class="stat-card"><div class="lbl">কাস্টমার</div><div class="val" id="aStatCustomers">০</div></div>
+          </div>
+          <div id="inventoryAlerts" style="display:none;margin-bottom:16px">
+            <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.25);border-radius:14px;padding:14px">
+              <div style="color:#fbbf24;font-weight:600;font-size:13.5px;margin-bottom:10px">⚠️ ইনভেন্টরি সতর্কতা</div>
+              <div id="inventoryAlertList"></div>
+            </div>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+              <h3 style="font-size:14px;color:var(--ink)">গত ৭ দিনের সেল</h3>
+              <span id="aChart7Total" style="font-size:12px;color:var(--gold)"></span>
+            </div>
+            <div id="aRevenueChart" style="display:flex;align-items:flex-end;gap:6px;height:80px"></div>
+            <div id="aRevenueChartLabels" style="display:flex;gap:6px;margin-top:4px"></div>
+          </div>
+          <div class="card-box">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+              <h3 style="font-size:14px;color:var(--ink)">সাম্প্রতিক অর্ডার</h3>
+              <a href="#" onclick="AdminDash.tab(null,'orders')" style="font-size:12px;color:var(--gold)">সব দেখুন →</a>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>অর্ডার ID</th><th>কাস্টমার</th><th>মোট</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead>
+                <tbody id="aRecentOrders"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="adminProductsPane" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h2 class="tiro" style="font-size:19px">প্রোডাক্ট ম্যানেজমেন্ট</h2>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;width:100%;max-width:480px">
+              <input id="productSearch" type="text" placeholder="খুঁজুন..." oninput="AdminDash.filterProducts()" style="flex:1;min-width:120px;padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:13px">
+              <select id="productZoneFilter" onchange="AdminDash.filterProducts()" style="padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:13px">
+                <option value="">সব শাখা</option>
+              </select>
+              <button class="btn btn-gold" style="padding:9px 16px;font-size:13px;white-space:nowrap" onclick="ProductForm.openAdd()">+ নতুন প্রোডাক্ট</button>
+            </div>
+          </div>
+          <div id="lowStockBanner" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#f87171"></div>
+          <div id="productBulkBar" class="admin-bulkbar" style="display:none">
+            <span id="productBulkCount"></span>
+            <button onclick="AdminDash.bulkUpdatePrice()" class="admin-bulk-btn">💰 মূল্য আপডেট (%)</button>
+            <button onclick="AdminDash.bulkDeleteProducts()" class="admin-bulk-btn danger">🗑️ মুছে ফেলুন</button>
+          </div>
+          <div class="table-scroll admin-table-wrap">
+            <table class="data-table admin-table">
+              <thead><tr><th><input type="checkbox" id="selectAllProducts" onchange="AdminDash.toggleSelectAllProducts(this)" aria-label="সব প্রোডাক্ট নির্বাচন"></th><th>ছবি</th><th>প্রোডাক্ট</th><th>শাখা</th><th>মূল্য</th><th>স্টক</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead>
+              <tbody id="aProductsTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="adminOrdersPane" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+            <h2 class="tiro" style="font-size:19px">অর্ডার ম্যানেজমেন্ট</h2>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input id="orderSearch" type="search" placeholder="অর্ডার, কাস্টমার বা ফোন খুঁজুন" oninput="AdminDash.filterOrders()" style="padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:13px;min-width:210px">
+              <select id="orderStatusFilter" onchange="AdminDash.filterOrders()" style="padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:13px">
+                <option value="">সব স্ট্যাটাস</option>
+                <option value="pending">পেন্ডিং</option>
+                <option value="confirmed">কনফার্মড</option>
+                <option value="packed">প্যাকড</option>
+                <option value="assigned">ড্রাইভার অ্যাসাইনড</option>
+                <option value="in_transit">পথে</option>
+                <option value="delivered">ডেলিভারড</option>
+                <option value="cancelled">বাতিল</option>
+              </select>
+              <select id="orderZoneFilter" onchange="AdminDash.filterOrders()" style="padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:13px">
+                <option value="">সব শাখা</option>
+              </select>
+            </div>
+          </div>
+          <div id="bulkActionsBar" style="display:none;background:rgba(212,175,55,.08);border:1px solid var(--gold-line);border-radius:10px;padding:10px 14px;margin-bottom:12px;align-items:center;gap:12px;flex-wrap:wrap">
+            <span id="bulkCount" style="font-size:13px;color:var(--gold);font-weight:600"></span>
+            <select id="bulkStatusSelect" style="padding:6px 10px;border-radius:8px;background:var(--bg2);border:1px solid var(--line);color:var(--ink);font-size:12.5px">
+              <option value="confirmed">কনফার্মড</option>
+              <option value="packed">প্যাকড</option>
+              <option value="delivered">ডেলিভারড</option>
+              <option value="cancelled">বাতিল</option>
+            </select>
+            <button onclick="AdminDash.bulkUpdateStatus()" style="padding:6px 12px;border-radius:8px;background:var(--gold);color:var(--bg);font-size:12.5px;font-weight:600">আপডেট করুন</button>
+            <button onclick="AdminDash.exportOrders()" style="padding:6px 12px;border-radius:8px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#22c55e;font-size:12.5px">📥 CSV Export</button>
+          </div>
+          <div class="table-scroll admin-table-wrap">
+            <table class="data-table admin-table">
+              <thead><tr>
+                <th><input type="checkbox" id="selectAllOrders" onchange="AdminDash.toggleSelectAll(this)"></th>
+                <th>ID</th><th>তারিখ</th><th>কাস্টমার</th><th>ফোন</th><th>মোট</th><th>ড্রাইভার</th><th>স্ট্যাটাস</th><th>একশন</th>
+              </tr></thead>
+              <tbody id="aOrdersTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="adminAnalyticsPane" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h2 class="tiro" style="font-size:19px">অ্যানালিটিক্স</h2>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <input type="date" id="anDateFrom" onchange="AdminDash.renderAnalyticsWithDateRange()" style="padding:6px 10px;border-radius:9px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:12px">
+              <span style="color:var(--ink-muted);font-size:12px">থেকে</span>
+              <input type="date" id="anDateTo" onchange="AdminDash.renderAnalyticsWithDateRange()" style="padding:6px 10px;border-radius:9px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:12px">
+              <button onclick="document.getElementById('anDateFrom').value='';document.getElementById('anDateTo').value='';AdminDash.renderAnalytics(AdminDash._allOrders)" style="padding:6px 10px;border-radius:9px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink-muted);font-size:12px">রিসেট</button>
+            </div>
+          </div>
+          <div id="anTrend" style="font-size:12.5px;color:var(--ink-muted);margin-bottom:12px"></div>
+          <div class="stat-grid stat-grid--tight">
+            <div class="stat-card"><div class="lbl">আজ</div><div class="val rose" id="anToday">৳০</div></div>
+            <div class="stat-card"><div class="lbl">এই সপ্তাহ</div><div class="val" id="anWeek">৳০</div></div>
+            <div class="stat-card"><div class="lbl">এই মাস</div><div class="val" id="anMonth">৳০</div></div>
+            <div class="stat-card"><div class="lbl">মোট</div><div class="val" id="anTotal">৳০</div></div>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;color:var(--ink);margin-bottom:12px">💳 পেমেন্ট পদ্ধতি</h3>
+            <div id="paymentBreakdown"></div>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;color:var(--ink);margin-bottom:12px">🏢 শাখাভিত্তিক সেল</h3>
+            <div id="zoneBreakdown"></div>
+          </div>
+          <div class="card-box">
+            <h3 style="font-size:14px;color:var(--ink);margin-bottom:12px">🏆 সেরা বিক্রিত পণ্য</h3>
+            <div id="topProducts"></div>
+          </div>
+        </div>
+        <div id="adminCustomersPane" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h2 class="tiro" style="font-size:19px">কাস্টমার ম্যানেজমেন্ট</h2>
+            <input id="customerSearch" type="text" placeholder="নাম বা ফোন খুঁজুন..." oninput="AdminDash.filterCustomers()" style="padding:8px 12px;border-radius:10px;background:color-mix(in srgb,var(--ink) 4%,transparent);border:1px solid var(--line);color:var(--ink);font-size:13px;width:200px;max-width:100%">
+          </div>
+          <div class="table-scroll admin-table-wrap">
+            <table class="data-table admin-table">
+              <thead><tr><th>কাস্টমার</th><th>ফোন</th><th>NID</th><th>মোট অর্ডার</th><th>মোট খরচ</th><th>শেষ অর্ডার</th><th>একশন</th></tr></thead>
+              <tbody id="aCustomersTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="adminCouponsPane" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h2 class="tiro" style="font-size:19px">কুপন / ডিসকাউন্ট কোড</h2>
+            <button class="btn btn-gold" style="padding:9px 16px;font-size:13px" onclick="CouponManage.openAdd()">+ নতুন কুপন</button>
+          </div>
+          <div class="table-scroll admin-table-wrap">
+            <table class="data-table admin-table">
+              <thead><tr><th>কোড</th><th>ধরন</th><th>ভ্যালু</th><th>ন্যূনতম অর্ডার</th><th>ব্যবহার</th><th>মেয়াদ</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead>
+              <tbody id="aCouponsTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="adminPaymentsPane" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h2 class="tiro" style="font-size:19px">পেমেন্ট ভেরিফিকেশন</h2>
+            <span id="paymentPendingCount" style="font-size:12.5px;color:var(--gold)"></span>
+          </div>
+          <div id="paymentDuplicateWarning" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:#f87171"></div>
+          <div class="table-scroll admin-table-wrap">
+            <table class="data-table admin-table">
+              <thead><tr><th>অর্ডার</th><th>কাস্টমার</th><th>পদ্ধতি</th><th>মোট</th><th>ট্রানজেকশন ID</th><th>জমা দেওয়ার সময়</th><th>একশন</th></tr></thead>
+              <tbody id="aPaymentsTable"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="adminSettingsPane" style="display:none">
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:4px;color:var(--ink)">🖼️ পুরনো প্রোডাক্ট ছবি আপডেট</h3>
+            <p style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px">নতুন প্রোডাক্টে ছবির ছোট সংস্করণ ও ঝাপসা প্রিভিউ এখন স্বয়ংক্রিয়ভাবে তৈরি হয়। এই বাটনে চাপলে <b>আগে থেকে থাকা সব প্রোডাক্টের</b> ছবিও একই সুবিধা পাবে (ধীর নেটওয়ার্কে দ্রুত লোড হবে)। এতে কয়েক মিনিট লাগতে পারে প্রোডাক্ট সংখ্যা অনুযায়ী — পেজ বন্ধ করো না।</p>
+            <button class="btn btn-outline btn-block" id="reprocessImagesBtn" onclick="AdminDash.reprocessAllProductImages()">সব পুরনো প্রোডাক্টের ছবি আপডেট করুন</button>
+            <div id="reprocessProgress" style="margin-top:10px;font-size:12px;color:var(--ink-muted);display:none"></div>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:4px;color:var(--ink)">📝 খালি বিবরণ পূরণ করুন</h3>
+            <p style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px">যেসব প্রোডাক্টে এখনো কোনো বিবরণ লেখা হয়নি, সেগুলোর নাম ও ক্যাটাগরি দেখে AI স্বয়ংক্রিয়ভাবে একটা সংক্ষিপ্ত বিবরণ লিখে সেভ করে দেবে। যেসব প্রোডাক্টে ইতিমধ্যে বিবরণ আছে সেগুলো বদলাবে না। প্রোডাক্ট সংখ্যা অনুযায়ী কয়েক মিনিট লাগতে পারে — পেজ বন্ধ করো না।</p>
+            <button class="btn btn-outline btn-block" id="fillDescBtn" onclick="AdminDash.fillMissingDescriptions()">খালি বিবরণগুলো পূরণ করুন</button>
+            <div id="fillDescProgress" style="margin-top:10px;font-size:12px;color:var(--ink-muted);display:none"></div>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:4px;color:var(--ink)">🔎 SEO Sitemap</h3>
+            <p style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px">সব পাবলিক পেজ ও লাইভ প্রোডাক্টের URL সহ একটা sitemap.xml তৈরি করে দেবে। নিচে দেখানো টেক্সট পুরোটা কপি করে GitHub-এ <code>sitemap.xml</code> ফাইলে (রুট ফোল্ডারে) পেস্ট করে দাও — প্রতি সপ্তাহে বা নতুন অনেক প্রোডাক্ট যোগ করলে আবার জেনারেট করে আপডেট করে দিও।</p>
+            <button class="btn btn-outline btn-block" style="margin-bottom:10px" onclick="AdminDash.generateSitemap()">Sitemap.xml তৈরি করুন</button>
+            <textarea id="sitemapOutput" rows="8" readonly style="width:100%;font-family:monospace;font-size:10.5px;background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:10px;color:var(--ink-soft);display:none"></textarea>
+            <button class="btn btn-gold btn-block" id="sitemapCopyBtn" style="display:none;margin-top:8px" onclick="AdminDash.copySitemap()">📋 পুরোটা কপি করুন</button>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:12px;color:var(--ink)">🚴 ড্রাইভার ম্যানেজমেন্ট</h3>
+            <div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="btn btn-outline" style="padding:7px 14px;font-size:12.5px" onclick="DriverManage.openAdd()">+ নতুন ড্রাইভার</button></div>
+            <div class="table-scroll"><table class="data-table"><thead><tr><th>নাম</th><th>শাখা</th><th>মোবাইল</th><th>স্ট্যাটাস</th></tr></thead><tbody id="driverManageTable"></tbody></table></div>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:12px;color:var(--ink)">📊 ড্রাইভার পারফরম্যান্স</h3>
+            <div class="table-scroll"><table class="data-table">
+              <thead><tr><th>ড্রাইভার</th><th>মোট</th><th>ডেলিভারড</th><th>সাফল্যের হার</th><th>আয়</th></tr></thead>
+              <tbody id="driverPerformanceTable"></tbody>
+            </table></div>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:12px;color:var(--ink)">🏪 স্টোর সেটিংস</h3>
+            <div class="field"><label>ঘোষণা (Topbar-এ দেখাবে)</label><input type="text" id="ss_storeAnnouncement" placeholder="যেমন: ঈদ অফার চলছে!"></div>
+            <div class="field"><label>স্টোর সময়</label><input type="text" id="ss_storeHours" placeholder="যেমন: সকাল ৮টা — রাত ১০টা"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+              <div class="field"><label>ন্যূনতম ডেলিভারি (৳)</label><input type="number" id="ss_deliveryMin" min="0"></div>
+              <div class="field"><label>সর্বোচ্চ ডেলিভারি (৳)</label><input type="number" id="ss_deliveryMax" min="0"></div>
+              <div class="field"><label>এক্সপ্রেস চার্জ (৳)</label><input type="number" id="ss_expressCharge" min="0"></div>
+            </div>
+            <button class="btn btn-gold" onclick="AdminDash.saveStoreSettings()">সংরক্ষণ করুন</button>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:12px;color:var(--ink)">🚚 ডেলিভারি প্রাইসিং</h3>
+            <p style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px">এখানে যা বদলাবে, সেভ করার সাথে সাথে পুরো সাইটে সরাসরি চালু হয়ে যাবে — কোনো ডিপ্লয় লাগবে না।</p>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="field"><label>Base Charge — শুরুর চার্জ (৳)</label><input type="number" id="ds_baseFee" min="0"></div>
+              <div class="field"><label>Per KM Charge — প্রতি কিমি (৳)</label><input type="number" id="ds_perKmFee" min="0"></div>
+              <div class="field"><label>প্রতি আইটেম চার্জ (৳)</label><input type="number" id="ds_perItemFee" min="0"></div>
+              <div class="field"><label>Free Delivery — এর উপরে ফ্রি (৳)</label><input type="number" id="ds_freeAboveSubtotal" min="0"></div>
+              <div class="field"><label>Delivery Radius — স্বাভাবিক সীমা (কিমি)</label><input type="number" id="ds_deliveryRadiusKm" min="0" step="0.5"></div>
+              <div class="field"><label>Max Distance — এর বাইরে অর্ডার ব্লক (কিমি)</label><input type="number" id="ds_maxDistanceKm" min="0" step="0.5"></div>
+            </div>
+            <button class="btn btn-gold" onclick="AdminDash.saveDeliverySettings()">ডেলিভারি প্রাইসিং সংরক্ষণ করুন</button>
+          </div>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 style="font-size:14px;margin-bottom:4px;color:var(--ink)">🗺️ ডেলিভারি জোন</h3>
+            <p style="font-size:11.5px;color:var(--ink-muted);margin-bottom:12px">শাখার কেন্দ্র থেকে বৃত্তাকার দূরত্ব ভিত্তিতে জোন — Zone A সবচেয়ে কাছের, Zone C সবচেয়ে দূরের। এই radius-এর বাইরে অর্ডার ব্লক হয়ে যাবে।</p>
+            <div id="zoneEditorBox"></div>
+            <button class="btn btn-gold" onclick="AdminDash.saveDeliveryZones()">জোন সংরক্ষণ করুন</button>
+          </div>
+          <div class="card-box">
+            <h3 style="font-size:14px;margin-bottom:12px;color:var(--ink)">🏢 জোন ম্যানেজার পিন</h3>
+            <div class="field"><label>নোয়াখালী সদর — পিন</label><input type="text" id="zmPinSadar" placeholder="যেমন 1111"></div>
+            <div class="field"><label>বেগমগঞ্জ — পিন</label><input type="text" id="zmPinBegumganj" placeholder="যেমন 2222"></div>
+            <button class="btn btn-gold" onclick="AdminDash.saveZmPins()">পিন সংরক্ষণ করুন</button>
+          </div>
+        </div>
+        <div id="adminFinancePane" style="display:none">
+          <div class="stat-grid">
+            <div class="stat-card"><div class="lbl">মোট সেল</div><div class="val rose" id="fMonth">৳০</div></div>
+            <div class="stat-card"><div class="lbl">COD পেন্ডিং</div><div class="val" id="fCod">৳০</div></div>
+            <div class="stat-card"><div class="lbl">অনলাইন পেমেন্ট</div><div class="val" id="fOnline">৳০</div></div>
+          </div>
+        </div>
+        <div id="adminEmployeesPane" style="display:none">
+          <div class="employee-office-head">
+            <div>
+              <span class="employee-office-eyebrow">PEOPLE OPERATIONS OFFICE</span>
+              <h2>কর্মী নিয়োগ ও অফিস ডেস্ক বরাদ্দ</h2>
+              <p>প্রতিটি কর্মীর নাম, পদবি, ছবি, কোম্পানি আইডি, বিভাগ, শাখা, ইউনিফর্ম এবং নির্ধারিত Workspace এক জায়গা থেকে নিয়ন্ত্রণ করুন।</p>
+            </div>
+            <button class="btn btn-gold" onclick="EmployeeManagement.openCreate()">+ নতুন কর্মী নিয়োগ</button>
+          </div>
+          <div class="employee-office-stats">
+            <div><small>মোট কর্মী</small><strong id="empStatTotal">০</strong></div>
+            <div><small>সক্রিয় ডেস্ক</small><strong id="empStatActive">০</strong></div>
+            <div><small>নিয়োগ অপেক্ষমাণ</small><strong id="empStatPending">০</strong></div>
+            <div><small>বিভাগ</small><strong id="empStatDepartments">০</strong></div>
+          </div>
+          <div class="card-box employee-office-toolbar">
+            <input id="employeeSearch" type="search" placeholder="নাম, ID, পদবি বা ফোন দিয়ে খুঁজুন" oninput="EmployeeManagement.render()">
+            <select id="employeeRoleFilter" onchange="EmployeeManagement.render()"><option value="">সব পদ</option></select>
+            <select id="employeeStatusFilter" onchange="EmployeeManagement.render()"><option value="">সব স্ট্যাটাস</option><option value="probation">প্রবেশন</option><option value="active">সক্রিয়</option><option value="leave">ছুটিতে</option><option value="pending">অপেক্ষমাণ</option><option value="suspended">স্থগিত</option><option value="resigned">পদত্যাগ</option><option value="inactive">নিষ্ক্রিয়</option></select>
+          </div>
+          <div id="employeeDirectory" class="employee-directory"></div>
+          <div id="employeeFormModal" class="employee-modal" aria-hidden="true">
+            <div class="employee-modal-backdrop" onclick="EmployeeManagement.closeForm()"></div>
+            <section class="employee-modal-panel" role="dialog" aria-modal="true" aria-labelledby="employeeFormTitle">
+              <header><div><span>GOLAPI PEOPLE OPERATIONS</span><h3 id="employeeFormTitle">নতুন কর্মী নিয়োগ</h3></div><button onclick="EmployeeManagement.closeForm()" aria-label="বন্ধ করুন">×</button></header>
+              <div id="employeeFormMsg" class="form-msg"></div>
+              <div class="employee-form-grid">
+                <div class="employee-photo-field">
+                  <div class="employee-photo-preview"><img id="employeePhotoPreview" src="icons/head_logo.webp" alt="কর্মীর ছবি"></div>
+                  <label class="btn btn-outline">ছবি নির্বাচন<input id="employeePhotoFile" type="file" accept="image/*" hidden onchange="EmployeeManagement.previewPhoto(this)"></label>
+                  <small>কোম্পানির ড্রেস কোড অনুসারে পরিষ্কার অফিসিয়াল ছবি ব্যবহার করুন।</small>
+                </div>
+                <div>
+                  <div class="field"><label>পূর্ণ নাম *</label><input id="empName" type="text"></div>
+                  <div class="field"><label>Firebase User UID *</label><input id="empUid" type="text" placeholder="কর্মীর Auth UID"><small>কর্মী সাইন-আপ করার পর Firebase Authentication থেকে UID কপি করুন।</small></div>
+                  <div class="field"><label>ইমেইল</label><input id="empEmail" type="email"></div>
+                  <div class="field"><label>মোবাইল</label><input id="empPhone" type="tel"></div>
+                </div>
+              </div>
+              <div class="employee-form-columns">
+                <div class="field"><label>পদ / Role *</label><select id="empRole" onchange="EmployeeManagement.applyRoleDefaults()"></select></div>
+                <div class="field"><label>অফিসিয়াল পদবি *</label><input id="empDesignation" type="text"></div>
+                <div class="field"><label>বিভাগ *</label><input id="empDepartment" type="text"></div>
+                <div class="field"><label>Workspace / অফিস ডেস্ক *</label><input id="empWorkspace" type="text"></div>
+                <div class="field"><label>কোম্পানি Employee ID *</label><input id="empEmployeeId" type="text"></div>
+                <div class="field"><label>শাখা</label><select id="empBranch"></select></div>
+                <div class="field"><label>ড্রেস কোড / ইউনিফর্ম</label><input id="empUniform" type="text"></div>
+                <div class="field"><label>স্ট্যাটাস</label><select id="empStatus"><option value="probation">প্রবেশন</option><option value="active">সক্রিয়</option><option value="leave">ছুটিতে</option><option value="pending">নিয়োগ অপেক্ষমাণ</option><option value="suspended">স্থগিত</option><option value="resigned">পদত্যাগ</option><option value="inactive">নিষ্ক্রিয়</option></select></div>
+                <div class="field"><label>যোগদানের তারিখ</label><input id="empJoiningDate" type="date"></div>
+                <div class="field"><label>প্রবেশন শেষ</label><input id="empProbationEnd" type="date"></div>
+                <div class="field"><label>বেতন গ্রেড</label><select id="empSalaryGrade"></select></div>
+                <div class="field"><label>কাজের শিফট</label><select id="empShift"></select></div>
+                <div class="field"><label>রিপোর্টিং ম্যানেজার</label><select id="empReportingManager"></select></div>
+                <div class="field"><label>জরুরি যোগাযোগের নাম</label><input id="empEmergencyContact" type="text"></div>
+                <div class="field"><label>জরুরি যোগাযোগের ফোন</label><input id="empEmergencyPhone" type="tel"></div>
+              </div>
+              <div class="field"><label>দায়িত্ব / নোট</label><textarea id="empResponsibilities" rows="3" placeholder="এই পদে কর্মীর প্রধান দায়িত্ব লিখুন"></textarea></div>
+              <footer><button class="btn btn-outline" onclick="EmployeeManagement.closeForm()">বাতিল</button><button id="employeeSaveBtn" class="btn btn-gold" onclick="EmployeeManagement.save()">কর্মীর ডেস্ক বরাদ্দ করুন</button></footer>
+            </section>
+          </div>
+        </div>
+        <div id="adminBranchesPane" style="display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+            <h2 class="tiro" style="font-size:19px">শাখা / জোন ব্যবস্থাপনা</h2>
+            <button class="btn btn-outline" style="padding:7px 14px;font-size:12.5px" onclick="AdminDash.openAddBranch()">+ নতুন শাখা</button>
+          </div>
+          <p style="font-size:11.5px;color:var(--ink-muted);margin-bottom:14px">এখানে নতুন শাখা যোগ করলে সাথে সাথে প্রোডাক্ট ফর্ম, ফিল্টার ড্রপডাউন ও ডেলিভারি জোন এডিটরে দেখাবে — কোনো কোড পরিবর্তন লাগবে না।</p>
+          <div class="card-box" style="margin-bottom:16px">
+            <h3 id="brFormTitle" style="font-size:14px;margin-bottom:12px;color:var(--ink)">🆕 নতুন শাখা যোগ করুন</h3>
+            <div id="brMsg" class="form-msg"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="field"><label>শাখা আইডি * <small style="color:var(--ink-muted)">(শুধু ইংরেজি, যেমন: chittagong_city)</small></label><input type="text" id="brId" placeholder="chittagong_city"></div>
+              <div class="field"><label>শাখার নাম *</label><input type="text" id="brLabel" placeholder="চট্টগ্রাম সিটি"></div>
+            </div>
+            <div class="field"><label>ঠিকানা</label><input type="text" id="brAddress" placeholder="জিইসি মোড়, চট্টগ্রাম"></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="field"><label>ম্যানেজারের নাম</label><input type="text" id="brManagerName"></div>
+              <div class="field"><label>ম্যানেজারের ফোন</label><input type="text" id="brManagerPhone" placeholder="+880 1XXX-XXXXXX"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="field"><label>bKash নম্বর</label><input type="text" id="brBkash"></div>
+              <div class="field"><label>Nagad নম্বর</label><input type="text" id="brNagad"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div class="field"><label>Latitude</label><input type="number" step="0.0001" id="brLat" placeholder="22.3569"></div>
+              <div class="field"><label>Longitude</label><input type="number" step="0.0001" id="brLng" placeholder="91.7832"></div>
+            </div>
+            <button class="btn btn-gold btn-block" onclick="AdminDash.saveBranch()">শাখা সংরক্ষণ করুন</button>
+          </div>
+          <div class="card-box">
+            <h3 style="font-size:14px;margin-bottom:12px;color:var(--ink)">📋 সব শাখার তালিকা</h3>
+            <div class="table-scroll">
+              <table class="data-table">
+                <thead><tr><th>শাখা</th><th>ঠিকানা</th><th>ম্যানেজার</th><th>ফোন</th><th>একশন</th></tr></thead>
+                <tbody id="aBranchesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

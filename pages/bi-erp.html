@@ -1,0 +1,114 @@
+<div class="page bi-erp-page" id="page-bi-erp">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('company-os')">
+      <img src="icons/head_logo.webp" alt="">
+      <span><small>Golapi Shop Online</small><strong>Business Intelligence Center</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="biUpdated"></span>
+      <button onclick="BusinessIntelligence.refresh()">↻ Refresh</button>
+      <button onclick="BusinessIntelligence.exportKpis()">CSV</button>
+      <button onclick="Router.go('company-os')">◈ Company OS</button>
+    </div>
+  </header>
+
+  <div id="biEmployeeWorkspace"></div>
+
+  <main class="sec bi-office">
+    <section class="bi-hero">
+      <div>
+        <span class="office-kicker">DATA · KPI · FORECAST</span>
+        <h1>কোম্পানির ডেটাকে সিদ্ধান্তে রূপান্তর করুন</h1>
+        <p>Sales, customer, product, branch, delivery, finance ও workforce data থেকে KPI, trend, profitability, CLV এবং forecast তৈরি করুন।</p>
+      </div>
+      <div class="bi-hero-actions">
+        <button class="btn btn-gold" onclick="BusinessIntelligence.saveSnapshot()">Save Snapshot</button>
+        <button class="btn" onclick="BusinessIntelligence.open('biKpiModal')">+ Custom KPI</button>
+      </div>
+    </section>
+
+    <section class="bi-stats">
+      <article><span>Revenue</span><strong id="biRevenue">৳০</strong><small id="biRevenueTrend">0%</small></article>
+      <article><span>Gross Margin</span><strong id="biMargin">০%</strong><small>Estimated</small></article>
+      <article><span>Average Order</span><strong id="biAov">৳০</strong><small>Delivered orders</small></article>
+      <article><span>Customer CLV</span><strong id="biClv">৳০</strong><small>Average</small></article>
+      <article><span>Repeat Rate</span><strong id="biRepeat">০%</strong><small>Customers</small></article>
+      <article><span>Forecast</span><strong id="biForecast">৳০</strong><small>Next 30 days</small></article>
+    </section>
+
+    <section id="biInsightDesk" class="bi-insight-desk"></section>
+
+    <section class="bi-tabs">
+      <button class="active" onclick="BusinessIntelligence.tab('overview',this)">Overview</button>
+      <button onclick="BusinessIntelligence.tab('sales',this)">Sales</button>
+      <button onclick="BusinessIntelligence.tab('customers',this)">Customers</button>
+      <button onclick="BusinessIntelligence.tab('products',this)">Products</button>
+      <button onclick="BusinessIntelligence.tab('branches',this)">Branches</button>
+      <button onclick="BusinessIntelligence.tab('kpis',this)">Custom KPIs</button>
+    </section>
+
+    <section id="biOverviewPane">
+      <div class="bi-grid">
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">REVENUE TREND</span><h2>Last 14 Days</h2></div></div>
+          <div id="biRevenueChart" class="bi-bar-chart"></div>
+        </article>
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">ORDER FUNNEL</span><h2>Order Status Mix</h2></div></div>
+          <div id="biOrderFunnel" class="bi-funnel"></div>
+        </article>
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">PROFITABILITY</span><h2>Revenue vs Cost</h2></div></div>
+          <div id="biProfitability" class="bi-metric-list"></div>
+        </article>
+        <article class="office-panel">
+          <div class="office-panel-head"><div><span class="office-kicker">DELIVERY</span><h2>Service Performance</h2></div></div>
+          <div id="biDeliveryMetrics" class="bi-metric-list"></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="biSalesPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">SALES INTELLIGENCE</span><h2>Daily & Monthly Performance</h2></div></div>
+      <div id="biSalesGrid" class="bi-card-grid"></div>
+    </section>
+
+    <section id="biCustomersPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">CUSTOMER INTELLIGENCE</span><h2>Segments & Lifetime Value</h2></div></div>
+      <div id="biCustomerGrid" class="bi-card-grid"></div>
+    </section>
+
+    <section id="biProductsPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">PRODUCT INTELLIGENCE</span><h2>Product Profitability & Velocity</h2></div></div>
+      <div id="biProductList" class="bi-list"></div>
+    </section>
+
+    <section id="biBranchesPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">BRANCH INTELLIGENCE</span><h2>Branch Scorecard</h2></div></div>
+      <div id="biBranchList" class="bi-list"></div>
+    </section>
+
+    <section id="biKpisPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">CUSTOM KPI LIBRARY</span><h2>Management KPIs</h2></div><button class="btn btn-gold" onclick="BusinessIntelligence.open('biKpiModal')">+ KPI</button></div>
+      <div id="biKpiGrid" class="bi-card-grid"></div>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="biKpiModal">
+    <div class="employee-modal-backdrop" onclick="BusinessIntelligence.close('biKpiModal')"></div>
+    <div class="employee-modal-card bi-modal">
+      <button class="employee-modal-close" onclick="BusinessIntelligence.close('biKpiModal')">×</button>
+      <h2>Custom KPI</h2>
+      <div class="bi-form">
+        <label>KPI Name<input id="biKpiName"></label>
+        <label>Department<input id="biKpiDepartment"></label>
+        <label>Metric Source<select id="biKpiSource"><option value="orders">Orders</option><option value="revenue">Revenue</option><option value="customers">Customers</option><option value="delivery_rate">Delivery Rate</option><option value="refund_rate">Refund Rate</option><option value="inventory">Inventory</option></select></label>
+        <label>Aggregation<select id="biKpiAggregation"><option value="count">Count</option><option value="sum">Sum</option><option value="average">Average</option><option value="percentage">Percentage</option></select></label>
+        <label>Target<input id="biKpiTarget" type="number"></label>
+        <label>Direction<select id="biKpiDirection"><option value="higher">Higher is Better</option><option value="lower">Lower is Better</option></select></label>
+        <label class="bi-full">Description<textarea id="biKpiDescription" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="BusinessIntelligence.saveKpi()">Save KPI</button>
+    </div>
+  </div>
+</div>

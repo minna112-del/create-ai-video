@@ -1,0 +1,29 @@
+<div class="page analytics-center-page" id="page-analytics-dash">
+  <section class="staff-shell analytics-center-shell">
+    <header class="analytics-center-head">
+      <div><span class="analytics-eyebrow">BUSINESS INTELLIGENCE</span><h1>Analytics & Reports Center</h1><p>বিক্রয়, কাস্টমার, পেমেন্ট, শাখা, পণ্য ও অপারেশনাল ঝুঁকির একীভূত সিদ্ধান্তভিত্তিক বিশ্লেষণ।</p></div>
+      <div class="analytics-head-actions"><button class="btn btn-outline" onclick="AnalyticsCenter.exportCsv()">CSV রিপোর্ট</button><button class="btn btn-outline" onclick="AnalyticsCenter.printBrief()">CEO Brief</button><button class="btn btn-outline" onclick="AnalyticsCenter.refresh()">↻ রিফ্রেশ</button><button class="btn btn-outline" onclick="AnalyticsCenter.logout()">লগআউট</button></div>
+    </header>
+    <div id="analyticsEmployeeWorkspace"></div><div id="analyticsAuthMessage" class="form-msg" role="status" aria-live="polite"></div>
+    <section class="analytics-filterbar"><div><label>শুরু</label><input type="date" id="analyticsFrom" onchange="AnalyticsCenter.renderAll()"></div><div><label>শেষ</label><input type="date" id="analyticsTo" onchange="AnalyticsCenter.renderAll()"></div><div><label>শাখা</label><select id="analyticsBranch" onchange="AnalyticsCenter.renderAll()"><option value="">সব শাখা</option></select></div><button class="btn btn-outline" onclick="AnalyticsCenter.resetFilters()">রিসেট</button></section>
+    <section class="analytics-health-card"><div class="analytics-health-score"><small>Business Health</small><strong id="analyticsHealthScore">—</strong><span>/ 100</span></div><div><h2 id="analyticsHealthTitle">বিশ্লেষণ প্রস্তুত হচ্ছে</h2><p id="analyticsHealthNote">ডেটা লোড হলে ব্যবসার সার্বিক অবস্থা ও অগ্রাধিকার দেখানো হবে।</p></div></section>
+    <section class="analytics-metric-grid">
+      <article><span>নেট বিক্রয়</span><strong id="analyticsRevenue">৳০</strong><small id="analyticsRevenueTrend">নির্বাচিত সময়</small></article>
+      <article><span>অর্ডার</span><strong id="analyticsOrders">০</strong><small id="analyticsDeliveredRate">Delivery ০%</small></article>
+      <article><span>গড় অর্ডার মূল্য</span><strong id="analyticsAov">৳০</strong><small>Average order value</small></article>
+      <article><span>পুনরায় কাস্টমার</span><strong id="analyticsRepeatRate">০%</strong><small id="analyticsCustomers">০ ইউনিক কাস্টমার</small></article>
+      <article><span>অনলাইন পেমেন্ট</span><strong id="analyticsOnlineShare">০%</strong><small>Digital payment share</small></article>
+      <article><span>বাতিল হার</span><strong id="analyticsCancelRate">০%</strong><small id="analyticsRefundRisk">Refund risk ৳০</small></article>
+    </section>
+    <section class="analytics-main-grid">
+      <article class="analytics-panel"><header><span>EXECUTIVE PRIORITIES</span><h2>যেসব বিষয়ে সিদ্ধান্ত প্রয়োজন</h2></header><div id="analyticsPriorityList" class="analytics-priority-list"></div></article>
+      <article class="analytics-panel"><header><span>DAILY REVENUE</span><h2>দিনভিত্তিক বিক্রয় প্রবণতা</h2></header><div id="analyticsTrendChart" class="analytics-bar-chart"></div></article>
+    </section>
+    <section class="analytics-breakdown-grid">
+      <article class="analytics-panel"><header><span>BRANCH PERFORMANCE</span><h2>শাখাভিত্তিক বিক্রয়</h2></header><div id="analyticsBranchList" class="analytics-ranking-list"></div></article>
+      <article class="analytics-panel"><header><span>PAYMENT MIX</span><h2>পেমেন্ট পদ্ধতির অংশ</h2></header><div id="analyticsPaymentList" class="analytics-ranking-list"></div></article>
+      <article class="analytics-panel"><header><span>TOP PRODUCTS</span><h2>সেরা বিক্রিত পণ্য</h2></header><div id="analyticsProductList" class="analytics-ranking-list"></div></article>
+    </section>
+    <section class="analytics-panel analytics-report-panel"><header><div><span>MANAGEMENT REPORT</span><h2>ব্যবস্থাপনা সারাংশ</h2></div><input id="analyticsSearch" type="search" placeholder="অর্ডার বা কাস্টমার খুঁজুন" oninput="AnalyticsCenter.renderTable()"></header><div class="table-scroll"><table class="data-table"><thead><tr><th>অর্ডার</th><th>তারিখ</th><th>কাস্টমার</th><th>শাখা</th><th>পেমেন্ট</th><th>স্ট্যাটাস</th><th>মোট</th></tr></thead><tbody id="analyticsOrderTable"></tbody></table></div></section>
+  </section>
+</div>

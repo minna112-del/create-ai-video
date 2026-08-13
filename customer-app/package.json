@@ -1,0 +1,21 @@
+{
+  "name": "golapi-customer-shell",
+  "private": true,
+  "version": "2.4.5",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "validate": "node scripts/validate-project.mjs",
+    "android:configure": "node scripts/configure-android.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.4.2",
+    "@capacitor/core": "8.4.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.4.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

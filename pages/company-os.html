@@ -1,0 +1,126 @@
+<div class="page company-os-page" id="page-company-os">
+  <section class="company-os-gate" id="companyOsAccessGate">
+    <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+    <span class="office-kicker">SECURE DIGITAL WORKPLACE</span>
+    <h1>Golapi Company OS</h1>
+    <p>আপনার Staff account যাচাই হচ্ছে…</p>
+    <button class="btn btn-gold" type="button" onclick="Router.go('admin-dash')">Executive Login</button>
+  </section>
+
+  <div class="company-os-desktop" id="companyOsDesktop" hidden>
+    <header class="company-os-topbar">
+      <div class="company-os-brand">
+        <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+        <div><small>Golapi Shop Online</small><strong>Company OS</strong></div>
+      </div>
+      <button class="company-os-search-trigger" type="button" onclick="CompanyOS.openCommand()">
+        <span>⌕</span><span>Workspace, action বা office খুঁজুন</span><kbd>Ctrl K</kbd>
+      </button>
+      <div class="company-os-top-actions">
+        <button type="button" onclick="CompanyOS.toggleNotifications()" aria-label="Notifications">🔔<b id="companyOsNotificationCount">0</b></button>
+        <button class="company-os-profile-button" type="button" onclick="CompanyOS.toggleProfile()"><img id="companyOsTopPhoto" src="icons/head_logo.webp" alt=""><span id="companyOsTopName">Staff</span></button>
+      </div>
+    </header>
+
+    <aside class="company-os-sidebar">
+      <div class="company-os-identity" id="companyOsIdentity"></div>
+      <nav aria-label="Company OS sections">
+        <button class="active" data-section="home" type="button" onclick="CompanyOS.showSection('home',this)">⌂ <span>Home</span></button>
+        <button data-section="workspaces" type="button" onclick="CompanyOS.showSection('workspaces',this)">▦ <span>Workspaces</span></button>
+        <button data-section="activity" type="button" onclick="CompanyOS.showSection('activity',this)">◷ <span>Activity</span></button>
+        <button data-section="notifications" type="button" onclick="CompanyOS.showSection('notifications',this)">🔔 <span>Notifications</span></button>
+        <button data-section="help" type="button" onclick="CompanyOS.showSection('help',this)">? <span>Help</span></button>
+      </nav>
+      <div class="company-os-sidebar-footer">
+        <button type="button" onclick="Router.go('home')">↗ <span>Customer Store</span></button>
+        <button type="button" onclick="CompanyOS.signOut()">⇥ <span>Sign Out</span></button>
+      </div>
+    </aside>
+
+    <main class="company-os-main">
+      <section class="company-os-section" id="companyOsHomeSection">
+        <div class="company-os-welcome">
+          <div><span class="office-kicker" id="companyOsGreeting">WELCOME</span><h1><span id="companyOsWelcomeName">Staff</span>, আপনার অফিস প্রস্তুত</h1><p id="companyOsWelcomeMeta"></p></div>
+          <div class="company-os-live-clock"><strong id="companyOsClock">--:--</strong><span id="companyOsDate"></span></div>
+        </div>
+        <article class="company-os-brief" id="companyOsExecutiveBrief"></article>
+        <div class="company-os-section-head"><div><span class="office-kicker">QUICK ACCESS</span><h2>আপনার Workspace</h2></div><button type="button" onclick="CompanyOS.showSection('workspaces')">সব দেখুন</button></div>
+        <div class="company-os-workspace-grid" id="companyOsWorkspaceGrid"></div>
+        <div class="company-os-home-grid">
+          <article class="company-os-panel"><div class="company-os-panel-head"><h3>Recent Workspaces</h3><button type="button" onclick="CompanyOS.clearRecent()">Clear</button></div><div class="company-os-list" id="companyOsRecentList"></div></article>
+          <article class="company-os-panel"><div class="company-os-panel-head"><h3>Company Notices</h3><button type="button" onclick="CompanyOS.openNoticeForm()">+ Notice</button></div><div class="company-os-list" id="companyOsNoticeList"></div></article>
+        </div>
+      </section>
+
+      <section class="company-os-section" id="companyOsWorkspacesSection" hidden>
+        <div class="company-os-section-head"><div><span class="office-kicker">APP DIRECTORY</span><h2>Company Workspaces</h2></div></div>
+        <div class="company-os-app-directory" id="companyOsAllApps"></div>
+      </section>
+
+      <section class="company-os-section" id="companyOsActivitySection" hidden>
+        <div class="company-os-section-head"><div><span class="office-kicker">AUDIT TRAIL</span><h2>আপনার সাম্প্রতিক Activity</h2></div></div>
+        <div class="company-os-activity-list" id="companyOsActivityList"></div>
+      </section>
+
+      <section class="company-os-section" id="companyOsNotificationsSection" hidden>
+        <div class="company-os-section-head"><div><span class="office-kicker">ACTION CENTER</span><h2>Notifications</h2></div><button type="button" onclick="CompanyOS.markAllRead()">সব Read করুন</button></div>
+        <div class="company-os-notification-list" id="companyOsNotificationList"></div>
+      </section>
+
+      <section class="company-os-section" id="companyOsHelpSection" hidden>
+        <div class="company-os-section-head"><div><span class="office-kicker">WORKPLACE GUIDE</span><h2>দ্রুত সহায়তা</h2></div></div>
+        <div class="company-os-guide-grid">
+          <article><strong>1</strong><h3>Primary Workspace</h3><p>আপনার পদ ও permission অনুযায়ী নির্ধারিত office খুলুন।</p></article>
+          <article><strong>2</strong><h3>Command Search</h3><p>Ctrl/⌘ + K চাপলে যেকোনো অনুমোদিত Workspace দ্রুত খুঁজে পাবেন।</p></article>
+          <article><strong>3</strong><h3>Access Control</h3><p>Workspace না দেখালে Executive Office থেকে permission matrix যাচাই করুন।</p></article>
+          <article><strong>4</strong><h3>Account Security</h3><p>কাজ শেষে Sign Out করুন এবং নিজের account অন্য কারও সঙ্গে শেয়ার করবেন না।</p></article>
+          <article><strong>5</strong><h3>Always-on Session</h3><p>Company OS খোলার পর session সক্রিয় থাকে। সমর্থিত ব্রাউজারে নিচের “ডিসপ্লে সচল” control স্ক্রিন জাগ্রত রাখে এবং tab-এ ফিরে এলে স্বয়ংক্রিয়ভাবে আবার চালু হয়।</p></article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="company-os-taskbar">
+      <button class="company-os-start" type="button" onclick="CompanyOS.toggleStart()">◈ <span>Start</span></button>
+      <div class="company-os-pinned-apps" id="companyOsPinnedApps"></div>
+      <div class="company-os-taskbar-status"><button class="company-os-wake-lock" id="companyOsWakeLock" type="button" data-state="idle" aria-pressed="false" onclick="BusinessOSRuntime.requestWakeLock()">○ ডিসপ্লে সচল রাখুন</button><span id="companyOsConnection">● Online</span><b id="companyOsTaskClock">--:--</b></div>
+    </footer>
+  </div>
+
+  <aside class="company-os-start-menu" id="companyOsStartMenu" hidden>
+    <div class="company-os-start-head"><strong>Workspace Directory</strong><button type="button" onclick="CompanyOS.toggleStart(false)">×</button></div>
+    <input id="companyOsStartSearch" type="search" placeholder="Workspace খুঁজুন" oninput="CompanyOS.renderStartApps()">
+    <div class="company-os-start-apps" id="companyOsStartApps"></div>
+  </aside>
+
+  <aside class="company-os-drawer" id="companyOsNotificationDrawer" hidden>
+    <div class="company-os-drawer-head"><strong>Notifications</strong><button type="button" onclick="CompanyOS.toggleNotifications(false)">×</button></div>
+    <div id="companyOsDrawerNotifications"></div>
+  </aside>
+
+  <aside class="company-os-profile-menu" id="companyOsProfileMenu" hidden>
+    <div id="companyOsProfileCard"></div>
+    <button type="button" onclick="CompanyOS.showSection('activity');CompanyOS.toggleProfile(false)">Activity দেখুন</button>
+    <button type="button" onclick="Router.go('home')">Customer Store খুলুন</button>
+    <button type="button" onclick="CompanyOS.signOut()">Sign Out</button>
+  </aside>
+
+  <div class="company-os-command" id="companyOsCommand" hidden>
+    <div class="company-os-command-backdrop" onclick="CompanyOS.closeCommand()"></div>
+    <div class="company-os-command-card">
+      <div class="company-os-command-input"><span>⌕</span><input id="companyOsCommandInput" type="search" placeholder="Workspace বা action লিখুন" oninput="CompanyOS.renderCommandResults()"><kbd>Esc</kbd></div>
+      <div class="company-os-command-results" id="companyOsCommandResults"></div>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="companyOsNoticeModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="CompanyOS.closeNoticeForm()"></div>
+    <div class="employee-modal-panel company-os-notice-modal">
+      <header><div><span>COMPANY NOTICE</span><h3>নতুন Notice প্রকাশ করুন</h3></div><button type="button" onclick="CompanyOS.closeNoticeForm()">×</button></header>
+      <label>শিরোনাম<input id="companyOsNoticeTitle" type="text" maxlength="120"></label>
+      <label>Notice<textarea id="companyOsNoticeBody" rows="6" maxlength="1500"></textarea></label>
+      <label>Audience<select id="companyOsNoticeAudience"><option value="all">সব Staff</option><option value="management">Management</option><option value="driver">Riders</option><option value="finance">Finance</option><option value="hr">People Operations</option></select></label>
+      <label>Priority<select id="companyOsNoticePriority"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select></label>
+      <footer><button class="btn btn-outline" type="button" onclick="CompanyOS.closeNoticeForm()">বাতিল</button><button class="btn btn-gold" type="button" onclick="CompanyOS.saveNotice()">প্রকাশ করুন</button></footer>
+    </div>
+  </div>
+</div>

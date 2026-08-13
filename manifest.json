@@ -1,0 +1,80 @@
+{
+  "name": "Golapi Shop Online",
+  "short_name": "Golapi Shop",
+  "description": "নোয়াখালীর নিত্যপ্রয়োজনীয় পণ্যের অনলাইন শপ — Noakhali's online shop for groceries, medicine, gas, mobile products and cosmetics",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#C92A5A",
+  "background_color": "#FFF8F3",
+  "lang": "bn",
+  "dir": "ltr",
+  "categories": [
+    "shopping",
+    "business",
+    "medical"
+  ],
+  "icons": [
+    {
+      "src": "/icons/head_logo-192.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/head_logo-512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/head_logo-512.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "কাস্টম বাজার / Custom Shopping",
+      "short_name": "বাজার / Shopping",
+      "url": "/#custom-bazar",
+      "description": "আপনার বাজারের তালিকা দিন / Send your shopping list",
+      "icons": [
+        {
+          "src": "/icons/head_logo-192.webp",
+          "sizes": "192x192",
+          "type": "image/webp"
+        }
+      ]
+    },
+    {
+      "name": "ডাক্তার অ্যাপয়েন্টমেন্ট / Doctor Appointment",
+      "short_name": "ডাক্তার / Doctor",
+      "url": "/#medical",
+      "description": "ডাক্তারের সিরিয়াল বুকিং সহায়তা / Doctor appointment booking assistance",
+      "icons": [
+        {
+          "src": "/icons/head_logo-192.webp",
+          "sizes": "192x192",
+          "type": "image/webp"
+        }
+      ]
+    },
+    {
+      "name": "আমার অর্ডার / My Orders",
+      "short_name": "অর্ডার / Orders",
+      "url": "/#myorders",
+      "description": "আপনার অর্ডারের অবস্থা দেখুন / View your order status",
+      "icons": [
+        {
+          "src": "/icons/head_logo-192.webp",
+          "sizes": "192x192",
+          "type": "image/webp"
+        }
+      ]
+    }
+  ],
+  "id": "/"
+}

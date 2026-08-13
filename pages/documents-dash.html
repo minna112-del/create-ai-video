@@ -1,0 +1,66 @@
+<section id="page-documents-dash" class="page staff-page">
+  <div class="staff-shell documents-office">
+    <div class="staff-page-head">
+      <div>
+        <span class="eyebrow">People Operations · Official Records</span>
+        <h1>Document Management Office</h1>
+        <p>কর্মীর অফিসিয়াল চিঠি, চুক্তি, নোটিশ ও সার্টিফিকেট এক জায়গা থেকে তৈরি, সংরক্ষণ ও প্রিন্ট করুন।</p>
+      </div>
+      <button class="btn primary" type="button" onclick="DocumentOffice.openComposer()">＋ নতুন ডকুমেন্ট</button>
+    </div>
+
+    <div id="documentWorkspaceIdentity"></div>
+
+    <div class="ops-metric-grid documents-metrics">
+      <article class="ops-metric-card"><span>মোট ডকুমেন্ট</span><strong id="docTotal">০</strong><small>সংরক্ষিত অফিসিয়াল রেকর্ড</small></article>
+      <article class="ops-metric-card"><span>Draft</span><strong id="docDraft">০</strong><small>এখনো ইস্যু হয়নি</small></article>
+      <article class="ops-metric-card"><span>Issued</span><strong id="docIssued">০</strong><small>কর্মীকে দেওয়া হয়েছে</small></article>
+      <article class="ops-metric-card"><span>এই মাস</span><strong id="docThisMonth">০</strong><small>নতুন তৈরি</small></article>
+    </div>
+
+    <div class="office-panel document-toolbar">
+      <input id="docSearch" class="field" type="search" placeholder="নাম, Employee ID বা ডকুমেন্ট নম্বর খুঁজুন" oninput="DocumentOffice.renderList()">
+      <select id="docTypeFilter" class="field" onchange="DocumentOffice.renderList()">
+        <option value="all">সব ডকুমেন্ট</option>
+        <option value="offer_letter">Offer Letter</option><option value="appointment_letter">Appointment Letter</option>
+        <option value="nda">NDA</option><option value="salary_slip">Salary Slip</option>
+        <option value="warning_letter">Warning Letter</option><option value="experience_letter">Experience Letter</option>
+        <option value="resignation_acceptance">Resignation Acceptance</option><option value="termination_letter">Termination Letter</option>
+      </select>
+      <select id="docStatusFilter" class="field" onchange="DocumentOffice.renderList()">
+        <option value="all">সব স্ট্যাটাস</option><option value="draft">Draft</option><option value="issued">Issued</option><option value="revoked">Revoked</option>
+      </select>
+      <button class="btn ghost" type="button" onclick="DocumentOffice.exportCSV()">CSV Export</button>
+    </div>
+
+    <div class="office-panel">
+      <div class="panel-title-row"><div><h2>Official Document Register</h2><p>প্রতিটি নথির version, issue status ও creator audit সংরক্ষিত থাকবে।</p></div></div>
+      <div id="documentList" class="document-register"></div>
+    </div>
+  </div>
+
+  <div id="documentComposer" class="modal-backdrop" hidden>
+    <div class="modal-card document-composer-card" role="dialog" aria-modal="true" aria-labelledby="docComposerTitle">
+      <div class="modal-head"><div><span class="eyebrow">Official Record Composer</span><h2 id="docComposerTitle">নতুন ডকুমেন্ট তৈরি</h2></div><button class="icon-btn" onclick="DocumentOffice.closeComposer()" aria-label="বন্ধ করুন">✕</button></div>
+      <form id="documentForm" onsubmit="DocumentOffice.save(event)">
+        <input id="docEditId" type="hidden">
+        <div class="form-grid three-col">
+          <label>কর্মী<select id="docEmployee" class="field" required onchange="DocumentOffice.fillEmployee()"><option value="">কর্মী নির্বাচন করুন</option></select></label>
+          <label>ডকুমেন্ট ধরন<select id="docType" class="field" required onchange="DocumentOffice.applyTemplate()"><option value="offer_letter">Offer Letter</option><option value="appointment_letter">Appointment Letter</option><option value="nda">NDA</option><option value="salary_slip">Salary Slip</option><option value="warning_letter">Warning Letter</option><option value="experience_letter">Experience Letter</option><option value="resignation_acceptance">Resignation Acceptance</option><option value="termination_letter">Termination Letter</option></select></label>
+          <label>স্ট্যাটাস<select id="docStatus" class="field"><option value="draft">Draft</option><option value="issued">Issued</option><option value="revoked">Revoked</option></select></label>
+          <label>Employee ID<input id="docEmployeeId" class="field" readonly></label>
+          <label>পদবি<input id="docDesignation" class="field" readonly></label>
+          <label>তারিখ<input id="docIssueDate" class="field" type="date" required></label>
+          <label class="span-3">বিষয়<input id="docSubject" class="field" required></label>
+          <label class="span-3">ডকুমেন্টের লেখা<textarea id="docBody" class="field document-body-input" rows="14" required></textarea></label>
+          <label>অনুমোদনকারী<input id="docApprover" class="field" placeholder="CEO / HR Manager"></label>
+          <label>স্বাক্ষরকারীর পদবি<input id="docApproverTitle" class="field" placeholder="Chief Executive Officer"></label>
+          <label>Reference Note<input id="docReference" class="field" placeholder="ঐচ্ছিক"></label>
+        </div>
+        <div class="modal-actions"><button type="button" class="btn ghost" onclick="DocumentOffice.previewCurrent()">Preview</button><button type="button" class="btn ghost" onclick="DocumentOffice.closeComposer()">বাতিল</button><button type="submit" class="btn primary">সংরক্ষণ করুন</button></div>
+      </form>
+    </div>
+  </div>
+
+  <div id="documentPreview" class="modal-backdrop" hidden><div class="modal-card document-preview-card"><div class="modal-head"><h2>ডকুমেন্ট প্রিভিউ</h2><button class="icon-btn" onclick="DocumentOffice.closePreview()">✕</button></div><div id="documentPrintArea"></div><div class="modal-actions"><button class="btn primary" onclick="DocumentOffice.printPreview()">প্রিন্ট / PDF</button></div></div></div>
+</section>

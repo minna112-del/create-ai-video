@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="bn" class="scroll-smooth">
+<head>
+
+  <!-- Google Tag Manager — ⚠️ আগে সরাসরি head-এর একদম শুরুতেই লোড হতো,
+       DNS/TLS/download তাৎক্ষণিক শুরু করে দিতো। এখন requestIdleCallback দিয়ে
+       ব্রাউজার ফাঁকা থাকলে (মূল কন্টেন্ট রেন্ডারের পরে) লোড হয় — analytics তো
+       এক-দুই সেকেন্ড দেরিতে শুরু হলেও সমস্যা নেই, কিন্তু critical path হালকা থাকে। -->
+  <script>
+    function __loadGTM() {
+      (function(w, d, s, l, i) {
+        w[l] = w[l] || [];
+
+        w[l].push({
+          'gtm.start': new Date().getTime(),
+          event: 'gtm.js'
+        });
+
+        var f = d.getElementsByTagName(s)[0];
+        var j = d.createElement(s);
+        var dl = l !== 'dataLayer' ? '&l=' + l : '';
+
+        j.async = true;
+        j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' +
+          i +
+          dl;
+
+        f.parentNode.insertBefore(j, f);
+      })(
+        window,
+        document,
+        'script',
+        'dataLayer',
+        'GTM-MX5F2ZDV'
+      );
+    }
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(__loadGTM, { timeout: 4000 });
+    } else {
+      setTimeout(__loadGTM, 2000);
+    }
+  </script>
+  <!-- End Google Tag Manager -->
+
+  <!-- Theme flash prevention -->
+  <script>
+    (function() {
+      try {
+        var mode =
+          localStorage.getItem('golapi_theme') ||
+          'auto';
+
+        var resolved = mode;
+
+        if (mode === 'auto') {
+          resolved =
+            window.matchMedia &&
+            window
+              .matchMedia(
+                '(prefers-color-scheme: dark)'
+              )
+              .matches
+              ? 'dark'
+              : 'light';
+        }
+
+        document.documentElement.setAttribute(
+          'data-theme',
+          resolved
+        );
+
+        document.documentElement.setAttribute(
+          'data-theme-mode',
+          mode
+        );
+      } catch (e) {}
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <title>
+    Golapi Shop Online — নোয়াখালী সদর ও বেগমগঞ্জের অনলাইন শপ
+  </title>
+
+  <meta
+    name="google"
+    content="notranslate"
+  >
+
+  <meta
+    name="description"
+    content="নোয়াখালী সদর ও বেগমগঞ্জে মুদি, ঔষধ, গ্যাস ও দৈনন্দিন প্রয়োজনীয় পণ্য অর্ডার করুন। পণ্য বেছে কিনুন অথবা বাজারের লিস্ট পাঠান—স্থানীয় টিম, Cash on Delivery এবং সহজ যোগাযোগ।"
+  >
+
+  <meta
+    name="keywords"
+    content="golapi shop, online shop noakhali, নোয়াখালী অনলাইন শপ, grocery delivery noakhali, medicine delivery, bKash, Nagad, COD, কাস্টম বাজার, স্বাস্থ্য সেবা, মাইজদী বাজার অনলাইন শপ, বেগমগঞ্জ অনলাইন শপ"
+  >
+
+  <meta
+    name="author"
+    content="Golapi Shop Online"
+  >
+
+  <meta
+    name="robots"
+    content="index, follow"
+  >
+
+  <!-- Open Graph -->
+  <meta
+    property="og:title"
+    content="Golapi Shop Online — নোয়াখালীর স্থানীয় অনলাইন শপ"
+  >
+
+  <meta
+    property="og:description"
+    content="মুদি, ঔষধ, গ্যাস ও দৈনন্দিন প্রয়োজনীয় পণ্য অর্ডার করুন অথবা নিজের বাজারের লিস্ট পাঠান। নোয়াখালী সদর ও বেগমগঞ্জে স্থানীয় ডেলিভারি।"
+  >
+
+  <meta
+    property="og:type"
+    content="website"
+  >
+
+  <meta
+    property="og:url"
+    content="https://www.golapishop.online"
+  >
+
+  <meta
+    property="og:image"
+    content="https://www.golapishop.online/icons/head_logo.webp"
+  >
+
+  <meta
+    property="og:image:width"
+    content="512"
+  >
+
+  <meta
+    property="og:image:height"
+    content="512"
+  >
+
+  <meta
+    property="og:locale"
+    content="bn_BD"
+  >
+
+  <meta
+    property="og:site_name"
+    content="Golapi Shop Online"
+  >
+
+  <!-- Twitter Card -->
+  <meta
+    name="twitter:card"
+    content="summary_large_image"
+  >
+
+  <meta
+    name="twitter:title"
+    content="Golapi Shop Online — নোয়াখালীর স্থানীয় অনলাইন শপ"
+  >
+
+  <meta
+    name="twitter:description"
+    content="পণ্য বেছে অর্ডার করুন অথবা নিজের বাজারের লিস্ট পাঠান—স্থানীয় টিম পৌঁছে দেবে।"
+  >
+
+  <meta
+    name="twitter:image"
+    content="https://www.golapishop.online/icons/head_logo.webp"
+  >
+
+  <!-- PWA / Mobile -->
+  <meta
+    name="theme-color"
+    content="#FFF8F3"
+  >
+
+  <meta
+    name="apple-mobile-web-app-capable"
+    content="yes"
+  >
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="default"
+  >
+
+  <meta
+    name="apple-mobile-web-app-title"
+    content="Golapi Shop"
+  >
+
+  <meta
+    name="mobile-web-app-capable"
+    content="yes"
+  >
+
+  <!-- Icons -->
+  <link
+    rel="icon"
+    type="image/webp"
+    href="icons/head_logo.webp"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="icons/head_logo.webp"
+  >
+
+  <link
+    rel="mask-icon"
+    href="icons/head_logo.webp"
+    color="#F0356B"
+  >
+
+  <!-- Manifest & Canonical -->
+  <link
+    rel="manifest"
+    href="./manifest.json"
+  >
+
+  <link
+    rel="canonical"
+    href="https://www.golapishop.online"
+  >
+
+  <!-- Fonts -->
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <!-- Firebase/Firestore host — আগেই DNS+TLS সংযোগ তৈরি রাখা হয় (প্রথম ডেটা request দ্রুত হয়) -->
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+
+  <!-- LCP hints — viewport অনুযায়ী homepage hero asset আগেই আনা হয় -->
+  <link rel="preload" as="image" href="./icons/head_logo.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="./icons/homepage_head_banner.webp" media="(min-width: 768px)" fetchpriority="high">
+  <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Tiro+Bangla:ital@0;1&family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <!-- ⚠️ Leaflet (live map) আগে এখানে সরাসরি লোড হতো, প্রতিটা পেজেই — যদিও এটা শুধু
+       ডেলিভারি ট্র্যাকিং-এর সময় লাগে, বেশিরভাগ ভিজিটর কখনো ব্যবহারই করে না। এখন এটা
+       js/livemap.js-এ lazy-load হয়, শুধু ট্র্যাকিং ম্যাপ খোলার মুহূর্তেই — সাধারণ
+       browsing-এ পেজ লোড এখন আর এই ওজন বহন করে না। -->
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "GroceryStore",
+        "@id": "https://www.golapishop.online/#noakhali-sadar",
+        "name": "Golapi Shop Online — নোয়াখালী সদর শাখা",
+        "url": "https://www.golapishop.online",
+        "image": "https://www.golapishop.online/icons/head_logo.webp",
+        "email": "golapishoponline.bd@gmail.com",
+        "telephone": "+8801612057371",
+        "priceRange": "৳৳",
+        "description": "নোয়াখালী সদরে মুদি, ঔষধ, গ্যাস, কসমেটিকস ও দৈনন্দিন প্রয়োজনীয় পণ্যের স্থানীয় অনলাইন অর্ডার ও ডেলিভারি সেবা।",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "মাইজদী বাজার",
+          "addressLocality": "নোয়াখালী সদর",
+          "addressRegion": "চট্টগ্রাম বিভাগ",
+          "addressCountry": "BD"
+        },
+        "areaServed": [
+          "চরমটুয়া",
+          "দাদপুর",
+          "নোয়ান্নই",
+          "কাদির হানিফ",
+          "বিনোদপুর",
+          "নোয়াখালী",
+          "ধর্মপুর",
+          "এওজবালিয়া",
+          "কালা দরাপ",
+          "অশ্বদিয়া",
+          "নেয়াজপুর",
+          "আন্ডারচর"
+        ],
+        "paymentAccepted": [
+          "Cash on Delivery",
+          "bKash",
+          "Nagad"
+        ],
+        "sameAs": [
+          "https://facebook.com/golapishoponline"
+        ]
+      },
+      {
+        "@type": "GroceryStore",
+        "@id": "https://www.golapishop.online/#begumganj",
+        "name": "Golapi Shop Online — বেগমগঞ্জ শাখা",
+        "url": "https://www.golapishop.online",
+        "image": "https://www.golapishop.online/icons/head_logo.webp",
+        "email": "golapishoponline.bd@gmail.com",
+        "telephone": "+8801612057371",
+        "priceRange": "৳৳",
+        "description": "বেগমগঞ্জে মুদি, ঔষধ, গ্যাস, কসমেটিকস ও দৈনন্দিন প্রয়োজনীয় পণ্যের স্থানীয় অনলাইন অর্ডার ও ডেলিভারি সেবা।",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "চৌরাস্তা",
+          "addressLocality": "বেগমগঞ্জ",
+          "addressRegion": "চট্টগ্রাম বিভাগ",
+          "addressCountry": "BD"
+        },
+        "areaServed": [
+          "আমান উল্যাপুর",
+          "গোপালপুর",
+          "জিরতলী",
+          "আলাইয়ারপুর",
+          "ছয়ানী",
+          "রাজগঞ্জ",
+          "একলাশপুর",
+          "বেগমগঞ্জ",
+          "মিরওয়ারিশপুর",
+          "নরোত্তমপুর",
+          "দূর্গাপুর",
+          "কুতুবপুর",
+          "রসুলপুর",
+          "হাজিপুর",
+          "শরীফপুর",
+          "কাদিরপুর"
+        ],
+        "paymentAccepted": [
+          "Cash on Delivery",
+          "bKash",
+          "Nagad"
+        ],
+        "sameAs": [
+          "https://facebook.com/golapishoponline"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://www.golapishop.online/#website",
+        "url": "https://www.golapishop.online",
+        "name": "Golapi Shop Online",
+        "description": "নোয়াখালী সদর ও বেগমগঞ্জের স্থানীয় অনলাইন শপ।",
+        "inLanguage": "bn-BD"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Firebase — ⚠️ ধীর/অস্থির নেটওয়ার্কে module script load-ই ব্যর্থ হতে পারে
+       (গোটা Firebase SDK আসে gstatic.com CDN থেকে)। এটা ঘটলে 'firebase-ready'
+       কখনো fire হয় না, পুরো প্রোডাক্ট লোডিং চিরতরে আটকে যায়। তাই স্ট্যাটিক
+       <script> ট্যাগের বদলে dynamically তৈরি করে onerror-এ retry যোগ করা হলো। -->
+  <script>
+    (function loadFirebaseModule(attempt){
+      const s = document.createElement('script');
+      s.type = 'module';
+      s.src = './js/firebase-init.js' + (attempt>0 ? '?retry='+attempt : '');
+      s.onerror = function(){
+        if(attempt < 3){
+          setTimeout(()=>loadFirebaseModule(attempt+1), 2000 * (attempt+1));
+        }
+      };
+      document.head.appendChild(s);
+    })(0);
+  </script>
+
+  <!-- CSS -->
+  <link
+    rel="stylesheet"
+    href="./css/style.css"
+  >
+
+  <!-- ⚠️ components.css (~১০০KB, প্রোডাক্ট কার্ড/admin/modal ইত্যাদির স্টাইল) আগে
+       render-blocking ছিল। এতে কোনো loader/skeleton স্টাইল নেই (সেগুলো style.css-এ),
+       তাই এটা async করা নিরাপদ — HTML parsing আটকায় না, কিন্তু CSS তবুও দ্রুতই
+       apply হয়ে যায় (preload+swap প্যাটার্ন)। -->
+  <link
+    rel="preload"
+    as="style"
+    href="./css/components.css"
+    onload="this.onload=null;this.rel='stylesheet'"
+  >
+  <noscript><link rel="stylesheet" href="./css/components.css"></noscript>
+
+  <!-- Homepage styles are isolated from shared commerce/admin components. -->
+  <link rel="stylesheet" href="./css/home.css">
+  <link rel="stylesheet" href="./css/runtime.css">
+  <link rel="stylesheet" href="./css/final-polish.css">
+</head>
+
+<body>
+  <!-- Google Tag Manager noscript -->
+  <noscript>
+    <iframe
+      src="https://www.googletagmanager.com/ns.html?id=GTM-MX5F2ZDV"
+      height="0"
+      width="0"
+      style="display:none;visibility:hidden"
+    ></iframe>
+  </noscript>
+  <!-- End Google Tag Manager noscript -->
+
+  <a
+    href="#pageContainer"
+    class="skip-link"
+    onfocus="this.style.top='0'"
+    onblur="this.style.top='-40px'"
+  >
+    মূল কন্টেন্টে যান
+  </a>
+
+  <div
+    id="pageLoader"
+    style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#FFF8F3;z-index:9999"
+  >
+    <div
+      style="width:48px;height:48px;border:4px solid rgba(24,17,20,0.1);border-top-color:#F0356B;border-radius:50%;animation:spin 1s linear infinite"
+    ></div>
+  </div>
+
+  <style>
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+
+  <div id="slot-topbar"></div>
+  <div id="slot-header"></div>
+  <div id="slot-cart-drawer"></div>
+
+  <main id="pageContainer"></main>
+
+  <div id="slot-footer"></div>
+  <div id="slot-mobnav"></div>
+  <div id="slot-chat"></div>
+  <div id="slot-modals"></div>
+  <div id="slot-toast"></div>
+
+  <script defer src="./js/core/translations-en.js"></script>
+  <script defer src="./js/core/i18n.js"></script>
+  <script defer src="./js/core/app-registry.js"></script>
+  <script defer src="./js/core/business-os-runtime.js"></script>
+  <script defer src="./js/utils.js"></script>
+  <script defer src="./js/data.js"></script>
+  <script defer src="./js/store.js"></script>
+  <script defer src="./js/services.js"></script>
+  <script defer src="./js/router.js"></script>
+  <script defer src="./js/auth.js"></script>
+  <script defer src="./js/widgets.js"></script>
+  <script defer src="./js/pages.js"></script>
+  <script defer src="./js/page-loader.js"></script>
+  <script defer src="./js/app.js"></script>
+  <script defer src="./js/update-check.js"></script>
+  <script defer src="./js/location.js"></script>
+  <script defer src="./js/deep-links.js"></script>
+
+  <script>
+    /*
+     * Google Maps API key।
+     *
+     * Google Cloud Console-এ HTTP referrer restriction:
+     * https://www.golapishop.online/*
+     * https://golapishop.online/*
+     */
+    window.GOOGLE_MAPS_API_KEY =
+      'AIzaSyDqXNcXvJnAU_xOjLCgN3JjgHUmJqkI7q0';
+  </script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<div class="page procurement-erp-page" id="page-procurement-erp">
+<header class="admin-topbar">
+  <a class="admin-brand" href="#" onclick="event.preventDefault();Router.go('company-os')">
+    <img src="icons/head_logo.webp" alt=""><span><small>Golapi Shop Online</small><strong>Procurement & Vendor ERP</strong></span>
+  </a>
+  <div class="admin-topbar-actions">
+    <span id="procUpdated"></span>
+    <button onclick="ProcurementERP.refresh()">↻ Refresh</button>
+    <button onclick="ProcurementERP.exportCsv()">CSV</button>
+    <button onclick="Router.go('company-os')">◈ Company OS</button>
+  </div>
+</header>
+
+<div id="procErpEmployeeWorkspace"></div>
+
+<main class="sec procurement-office">
+  <section class="procurement-hero">
+    <div>
+      <span class="office-kicker">PROCUREMENT · VENDORS · COST CONTROL</span>
+      <h1>চাহিদা থেকে Supplier Payment—সম্পূর্ণ Procurement Lifecycle</h1>
+      <p>Purchase request, quotation comparison, vendor selection, purchase order, goods receipt, invoice matching এবং supplier performance একই ERP থেকে পরিচালনা করুন।</p>
+    </div>
+    <div class="procurement-hero-actions">
+      <button class="btn btn-gold" onclick="ProcurementERP.open('procRequestModal')">+ Purchase Request</button>
+      <button class="btn" onclick="ProcurementERP.open('procVendorModal')">+ Vendor</button>
+    </div>
+  </section>
+
+  <section class="procurement-stats">
+    <article><span>Active Vendors</span><strong id="procVendors">০</strong><small>Approved suppliers</small></article>
+    <article><span>Open Requests</span><strong id="procRequests">০</strong><small>Needs sourcing</small></article>
+    <article><span>Pending Quotations</span><strong id="procQuotes">০</strong><small>Comparison queue</small></article>
+    <article><span>Open Purchase Orders</span><strong id="procOrders">০</strong><small>Awaiting receipt</small></article>
+    <article><span>Invoice Exceptions</span><strong id="procExceptions">০</strong><small>3-way mismatch</small></article>
+    <article><span>Procurement Value</span><strong id="procValue">৳০</strong><small>Approved POs</small></article>
+  </section>
+
+  <section id="procPriority" class="procurement-priority"></section>
+
+  <section class="procurement-tabs">
+    <button class="active" onclick="ProcurementERP.tab('requests',this)">Requests</button>
+    <button onclick="ProcurementERP.tab('vendors',this)">Vendors</button>
+    <button onclick="ProcurementERP.tab('quotes',this)">Quotations</button>
+    <button onclick="ProcurementERP.tab('orders',this)">Purchase Orders</button>
+    <button onclick="ProcurementERP.tab('receipts',this)">Goods Receipt</button>
+    <button onclick="ProcurementERP.tab('invoices',this)">Invoice Matching</button>
+  </section>
+
+  <section id="procErpRequestsPane">
+    <div class="office-panel-head"><h2>Purchase Requests</h2><button class="btn btn-gold" onclick="ProcurementERP.open('procRequestModal')">+ Request</button></div>
+    <div id="procRequestList" class="procurement-list"></div>
+  </section>
+
+  <section id="procVendorsPane" hidden>
+    <div class="office-panel-head"><h2>Vendor Directory</h2><button class="btn btn-gold" onclick="ProcurementERP.open('procVendorModal')">+ Vendor</button></div>
+    <div id="procVendorGrid" class="procurement-card-grid"></div>
+  </section>
+
+  <section id="procQuotesPane" hidden>
+    <div class="office-panel-head"><h2>Quotation Comparison</h2><button class="btn btn-gold" onclick="ProcurementERP.openQuote()">+ Quotation</button></div>
+    <div id="procQuoteList" class="procurement-list"></div>
+  </section>
+
+  <section id="procErpOrdersPane" hidden>
+    <div class="office-panel-head"><h2>Purchase Orders</h2></div>
+    <div id="procOrderList" class="procurement-list"></div>
+  </section>
+
+  <section id="procReceiptsPane" hidden>
+    <div class="office-panel-head"><h2>Goods Receipt Notes</h2><button class="btn btn-gold" onclick="ProcurementERP.openReceipt()">+ Goods Receipt</button></div>
+    <div id="procReceiptList" class="procurement-list"></div>
+  </section>
+
+  <section id="procInvoicesPane" hidden>
+    <div class="office-panel-head"><h2>Invoice Matching</h2><button class="btn btn-gold" onclick="ProcurementERP.openInvoice()">+ Vendor Invoice</button></div>
+    <div id="procInvoiceList" class="procurement-list"></div>
+  </section>
+</main>
+
+<div class="employee-modal" id="procRequestModal">
+  <div class="employee-modal-backdrop" onclick="ProcurementERP.close('procRequestModal')"></div>
+  <div class="employee-modal-card procurement-modal">
+    <button class="employee-modal-close" onclick="ProcurementERP.close('procRequestModal')">×</button>
+    <h2>Purchase Request</h2>
+    <div class="procurement-form">
+      <label>Item / Service<input id="procRequestItem"></label>
+      <label>Department<input id="procRequestDepartment"></label>
+      <label>Quantity<input id="procRequestQty" type="number" min="1" value="1"></label>
+      <label>Estimated Unit Cost<input id="procRequestCost" type="number" min="0"></label>
+      <label>Required Date<input id="procRequestDate" type="date"></label>
+      <label>Priority<select id="procRequestPriority"><option>normal</option><option>high</option><option>critical</option></select></label>
+      <label class="procurement-full">Business Justification<textarea id="procRequestReason" rows="4"></textarea></label>
+    </div>
+    <button class="btn btn-gold" onclick="ProcurementERP.saveRequest()">Submit Request</button>
+  </div>
+</div>
+
+<div class="employee-modal" id="procVendorModal">
+  <div class="employee-modal-backdrop" onclick="ProcurementERP.close('procVendorModal')"></div>
+  <div class="employee-modal-card procurement-modal">
+    <button class="employee-modal-close" onclick="ProcurementERP.close('procVendorModal')">×</button>
+    <h2>Vendor Profile</h2>
+    <div class="procurement-form">
+      <label>Company Name<input id="procVendorName"></label>
+      <label>Category<input id="procVendorCategory"></label>
+      <label>Contact Person<input id="procVendorContact"></label>
+      <label>Phone<input id="procVendorPhone"></label>
+      <label>Email<input id="procVendorEmail"></label>
+      <label>Payment Terms<input id="procVendorTerms" placeholder="Net 30"></label>
+      <label>Tax / Registration No<input id="procVendorTax"></label>
+      <label>Status<select id="procVendorStatus"><option>approved</option><option>probation</option><option>blocked</option></select></label>
+    </div>
+    <button class="btn btn-gold" onclick="ProcurementERP.saveVendor()">Save Vendor</button>
+  </div>
+</div>
+
+<div class="employee-modal" id="procErpQuoteModal">
+  <div class="employee-modal-backdrop" onclick="ProcurementERP.close('procErpQuoteModal')"></div>
+  <div class="employee-modal-card procurement-modal">
+    <button class="employee-modal-close" onclick="ProcurementERP.close('procErpQuoteModal')">×</button>
+    <h2>Vendor Quotation</h2>
+    <div class="procurement-form">
+      <label>Purchase Request<select id="procQuoteRequest"></select></label>
+      <label>Vendor<select id="procErpQuoteVendor"></select></label>
+      <label>Unit Price<input id="procQuotePrice" type="number" min="0"></label>
+      <label>Delivery Days<input id="procQuoteDays" type="number" min="0"></label>
+      <label>Payment Terms<input id="procErpQuoteTerms"></label>
+      <label>Validity Date<input id="procQuoteValidity" type="date"></label>
+      <label class="procurement-full">Notes<textarea id="procErpQuoteNotes" rows="4"></textarea></label>
+    </div>
+    <button class="btn btn-gold" onclick="ProcurementERP.saveQuote()">Save Quotation</button>
+  </div>
+</div>
+
+<div class="employee-modal" id="procReceiptModal">
+  <div class="employee-modal-backdrop" onclick="ProcurementERP.close('procReceiptModal')"></div>
+  <div class="employee-modal-card procurement-modal">
+    <button class="employee-modal-close" onclick="ProcurementERP.close('procReceiptModal')">×</button>
+    <h2>Goods Receipt</h2>
+    <div class="procurement-form">
+      <label>Purchase Order<select id="procReceiptOrder"></select></label>
+      <label>Received Quantity<input id="procReceiptQty" type="number" min="0"></label>
+      <label>Accepted Quantity<input id="procAcceptedQty" type="number" min="0"></label>
+      <label>Rejected Quantity<input id="procRejectedQty" type="number" min="0" value="0"></label>
+      <label>Warehouse<input id="procReceiptWarehouse"></label>
+      <label>Received Date<input id="procReceiptDate" type="date"></label>
+      <label class="procurement-full">Inspection Notes<textarea id="procReceiptNotes" rows="4"></textarea></label>
+    </div>
+    <button class="btn btn-gold" onclick="ProcurementERP.saveReceipt()">Save Receipt</button>
+  </div>
+</div>
+
+<div class="employee-modal" id="procInvoiceModal">
+  <div class="employee-modal-backdrop" onclick="ProcurementERP.close('procInvoiceModal')"></div>
+  <div class="employee-modal-card procurement-modal">
+    <button class="employee-modal-close" onclick="ProcurementERP.close('procInvoiceModal')">×</button>
+    <h2>Vendor Invoice</h2>
+    <div class="procurement-form">
+      <label>Purchase Order<select id="procInvoiceOrder"></select></label>
+      <label>Invoice Number<input id="procInvoiceNumber"></label>
+      <label>Invoice Amount<input id="procInvoiceAmount" type="number" min="0"></label>
+      <label>Invoice Date<input id="procInvoiceDate" type="date"></label>
+      <label>Due Date<input id="procInvoiceDue" type="date"></label>
+      <label>Status<select id="procInvoiceStatus"><option>pending_match</option><option>on_hold</option></select></label>
+    </div>
+    <button class="btn btn-gold" onclick="ProcurementERP.saveInvoice()">Save Invoice</button>
+  </div>
+</div>
+</div>

@@ -1,0 +1,84 @@
+<div class="page zone-manager-page" id="page-zone-manager">
+  <section class="sec zone-manager-shell">
+    <a class="zm-back-link" href="#" onclick="event.preventDefault();Router.go('home')">← সাইটে ফিরে যান</a>
+
+    <div id="zmLoginBox" class="zm-login-wrap">
+      <div class="zm-login-intro">
+        <span class="eyebrow">Operations Division</span>
+        <h1 class="tiro">জোন অপারেশনস সেন্টার</h1>
+        <p>নিজস্ব অনুমোদিত অ্যাকাউন্ট দিয়ে লগইন করুন। আপনার নির্ধারিত শাখা স্বয়ংক্রিয়ভাবে চালু হবে।</p>
+      </div>
+      <div class="card-box zm-login-card">
+        <div id="zmLoginMsg" class="form-msg" role="status" aria-live="polite"></div>
+        <div class="field"><label for="zmEmail">ইমেইল</label><input type="email" id="zmEmail" autocomplete="username" inputmode="email"></div>
+        <div class="field"><label for="zmPassword">পাসওয়ার্ড</label><input type="password" id="zmPassword" autocomplete="current-password"></div>
+        <button class="btn btn-primary btn-block" type="button" onclick="ZoneManagerDash.login()">নিরাপদ লগইন</button>
+      </div>
+    </div>
+
+    <div id="zmDashBox" class="zm-dashboard" style="display:none">
+      <header class="zm-dashboard-head">
+        <div><span class="eyebrow">জোন কন্ট্রোল সেন্টার</span><h1 class="tiro" id="zmZoneLabel"></h1><p id="zmManagerLabel"></p></div>
+        <button class="btn btn-outline" type="button" onclick="ZoneManagerDash.logout()">লগআউট</button>
+      </header>
+      <div id="zmEmployeeWorkspace"></div>
+
+      <nav class="zm-tabs" aria-label="জোন ম্যানেজার নেভিগেশন">
+        <button class="active" type="button" onclick="ZoneManagerDash.tab(this,'overview')">ওভারভিউ</button>
+        <button type="button" onclick="ZoneManagerDash.tab(this,'products')">প্রোডাক্ট</button>
+        <button type="button" onclick="ZoneManagerDash.tab(this,'orders')">অর্ডার</button>
+        <button type="button" onclick="ZoneManagerDash.tab(this,'analytics')">অ্যানালিটিক্স</button>
+        <button type="button" onclick="ZoneManagerDash.tab(this,'drivers')">ড্রাইভার</button>
+      </nav>
+
+      <main class="zm-content">
+        <section id="zmOverviewPane">
+          <div class="stat-grid zm-stat-grid">
+            <article class="stat-card"><div class="lbl">আজকের বিক্রি</div><div class="val rose" id="zmStatToday">৳০</div></article>
+            <article class="stat-card"><div class="lbl">মোট বিক্রি</div><div class="val" id="zmStatSales">৳০</div></article>
+            <article class="stat-card"><div class="lbl">মোট অর্ডার</div><div class="val" id="zmStatOrders">০</div></article>
+            <article class="stat-card"><div class="lbl">অ্যাকশন প্রয়োজন</div><div class="val rose" id="zmStatPending">০</div></article>
+            <article class="stat-card"><div class="lbl">প্রোডাক্ট</div><div class="val" id="zmStatProducts">০</div></article>
+          </div>
+          <div id="zmInventoryAlerts" class="zm-alert-card" style="display:none"><h2>স্টক সতর্কতা</h2><div id="zmInventoryAlertList"></div></div>
+          <div class="zm-overview-grid">
+            <article class="card-box">
+              <div class="section-head"><div><span class="eyebrow">COD হিসাব</span><h2>ক্যাশ জমার অগ্রগতি</h2></div></div>
+              <div class="stat-grid"><div class="stat-card"><div class="lbl">সংগ্রহ</div><div class="val" id="zmCodCollected">৳০</div></div><div class="stat-card"><div class="lbl">জমা</div><div class="val" id="zmCodDeposited">৳০</div></div><div class="stat-card"><div class="lbl">বাকি</div><div class="val rose" id="zmCodPending">৳০</div></div></div>
+              <div style="height:8px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:12px"><div id="zmCodBar" style="height:100%;width:0;background:var(--gold);transition:width .25s ease"></div></div>
+            </article>
+            <article class="card-box" id="zmEscalationCard" style="display:none">
+              <div class="section-head"><div><span class="eyebrow">জরুরি সহায়তা</span><h2>খোলা Escalation</h2></div></div>
+              <div id="zmEscalationList"></div>
+            </article>
+          </div>
+          <div class="zm-overview-grid">
+            <article class="card-box"><div class="section-head"><div><span class="eyebrow">পারফরম্যান্স</span><h2>গত ৭ দিনের বিক্রি</h2></div></div><div id="zmRevenueChart" class="zm-chart"></div><div id="zmChartLabels" class="zm-chart-labels"></div></article>
+            <article class="card-box"><div class="section-head"><div><span class="eyebrow">সাম্প্রতিক</span><h2>সাম্প্রতিক অর্ডার</h2></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>ID</th><th>কাস্টমার</th><th>মোট</th><th>স্ট্যাটাস</th><th></th></tr></thead><tbody id="zmRecentOrders"></tbody></table></div></article>
+          </div>
+        </section>
+
+        <section id="zmProductsPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">ইনভেন্টরি</span><h2>এই শাখার প্রোডাক্ট</h2></div><div class="zm-toolbar"><input id="zmProductSearch" type="search" placeholder="প্রোডাক্ট খুঁজুন" oninput="ZoneManagerDash.filterProducts()"><button class="btn btn-primary" type="button" onclick="ZoneManagerDash.openAddProduct()">+ নতুন প্রোডাক্ট</button></div></div>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>ছবি</th><th>প্রোডাক্ট</th><th>মূল্য</th><th>স্টক</th><th>স্ট্যাটাস</th><th></th></tr></thead><tbody id="zmProductsTable"></tbody></table></div>
+        </section>
+
+        <section id="zmOrdersPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">অর্ডার পূরণ</span><h2>এই শাখার অর্ডার</h2></div><select id="zmOrderStatusFilter" onchange="ZoneManagerDash.filterOrders()"><option value="">সব স্ট্যাটাস</option><option value="pending">পেন্ডিং</option><option value="confirmed">কনফার্মড</option><option value="processing">প্রসেসিং</option><option value="out_for_delivery">ডেলিভারিতে</option><option value="delivered">ডেলিভারড</option><option value="cancelled">বাতিল</option></select></div>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>ID</th><th>কাস্টমার</th><th>ফোন</th><th>মোট</th><th>ড্রাইভার</th><th>স্ট্যাটাস</th><th></th></tr></thead><tbody id="zmOrdersTable"></tbody></table></div>
+        </section>
+
+        <section id="zmAnalyticsPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">বিশ্লেষণ</span><h2>শাখার অ্যানালিটিক্স</h2></div></div>
+          <div class="stat-grid zm-stat-grid"><article class="stat-card"><div class="lbl">আজ</div><div class="val rose" id="zmAnToday">৳০</div></article><article class="stat-card"><div class="lbl">এই সপ্তাহ</div><div class="val" id="zmAnWeek">৳০</div></article><article class="stat-card"><div class="lbl">এই মাস</div><div class="val" id="zmAnMonth">৳০</div></article></div>
+          <article class="card-box zm-payment-card"><h2>পেমেন্ট পদ্ধতি</h2><div id="zmPayBreakdown"></div></article>
+        </section>
+
+        <section id="zmDriversPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">ডেলিভারি টিম</span><h2>এই শাখার ড্রাইভার</h2></div><button class="btn btn-outline" type="button" onclick="DriverManage.openAdd(ZoneManagerDash.currentZone)">+ নতুন ড্রাইভার</button></div>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>নাম</th><th>মোবাইল</th><th>স্ট্যাটাস</th></tr></thead><tbody id="zmDriverManageTable"></tbody></table></div>
+        </section>
+      </main>
+    </div>
+  </section>
+</div>

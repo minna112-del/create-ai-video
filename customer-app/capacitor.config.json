@@ -1,0 +1,22 @@
+{
+  "appId": "online.golapishop.customer",
+  "appName": "Golapi Shop",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://www.golapishop.online/",
+    "androidScheme": "https",
+    "cleartext": false,
+    "allowNavigation": [
+      "www.golapishop.online",
+      "golapishop.online"
+    ]
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#FFF8F3",
+      "showSpinner": false
+    }
+  }
+}

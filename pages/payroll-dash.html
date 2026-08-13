@@ -1,0 +1,92 @@
+<div class="page payroll-office-page" id="page-payroll-dash">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('admin-dash')">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span><small>Golapi Shop Online</small><strong>Payroll Office</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="payrollUpdated" class="admin-updated"></span>
+      <button class="admin-icon-btn" onclick="PayrollOffice.refresh()">↻ <span>রিফ্রেশ</span></button>
+      <button class="admin-icon-btn" onclick="Router.go('admin-dash')">← <span>Executive Office</span></button>
+    </div>
+  </header>
+
+  <div id="payrollEmployeeWorkspace"></div>
+
+  <main class="sec payroll-office">
+    <section class="payroll-hero">
+      <div>
+        <span class="office-kicker">FINANCE · PEOPLE OPERATIONS</span>
+        <h1>বেতন, ভাতা, কর্তন ও পে-স্লিপ—একটি নিয়ন্ত্রিত অফিসে</h1>
+        <p>Attendance data, salary grade এবং অনুমোদিত adjustment ব্যবহার করে মাসিক payroll প্রস্তুত, review, lock এবং paid হিসেবে চিহ্নিত করুন।</p>
+      </div>
+      <div class="payroll-period-card">
+        <label>Payroll মাস<input id="payrollMonth" type="month" onchange="PayrollOffice.refresh()"></label>
+        <button class="btn btn-gold" onclick="PayrollOffice.generateDrafts()">Draft তৈরি করুন</button>
+      </div>
+    </section>
+
+    <section class="payroll-stats">
+      <article><span>মোট কর্মী</span><strong id="payrollStatEmployees">০</strong><small>Payroll eligible</small></article>
+      <article><span>Gross Payroll</span><strong id="payrollStatGross">৳০</strong><small>বেতন + ভাতা</small></article>
+      <article><span>মোট কর্তন</span><strong id="payrollStatDeduction">৳০</strong><small>অনুপস্থিতি ও অন্যান্য</small></article>
+      <article><span>Net Payable</span><strong id="payrollStatNet">৳০</strong><small>চূড়ান্ত পরিশোধযোগ্য</small></article>
+      <article><span>Paid</span><strong id="payrollStatPaid">০</strong><small id="payrollStatPaidValue">৳০</small></article>
+    </section>
+
+    <section class="payroll-priority" id="payrollPriorityDesk"></section>
+
+    <section class="payroll-grid">
+      <article class="office-panel payroll-wide">
+        <div class="office-panel-head">
+          <div><span class="office-kicker">PAYROLL REGISTER</span><h2>মাসিক বেতন রেজিস্টার</h2></div>
+          <div class="payroll-filters">
+            <input id="payrollSearch" placeholder="নাম, ID বা পদবি" oninput="PayrollOffice.renderRegister()">
+            <select id="payrollStatusFilter" onchange="PayrollOffice.renderRegister()"><option value="">সব স্ট্যাটাস</option><option value="draft">Draft</option><option value="approved">Approved</option><option value="paid">Paid</option><option value="hold">Hold</option></select>
+            <button onclick="PayrollOffice.exportCsv()">CSV</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table payroll-table">
+            <thead><tr><th>কর্মী</th><th>Base</th><th>ভাতা</th><th>Overtime</th><th>কর্তন</th><th>Net</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead>
+            <tbody id="payrollRegisterBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">ADJUSTMENT DESK</span><h2>ভাতা ও কর্তন</h2></div><button onclick="PayrollOffice.openAdjustmentForm()">+ Adjustment</button></div>
+        <div id="payrollAdjustmentList" class="payroll-list"></div>
+      </article>
+
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">RUN CONTROL</span><h2>Payroll Run নিয়ন্ত্রণ</h2></div></div>
+        <div id="payrollRunControl" class="payroll-run-control"></div>
+      </article>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="payrollAdjustmentModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="PayrollOffice.closeModal('payrollAdjustmentModal')"></div>
+    <div class="employee-modal-card payroll-modal-card">
+      <button class="employee-modal-close" onclick="PayrollOffice.closeModal('payrollAdjustmentModal')">×</button>
+      <h2>Payroll Adjustment</h2>
+      <div class="payroll-form-grid">
+        <label>কর্মী<select id="payrollAdjustmentEmployee"></select></label>
+        <label>ধরন<select id="payrollAdjustmentType"><option value="allowance">ভাতা</option><option value="bonus">বোনাস</option><option value="incentive">ইনসেনটিভ</option><option value="deduction">কর্তন</option></select></label>
+        <label>পরিমাণ<input id="payrollAdjustmentAmount" type="number" min="0" step="1"></label>
+        <label>শিরোনাম<input id="payrollAdjustmentTitle" placeholder="যেমন: যাতায়াত ভাতা"></label>
+        <label class="payroll-form-full">নোট<textarea id="payrollAdjustmentNote" rows="3"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="PayrollOffice.saveAdjustment()">সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="payrollSlipModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="PayrollOffice.closeModal('payrollSlipModal')"></div>
+    <div class="employee-modal-card payroll-slip-card">
+      <button class="employee-modal-close" onclick="PayrollOffice.closeModal('payrollSlipModal')">×</button>
+      <div id="payrollSlipMount"></div>
+    </div>
+  </div>
+</div>

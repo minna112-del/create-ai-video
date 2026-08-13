@@ -1,0 +1,36 @@
+<nav class="mobnav" id="custMobNav" aria-label="মোবাইল প্রধান নেভিগেশন">
+  <a class="active" href="#home" onclick="Router.go('home'); return false;" aria-label="হোম" aria-current="page">
+    <span class="mobnav-icon" aria-hidden="true">
+      <span class="ic ic-home"></span>
+    </span>
+    <span class="mobnav-label" data-bn="হোম" data-en="Home">হোম</span>
+  </a>
+
+  <a href="#listing" onclick="Router.go('listing',{cat:'all'}); return false;" aria-label="সব ক্যাটাগরি">
+    <span class="mobnav-icon" aria-hidden="true">
+      <span class="ic ic-grid"></span>
+    </span>
+    <span class="mobnav-label" data-bn="ক্যাটাগরি" data-en="Category">ক্যাটাগরি</span>
+  </a>
+
+  <a href="#cart" onclick="Cart.open(); return false;" aria-label="শপিং কার্ট খুলুন">
+    <span class="mobnav-icon" aria-hidden="true">
+      <span class="ic ic-cart"></span>
+    </span>
+    <span class="mobnav-label" data-bn="কার্ট" data-en="Cart">কার্ট</span>
+  </a>
+
+  <a href="#myorders" onclick="Router.go('myorders'); return false;" aria-label="আমার অর্ডার">
+    <span class="mobnav-icon" aria-hidden="true">
+      <span class="ic ic-package"></span>
+    </span>
+    <span class="mobnav-label" data-bn="অর্ডার" data-en="Orders">অর্ডার</span>
+  </a>
+
+  <a href="#medical" onclick="Router.go('medical'); return false;" aria-label="স্বাস্থ্যসেবা">
+    <span class="mobnav-icon mobnav-icon-health" aria-hidden="true">
+      <img src="icons/dr_logo.webp" alt="" width="24" height="24">
+    </span>
+    <span class="mobnav-label" data-bn="স্বাস্থ্য" data-en="Health">স্বাস্থ্য</span>
+  </a>
+</nav>

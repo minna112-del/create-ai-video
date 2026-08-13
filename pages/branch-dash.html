@@ -1,0 +1,115 @@
+<div class="page branch-office-page" id="page-branch-dash">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('admin-dash')">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span><small>Golapi Shop Online</small><strong>Branch Management Office</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="branchUpdated" class="admin-updated"></span>
+      <button class="admin-icon-btn" onclick="BranchOffice.refresh()">↻ <span>রিফ্রেশ</span></button>
+      <button class="admin-icon-btn" onclick="Router.go('admin-dash')">← <span>Executive Office</span></button>
+    </div>
+  </header>
+
+  <div id="branchEmployeeWorkspace"></div>
+
+  <main class="sec branch-office">
+    <section class="branch-hero">
+      <div>
+        <span class="office-kicker">NETWORK · OPERATIONS</span>
+        <h1>প্রতিটি শাখার দায়িত্ব, সক্ষমতা ও ফলাফল—এক জায়গায়</h1>
+        <p>নতুন শাখা চালু, Branch Manager নিয়োগ, staff assignment, coverage, working hours, inventory, finance ও delivery readiness নিয়ন্ত্রণ করুন।</p>
+      </div>
+      <div class="branch-hero-actions">
+        <button class="btn btn-gold" onclick="BranchOffice.openBranchForm()">+ নতুন Branch</button>
+        <button class="btn" onclick="BranchOffice.openTransferForm()">Branch Transfer</button>
+      </div>
+    </section>
+
+    <section class="branch-stats">
+      <article><span>মোট Branch</span><strong id="branchStatTotal">০</strong><small>সব শাখা</small></article>
+      <article><span>Active</span><strong id="branchStatActive">০</strong><small>সেবা চালু</small></article>
+      <article><span>Managers</span><strong id="branchStatManagers">০</strong><small>দায়িত্বপ্রাপ্ত</small></article>
+      <article><span>Staff</span><strong id="branchStatStaff">০</strong><small>বরাদ্দকৃত</small></article>
+      <article><span>আজকের Orders</span><strong id="branchStatOrders">০</strong><small>সব শাখা</small></article>
+    </section>
+
+    <section class="branch-priority" id="branchPriorityDesk"></section>
+
+    <section class="branch-grid">
+      <article class="office-panel branch-wide">
+        <div class="office-panel-head">
+          <div><span class="office-kicker">BRANCH NETWORK</span><h2>Branch Performance Board</h2></div>
+          <div class="branch-filters">
+            <input id="branchSearch" placeholder="Branch, code, manager বা এলাকা" oninput="BranchOffice.renderBranches()">
+            <select id="branchStatusFilter" onchange="BranchOffice.renderBranches()"><option value="">সব অবস্থা</option><option value="active">Active</option><option value="planned">Planned</option><option value="paused">Paused</option><option value="closed">Closed</option></select>
+            <button onclick="BranchOffice.exportCsv()">CSV</button>
+          </div>
+        </div>
+        <div id="branchCards" class="branch-card-grid"></div>
+      </article>
+
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">TRANSFER DESK</span><h2>Branch Transfer Requests</h2></div></div>
+        <div id="branchTransferList" class="branch-list"></div>
+      </article>
+
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">AUDIT HISTORY</span><h2>সাম্প্রতিক পরিবর্তন</h2></div></div>
+        <div id="branchAuditList" class="branch-list"></div>
+      </article>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="branchFormModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="BranchOffice.closeModal('branchFormModal')"></div>
+    <div class="employee-modal-card branch-modal-card">
+      <button class="employee-modal-close" onclick="BranchOffice.closeModal('branchFormModal')">×</button>
+      <h2 id="branchFormTitle">নতুন Branch তৈরি</h2>
+      <div class="branch-form-grid">
+        <label>Branch নাম<input id="branchName" placeholder="যেমন: Noakhali Sadar Branch"></label>
+        <label>Branch Code<input id="branchCode" placeholder="Auto হলে খালি রাখুন"></label>
+        <label>অবস্থা<select id="branchStatus"><option value="active">Active</option><option value="planned">Planned</option><option value="paused">Paused</option><option value="closed">Closed</option></select></label>
+        <label>Branch Manager<select id="branchManager"></select></label>
+        <label>ফোন<input id="branchPhone"></label>
+        <label>ইমেইল<input id="branchEmail" type="email"></label>
+        <label class="branch-form-full">ঠিকানা<textarea id="branchAddress" rows="2"></textarea></label>
+        <label>Coverage Area<input id="branchCoverage" placeholder="এলাকা কমা দিয়ে লিখুন"></label>
+        <label>Delivery Radius (km)<input id="branchRadius" type="number" min="0"></label>
+        <label>খোলার সময়<input id="branchOpenTime" type="time"></label>
+        <label>বন্ধের সময়<input id="branchCloseTime" type="time"></label>
+        <label>Daily Order Capacity<input id="branchOrderCapacity" type="number" min="0"></label>
+        <label>Delivery Capacity<input id="branchDeliveryCapacity" type="number" min="0"></label>
+        <label class="branch-form-full">নোট<textarea id="branchNotes" rows="3"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="BranchOffice.saveBranch()">Branch সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="branchStaffModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="BranchOffice.closeModal('branchStaffModal')"></div>
+    <div class="employee-modal-card branch-modal-card">
+      <button class="employee-modal-close" onclick="BranchOffice.closeModal('branchStaffModal')">×</button>
+      <h2>Branch Staff Assignment</h2>
+      <input type="hidden" id="branchStaffBranchId">
+      <div id="branchStaffChecklist" class="branch-staff-checklist"></div>
+      <button class="btn btn-gold" onclick="BranchOffice.saveStaffAssignment()">Assignment সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="branchTransferModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="BranchOffice.closeModal('branchTransferModal')"></div>
+    <div class="employee-modal-card branch-modal-card">
+      <button class="employee-modal-close" onclick="BranchOffice.closeModal('branchTransferModal')">×</button>
+      <h2>Branch Transfer Request</h2>
+      <div class="branch-form-grid">
+        <label>Transfer Type<select id="branchTransferType"><option value="staff">Staff</option><option value="stock">Stock</option><option value="asset">Asset</option><option value="cash">Cash</option></select></label>
+        <label>Reference / Item<input id="branchTransferReference"></label>
+        <label>From Branch<select id="branchTransferFrom"></select></label>
+        <label>To Branch<select id="branchTransferTo"></select></label>
+        <label class="branch-form-full">বিবরণ<textarea id="branchTransferNote" rows="3"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="BranchOffice.saveTransfer()">Request তৈরি করুন</button>
+    </div>
+  </div>
+</div>

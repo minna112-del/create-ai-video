@@ -1,0 +1,52 @@
+<div class="page" id="page-order-success">
+  <main class="order-success-shell" aria-labelledby="orderSuccessTitle">
+    <section class="order-success-card">
+      <div class="order-success-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" role="img"><circle cx="32" cy="32" r="29"></circle><path d="m19 33 8 8 18-20"></path></svg>
+      </div>
+
+      <p class="order-success-eyebrow">অর্ডার গ্রহণ করা হয়েছে</p>
+      <h1 class="tiro" id="orderSuccessTitle">ধন্যবাদ, আপনার অর্ডারটি সফলভাবে জমা হয়েছে</h1>
+      <p class="order-success-lead" id="orderSuccessLead">অর্ডারের পরবর্তী আপডেট “আমার অর্ডার” পেজে দেখতে পারবেন।</p>
+
+      <div class="order-success-number" aria-label="অর্ডার নম্বর">
+        <span>অর্ডার নম্বর</span>
+        <strong id="successOrderNo">—</strong>
+        <button type="button" class="order-success-copy" id="successCopyBtn" onclick="OrderSuccess.copyOrderNumber()" aria-label="অর্ডার নম্বর কপি করুন">কপি</button>
+      </div>
+
+      <dl class="order-success-summary" id="orderSuccessSummary">
+        <div><dt>পেমেন্ট</dt><dd id="successPaymentMethod">—</dd></div>
+        <div><dt>পরিশোধযোগ্য</dt><dd id="successOrderTotal">—</dd></div>
+        <div><dt>পণ্য</dt><dd id="successItemCount">—</dd></div>
+        <div><dt>ডেলিভারি এলাকা</dt><dd id="successDeliveryArea">—</dd></div>
+      </dl>
+
+      <div class="order-success-note" id="successPaymentNote">
+        <span aria-hidden="true">i</span>
+        <p>অর্ডার যাচাইয়ের প্রয়োজন হলে আমাদের টিম আপনার দেওয়া ফোন নম্বরে যোগাযোগ করবে।</p>
+      </div>
+      <div id="successMemoBtnWrap" style="margin-bottom:10px"></div>
+
+
+      <div class="order-success-actions">
+        <button class="btn btn-gold" type="button" onclick="Router.go('myorders')">আমার অর্ডার দেখুন</button>
+        <button class="btn btn-outline" type="button" onclick="Router.go('home')">শপিং চালিয়ে যান</button>
+      </div>
+
+      <div class="card-box" style="margin-top:14px;text-align:center">
+        <p style="font-size:13px;color:var(--ink-soft);margin-bottom:10px">আমাদের সেবা কেমন লাগলো? Google-এ একটা রিভিউ দিলে আমাদের অনেক সাহায্য হয়।</p>
+        <a href="https://maps.app.goo.gl/BSZMqqfv7UjmGtJa8?g_st=ic" target="_blank" rel="noopener" class="btn btn-outline" style="display:inline-flex"><span class="ic ic-star" aria-hidden="true"></span>Google-এ রিভিউ দিন</a>
+      </div>
+    </section>
+
+    <section class="order-success-next" aria-label="পরবর্তী ধাপ">
+      <h2>এরপর কী হবে?</h2>
+      <ol>
+        <li><span>১</span><div><strong>অর্ডার যাচাই</strong><p>স্টক, ঠিকানা ও পেমেন্ট তথ্য যাচাই করা হবে।</p></div></li>
+        <li><span>২</span><div><strong>প্রস্তুত ও অ্যাসাইন</strong><p>অর্ডার প্রস্তুত হলে ডেলিভারি টিমে অ্যাসাইন করা হবে।</p></div></li>
+        <li><span>৩</span><div><strong>স্ট্যাটাস অনুসরণ</strong><p>“আমার অর্ডার” পেজ থেকে সর্বশেষ অবস্থা দেখুন।</p></div></li>
+      </ol>
+    </section>
+  </main>
+</div>

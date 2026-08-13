@@ -1,0 +1,27 @@
+<div class="page" id="page-wishlist">
+  <main class="wishlist-page" aria-labelledby="wishlistPageTitle">
+    <header class="wishlist-hero">
+      <div>
+        <p class="wishlist-eyebrow">সংরক্ষিত পণ্য</p>
+        <h1 id="wishlistPageTitle" class="wishlist-title">আমার উইশলিস্ট</h1>
+        <p class="wishlist-intro">পছন্দের পণ্যগুলো এক জায়গায় রাখুন এবং প্রয়োজন হলে সরাসরি কার্টে যোগ করুন।</p>
+      </div>
+      <div class="wishlist-hero__meta" aria-live="polite">
+        <span id="wishlistCount">০টি পণ্য</span>
+        <button id="wishlistClearBtn" class="btn btn-outline wishlist-clear" type="button" onclick="Wishlist.clearAll()">সব মুছুন</button>
+      </div>
+    </header>
+
+    <section class="wishlist-content" aria-label="উইশলিস্ট পণ্য">
+      <div id="wishlistGrid" class="product-grid wishlist-grid"></div>
+    </section>
+
+    <section class="wishlist-discovery" aria-labelledby="wishlistDiscoveryTitle">
+      <div>
+        <p class="wishlist-eyebrow">আরও প্রয়োজনীয় পণ্য</p>
+        <h2 id="wishlistDiscoveryTitle">বাজার চালিয়ে যান</h2>
+      </div>
+      <button class="btn btn-gold" type="button" onclick="Router.go('listing',{cat:'all'})">সব পণ্য দেখুন</button>
+    </section>
+  </main>
+</div>

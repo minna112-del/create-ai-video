@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /admin-dash
+Disallow: /zone-manager
+Disallow: /driver
+
+Sitemap: https://www.golapishop.online/sitemap.xml

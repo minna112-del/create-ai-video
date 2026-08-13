@@ -1,0 +1,189 @@
+<div class="page" id="page-home">
+  <section class="home-hero" aria-labelledby="homeHeroTitle">
+    <div class="home-hero-shell">
+      <img class="home-hero-backdrop" src="icons/homepage_head_banner.webp" alt="" aria-hidden="true" fetchpriority="high" decoding="async">
+
+      <div class="home-hero-content">
+        <span class="home-eyebrow" data-bn="<span class='ic ic-pin' aria-hidden='true'></span>নোয়াখালী সদর ও বেগমগঞ্জে নিজস্ব ডেলিভারি" data-en="<span class='ic ic-pin' aria-hidden='true'></span>Own delivery in Noakhali Sadar &amp; Begumganj">
+          <span class="ic ic-pin" aria-hidden="true"></span>
+          নোয়াখালী সদর ও বেগমগঞ্জে নিজস্ব ডেলিভারি
+        </span>
+
+        <h1 id="homeHeroTitle" class="home-hero-title" data-bn="বাজার করা এখন <span>ঝামেলাহীন</span>" data-en="Daily shopping, <span>without hassle</span>">
+          বাজার করা এখন <span>ঝামেলাহীন</span>
+        </h1>
+
+        <p class="home-hero-copy" data-bn="মুদি, ঔষধ, গ্যাস ও প্রয়োজনীয় পণ্য বেছে অর্ডার করুন—অথবা পুরো বাজারের তালিকা আমাদের পাঠিয়ে দিন। স্থানীয় টিম অর্ডার নিশ্চিত করে আপনার ঠিকানায় পৌঁছে দেবে।" data-en="Order groceries, medicines, gas and daily essentials—or send us your complete shopping list. Our local team confirms and delivers to your door.">
+          মুদি, ঔষধ, গ্যাস ও প্রয়োজনীয় পণ্য বেছে অর্ডার করুন—অথবা পুরো বাজারের তালিকা আমাদের পাঠিয়ে দিন। স্থানীয় টিম অর্ডার নিশ্চিত করে আপনার ঠিকানায় পৌঁছে দেবে।
+        </p>
+
+        <div class="home-hero-actions" aria-label="কেনাকাটা শুরু করার অপশন">
+          <button type="button" class="home-primary-cta" onclick="Router.go('listing',{cat:'all'})" data-bn="এখনই অর্ডার করুন<span class='ic ic-arrow-r' aria-hidden='true'></span>" data-en="Order Now<span class='ic ic-arrow-r' aria-hidden='true'></span>">
+            এখনই অর্ডার করুন
+            <span class="ic ic-arrow-r" aria-hidden="true"></span>
+          </button>
+          <button type="button" class="home-secondary-cta" onclick="Router.go('custom-bazar')" data-bn="<span class='ic ic-pencil' aria-hidden='true'></span>বাজারের তালিকা পাঠান" data-en="<span class='ic ic-pencil' aria-hidden='true'></span>Send Shopping List">
+            <span class="ic ic-pencil" aria-hidden="true"></span>
+            বাজারের তালিকা পাঠান
+          </button>
+        </div>
+
+        <div class="home-hero-proof" aria-label="মূল সুবিধা">
+          <span><span class="ic ic-check" aria-hidden="true"></span>Cash on Delivery</span>
+          <span><span class="ic ic-check" aria-hidden="true"></span>Local Support</span>
+          <span><span class="ic ic-check" aria-hidden="true"></span>Order Tracking</span>
+        </div>
+
+        <button type="button" class="home-location-check" onclick="LocationPicker.open(d=>{ toast(d.zone ? '✓ আপনার এলাকা কভার করি — '+d.zone.label : '⚠ দুঃখিত, এই এলাকায় এখনো ডেলিভারি নেই', d.zone?'success':'error') })">
+          <span class="home-location-icon"><span class="ic ic-pin" aria-hidden="true"></span></span>
+          <span><strong>আপনার এলাকায় ডেলিভারি হয়?</strong><small>লোকেশন দিয়ে এখনই যাচাই করুন</small></span>
+          <span class="ic ic-arrow-r" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section class="home-assurance" aria-label="সেবার নিশ্চয়তা">
+    <div class="home-assurance-inner">
+      <article><span class="home-assurance-icon"><span class="ic ic-truck" aria-hidden="true"></span></span><div><strong>নিজস্ব ডেলিভারি টিম</strong><small>স্থানীয় ও দায়িত্বশীল সেবা</small></div></article>
+      <article><span class="home-assurance-icon"><span class="ic ic-shield" aria-hidden="true"></span></span><div><strong>নিরাপদ পেমেন্ট</strong><small>Cash, bKash ও Nagad</small></div></article>
+      <article><span class="home-assurance-icon"><span class="ic ic-package" aria-hidden="true"></span></span><div><strong>অর্ডার ট্র্যাকিং</strong><small>বর্তমান অবস্থা সহজে দেখুন</small></div></article>
+      <article><span class="home-assurance-icon"><span class="ic ic-headset" aria-hidden="true"></span></span><div><strong>মানুষের সহায়তা</strong><small>প্রতিদিন সকাল ১০টা–রাত ১০টা</small></div></article>
+    </div>
+  </section>
+
+  <section class="sec home-section home-categories-section" aria-labelledby="categoriesTitle">
+    <div class="home-section-head">
+      <div>
+        <span class="home-section-kicker">দ্রুত কেনাকাটা</span>
+        <h2 id="categoriesTitle" class="tiro">যা প্রয়োজন, সরাসরি সেখানে যান</h2>
+        <p>সবচেয়ে প্রয়োজনীয় বিভাগগুলো থেকে দ্রুত পণ্য খুঁজুন।</p>
+      </div>
+      <button type="button" class="home-section-link" onclick="Router.go('listing',{cat:'all'})">সব ক্যাটাগরি <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+    </div>
+    <div class="home-category-grid" id="catGrid" aria-live="polite"></div>
+  </section>
+
+  <section class="sec home-section home-product-section home-special-products" id="homeSpecialProducts" aria-labelledby="specialProductsTitle">
+    <div class="home-section-head">
+      <div>
+        <span class="home-section-kicker">নির্বাচিত সাশ্রয়</span>
+        <h2 id="specialProductsTitle" class="tiro">বিশেষ মূল্যের পণ্য</h2>
+        <p>বর্তমানে বিশেষ মূল্যে পাওয়া যাচ্ছে এমন পণ্য।</p>
+      </div>
+      <button type="button" class="home-section-link" onclick="Router.go('listing',{cat:'flash'})">সব অফার <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+    </div>
+    <div class="home-product-rail" id="flashRow" aria-live="polite"></div>
+  </section>
+
+  <section class="sec home-section home-product-section" id="homePopularProducts" aria-labelledby="popularProductsTitle">
+    <div class="home-section-head">
+      <div>
+        <span class="home-section-kicker" id="popularProductsKicker">গ্রাহকের পছন্দ</span>
+        <h2 id="popularProductsTitle" class="tiro">জনপ্রিয় পণ্য</h2>
+        <p id="popularProductsDesc">বাস্তব বিক্রির তথ্য অনুযায়ী বেশি অর্ডার হওয়া পণ্য।</p>
+      </div>
+      <button type="button" class="home-section-link" onclick="Router.go('listing',{cat:'bestseller'})">সব দেখুন <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+    </div>
+    <div class="home-product-rail" id="bestRow" aria-live="polite"></div>
+  </section>
+
+  <section class="sec home-section home-product-section" id="homeMoreProducts" aria-labelledby="moreProductsTitle">
+    <div class="home-section-head">
+      <div>
+        <span class="home-section-kicker">দৈনন্দিন প্রয়োজন</span>
+        <h2 id="moreProductsTitle" class="tiro">আরও প্রয়োজনীয় পণ্য</h2>
+        <p>একই জায়গা থেকে ঘরের নিয়মিত প্রয়োজনীয় পণ্য বেছে নিন।</p>
+      </div>
+      <button type="button" class="home-section-link" onclick="Router.go('listing',{cat:'all'})">সম্পূর্ণ সংগ্রহ <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+    </div>
+    <div class="home-product-grid" id="newGrid" aria-live="polite"></div>
+  </section>
+
+  <section class="sec home-section home-service-section" aria-labelledby="homeServiceTitle">
+    <div class="home-section-head">
+      <div>
+        <span class="home-section-kicker">শুধু পণ্য নয়</span>
+        <h2 id="homeServiceTitle" class="tiro">আপনার প্রয়োজন অনুযায়ী সঠিক সেবা</h2>
+        <p>লম্বা পথ ঘুরতে হবে না—প্রতিটি কাজের জন্য পরিষ্কার একটি প্রবেশপথ।</p>
+      </div>
+    </div>
+    <div class="home-service-grid">
+      <article class="home-service-card home-service-list">
+        <span class="home-service-badge">সবচেয়ে সহজ</span>
+        <span class="home-service-icon"><span class="ic ic-pencil" aria-hidden="true"></span></span>
+        <h3>নিজের বাজারের তালিকা দিন</h3>
+        <p>পণ্য আলাদা করে খুঁজতে না চাইলে পুরো তালিকা লিখে বা ছবি দিয়ে পাঠান। স্থানীয় টিম বাজার করে পৌঁছে দেবে।</p>
+        <button type="button" onclick="Router.go('custom-bazar')">তালিকা পাঠান <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+      </article>
+      <article class="home-service-card home-service-health">
+        <span class="home-service-badge">স্বাস্থ্য সহায়তা</span>
+        <span class="home-service-icon home-service-logo"><img src="icons/dr_logo.webp" alt="" loading="lazy"></span>
+        <h3>ঔষধ ও ডাক্তার তথ্য</h3>
+        <p>প্রয়োজনীয় ঔষধ খুঁজুন অথবা স্থানীয় ডাক্তারদের সময়সূচি ও সিরিয়াল নম্বর দেখুন।</p>
+        <button type="button" onclick="Router.go('medical')">স্বাস্থ্য সেবা <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+      </article>
+      <article class="home-service-card home-service-orders">
+        <span class="home-service-badge">স্বচ্ছ অগ্রগতি</span>
+        <span class="home-service-icon"><span class="ic ic-package" aria-hidden="true"></span></span>
+        <h3>অর্ডারের বর্তমান অবস্থা</h3>
+        <p>অর্ডার জমা দেওয়ার পর প্রস্তুতি, ডেলিভারি ও সম্পন্ন হওয়ার অবস্থা এক জায়গা থেকে দেখুন।</p>
+        <button type="button" onclick="Router.go('myorders')">আমার অর্ডার <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+      </article>
+    </div>
+  </section>
+
+  <section class="home-process-section" aria-labelledby="homeProcessTitle">
+    <div class="sec home-process-shell">
+      <div class="home-process-copy">
+        <span class="home-section-kicker">তিন ধাপে সম্পন্ন</span>
+        <h2 id="homeProcessTitle" class="tiro">বাজার করা এখন ঝামেলাহীন</h2>
+        <p>আপনি কী চান তা জানান। আমরা ফোনে প্রয়োজনীয় তথ্য নিশ্চিত করে স্থানীয় ডেলিভারি টিমের মাধ্যমে পৌঁছে দিই।</p>
+        <div class="home-process-steps">
+          <article><span>১</span><div><strong>পণ্য বাছুন বা তালিকা দিন</strong><small>ক্যাটালগ ও কাস্টম বাজার—দুই পথই খোলা।</small></div></article>
+          <article><span>২</span><div><strong>অর্ডার নিশ্চিত করুন</strong><small>পণ্য, ঠিকানা, পেমেন্ট ও প্রযোজ্য চার্জ দেখে নিন।</small></div></article>
+          <article><span>৩</span><div><strong>ডেলিভারি গ্রহণ করুন</strong><small>অর্ডারের অগ্রগতি দেখে ঠিকানায় গ্রহণ করুন।</small></div></article>
+        </div>
+      </div>
+      <aside class="home-coverage-card">
+        <span class="home-coverage-icon"><span class="ic ic-pin" aria-hidden="true"></span></span>
+        <span class="home-section-kicker">বর্তমান সেবা এলাকা</span>
+        <h3>নোয়াখালী সদর ও বেগমগঞ্জ</h3>
+        <p>নির্ধারিত ইউনিয়ন ও এলাকার মধ্যে নিজস্ব ডেলিভারি সেবা দেওয়া হচ্ছে। অর্ডারের আগে আপনার লোকেশন যাচাই করুন।</p>
+        <div class="home-zone-chips"><span>নোয়াখালী সদর</span><span>বেগমগঞ্জ</span></div>
+        <button type="button" onclick="LocationPicker.open(d=>{ toast(d.zone ? '✓ আপনার এলাকা কভার করি — '+d.zone.label : '⚠ দুঃখিত, এই এলাকায় এখনো ডেলিভারি নেই', d.zone?'success':'error') })">এলাকা যাচাই করুন <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+      </aside>
+    </div>
+  </section>
+
+  <section class="sec home-section home-human-section" aria-labelledby="homeHumanTitle">
+    <div class="home-human-card">
+      <div class="home-human-people" aria-hidden="true">
+        <img src="icons/team-mahsin-card.webp" alt="" loading="lazy">
+        <img src="icons/team-rimon.webp" alt="" loading="lazy">
+        <img src="icons/team-srijon.webp" alt="" loading="lazy">
+        <img src="icons/team-hridoy.webp" alt="" loading="lazy">
+      </div>
+      <div class="home-human-copy">
+        <span class="home-section-kicker">বাস্তব স্থানীয় টিম</span>
+        <h2 id="homeHumanTitle" class="tiro">অর্ডারের পেছনে আছে পরিচিত মানুষ</h2>
+        <p>প্রশ্ন বা সহায়তার প্রয়োজন হলে সরাসরি কথা বলুন। সেবা এলাকা, পেমেন্ট এবং অর্ডারের নিয়ম আগে থেকেই পরিষ্কারভাবে জানানো হয়।</p>
+      </div>
+      <div class="home-human-actions">
+        <a href="tel:+8801612057371"><span class="ic ic-phone" aria-hidden="true"></span>+880 1612-057371</a>
+        <button type="button" onclick="Router.go('about-app')">টিম পরিচিতি <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+      </div>
+    </div>
+  </section>
+  <section class="sec home-final-cta" aria-label="কেনাকাটা শুরু করুন">
+    <div>
+      <span class="home-section-kicker">আজকের বাজার</span>
+      <h2 class="tiro">প্রয়োজনীয় জিনিস এখনই অর্ডার করুন</h2>
+      <p>পণ্য বেছে নিন অথবা পুরো বাজারের তালিকা পাঠিয়ে দিন—যেটি আপনার জন্য সহজ।</p>
+    </div>
+    <div class="home-final-actions">
+      <button type="button" class="home-primary-cta" onclick="Router.go('listing',{cat:'all'})">কেনাকাটা শুরু করুন <span class="ic ic-arrow-r" aria-hidden="true"></span></button>
+      <button type="button" class="home-secondary-cta" onclick="Router.go('custom-bazar')"><span class="ic ic-pencil" aria-hidden="true"></span>তালিকা পাঠান</button>
+    </div>
+  </section>
+</div>

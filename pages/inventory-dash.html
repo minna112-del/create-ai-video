@@ -1,0 +1,117 @@
+<div class="page zone-manager-page" id="page-inventory-dash">
+  <section class="sec zone-manager-shell">
+    <a class="zm-back-link" href="#" onclick="event.preventDefault();Router.go('home')">← সাইটে ফিরে যান</a>
+
+    <div id="invLoginBox" class="zm-login-wrap">
+      <div class="zm-login-intro">
+        <span class="eyebrow">Supply & Inventory</span>
+        <h1 class="tiro">ইনভেন্টরি কন্ট্রোল রুম</h1>
+        <p>নিজস্ব অনুমোদিত অ্যাকাউন্ট দিয়ে লগইন করুন। সব শাখার স্টক এখান থেকে নিয়ন্ত্রণ করা যাবে।</p>
+      </div>
+      <div class="card-box zm-login-card">
+        <div id="invLoginMsg" class="form-msg" role="status" aria-live="polite"></div>
+        <div class="field"><label for="invEmail">ইমেইল</label><input type="email" id="invEmail" autocomplete="username" inputmode="email"></div>
+        <div class="field"><label for="invPassword">পাসওয়ার্ড</label><input type="password" id="invPassword" autocomplete="current-password"></div>
+        <button class="btn btn-primary btn-block" type="button" onclick="InventoryDash.login()">নিরাপদ লগইন</button>
+      </div>
+    </div>
+
+    <div id="invDashBox" class="zm-dashboard" style="display:none">
+      <header class="zm-dashboard-head">
+        <div><span class="eyebrow">ইনভেন্টরি কন্ট্রোল সেন্টার</span><h1 class="tiro">সব শাখার স্টক</h1><p id="invManagerLabel"></p></div>
+        <button class="btn btn-outline" type="button" onclick="InventoryDash.logout()">লগআউট</button>
+      </header>
+      <div id="invEmployeeWorkspace"></div>
+
+      <nav class="zm-tabs" aria-label="ইনভেন্টরি ম্যানেজার নেভিগেশন">
+        <button class="active" type="button" onclick="InventoryDash.tab(this,'overview')">ওভারভিউ</button>
+        <button type="button" onclick="InventoryDash.tab(this,'stock')">স্টক ম্যানেজমেন্ট</button>
+        <button type="button" onclick="InventoryDash.tab(this,'movement')">মুভমেন্ট লগ</button>
+        <button type="button" onclick="InventoryDash.tab(this,'restock')">রিস্টক রিকোয়েস্ট</button>
+      </nav>
+
+      <main class="zm-content">
+        <section id="invOverviewPane">
+          <section class="inv-command" aria-labelledby="invCommandTitle">
+            <div class="inv-health-card">
+              <div class="inv-health-copy">
+                <span class="eyebrow">Inventory Intelligence</span>
+                <h2 id="invCommandTitle">স্টক স্বাস্থ্য ও আজকের অগ্রাধিকার</h2>
+                <p id="invHealthSummary">স্টক ডেটা বিশ্লেষণ করা হচ্ছে…</p>
+              </div>
+              <div class="inv-health-score" aria-label="ইনভেন্টরি হেলথ স্কোর">
+                <strong id="invHealthScore">০</strong><span>/১০০</span>
+                <small id="invHealthLabel">বিশ্লেষণ চলছে</small>
+              </div>
+            </div>
+            <div class="inv-command-actions">
+              <button class="btn btn-primary" type="button" onclick="InventoryDash.createCriticalRestockRequests()">জরুরি রিস্টক তৈরি</button>
+              <button class="btn btn-outline" type="button" onclick="InventoryDash.exportStockCsv()">CSV রিপোর্ট</button>
+              <button class="btn btn-outline" type="button" onclick="InventoryDash.refresh()">↻ রিফ্রেশ</button>
+            </div>
+          </section>
+
+          <div class="inv-kpi-grid">
+            <article class="inv-kpi"><span>মোট ইউনিট হাতে</span><strong id="invUnitsOnHand">০</strong><small>সব শাখা মিলিয়ে</small></article>
+            <article class="inv-kpi"><span>সক্রিয় SKU</span><strong id="invActiveSku">০</strong><small>বিক্রির জন্য প্রস্তুত</small></article>
+            <article class="inv-kpi"><span>নিষ্ক্রিয় SKU</span><strong id="invInactiveSku">০</strong><small>পর্যালোচনা প্রয়োজন</small></article>
+            <article class="inv-kpi"><span>পেন্ডিং রিস্টক</span><strong id="invPendingRestock">০</strong><small>সাপ্লাই সিদ্ধান্ত অপেক্ষমাণ</small></article>
+          </div>
+
+          <div id="invPriorityActions" class="inv-priority-list" aria-live="polite"></div>
+
+          <div class="stat-grid zm-stat-grid">
+            <article class="stat-card"><div class="lbl">মোট প্রোডাক্ট</div><div class="val" id="invStatTotal">০</div></article>
+            <article class="stat-card"><div class="lbl">লো স্টক</div><div class="val rose" id="invStatLow">০</div></article>
+            <article class="stat-card"><div class="lbl">স্টক আউট</div><div class="val rose" id="invStatOut">০</div></article>
+            <article class="stat-card"><div class="lbl">আজকের আপডেট</div><div class="val" id="invStatUpdatedToday">০</div></article>
+          </div>
+          <div id="invLowStockAlerts" class="zm-alert-card" style="display:none"><h2>স্টক সতর্কতা</h2><div id="invLowStockList"></div></div>
+          <div id="invBranchRiskGrid" class="inv-branch-risk-grid"></div>
+          <div class="zm-overview-grid">
+            <article class="card-box">
+              <div class="section-head"><div><span class="eyebrow">পারফরম্যান্স</span><h2>শাখাভিত্তিক স্টক অবস্থা</h2></div></div>
+              <div class="table-scroll"><table class="data-table"><thead><tr><th>শাখা</th><th style="text-align:center">মোট</th><th style="text-align:center">লো স্টক</th><th style="text-align:center">স্টক আউট</th></tr></thead><tbody id="invZoneStockTable"></tbody></table></div>
+            </article>
+            <article class="card-box">
+              <div class="section-head"><div><span class="eyebrow">সাম্প্রতিক</span><h2>সাম্প্রতিক স্টক পরিবর্তন</h2></div></div>
+              <div class="table-scroll"><table class="data-table"><thead><tr><th>প্রোডাক্ট</th><th>আগে</th><th>এখন</th><th>সময়</th></tr></thead><tbody id="invRecentMovement"></tbody></table></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="invStockPane" style="display:none">
+          <div class="zm-pane-head">
+            <div><span class="eyebrow">ইনভেন্টরি</span><h2>সব শাখার প্রোডাক্ট</h2></div>
+            <div class="zm-toolbar">
+              <input id="invProductSearch" type="search" placeholder="প্রোডাক্ট খুঁজুন" oninput="InventoryDash.filterStock()">
+              <select id="invZoneFilter" onchange="InventoryDash.filterStock()">
+                <option value="">সব শাখা</option>
+              </select>
+              <select id="invStockFilter" onchange="InventoryDash.filterStock()">
+                <option value="">সব স্টক</option>
+                <option value="low">লো স্টক (≤৫)</option>
+                <option value="out">স্টক আউট</option>
+                <option value="healthy">স্বাস্থ্যকর স্টক (&gt;৫)</option>
+                <option value="inactive">নিষ্ক্রিয় পণ্য</option>
+              </select>
+            </div>
+          </div>
+          <p style="font-size:12px;color:var(--ink-muted);margin-bottom:14px">নোট: এখান থেকে শুধু স্টক ও অ্যাভেইলেবিলিটি আপডেট করা যাবে। মূল্য/প্রোডাক্ট মুছে ফেলা শুধু Owner Dashboard থেকে করা যায়।</p>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>ছবি</th><th>প্রোডাক্ট</th><th>শাখা</th><th>বর্তমান</th><th>নতুন স্টক</th><th>অ্যাভেইলেবিলিটি</th><th></th></tr></thead><tbody id="invStockTable"></tbody></table></div>
+        </section>
+
+        <section id="invMovementPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">অডিট ট্রেইল</span><h2>স্টক মুভমেন্ট লগ</h2></div><input type="date" id="invMovementDate" onchange="InventoryDash.filterMovement()"></div>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>প্রোডাক্ট</th><th>শাখা</th><th>আগে</th><th>এখন</th><th>পরিবর্তনকারী</th><th>সময়</th></tr></thead><tbody id="invMovementTable"></tbody></table></div>
+        </section>
+
+        <section id="invRestockPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">সাপ্লাই চেইন</span><h2>রিস্টক রিকোয়েস্ট</h2></div><span id="invRestockPendingCount" style="font-size:12.5px;color:var(--rose);font-weight:700"></span></div>
+          <p style="font-size:12px;color:var(--ink-muted);margin-bottom:14px">লো স্টক বা স্টক আউট প্রোডাক্টের জন্য Owner-কে রিস্টক অনুরোধ পাঠান।</p>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>প্রোডাক্ট</th><th>শাখা</th><th>স্টক</th><th>সময়</th><th>স্ট্যাটাস</th></tr></thead><tbody id="invRestockTable"></tbody></table></div>
+        </section>
+      </main>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,113 @@
+<div class="page attendance-office-page" id="page-attendance-dash">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('admin-dash')">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span><small>Golapi Shop Online</small><strong>Attendance &amp; Time Office</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="attendanceUpdated" class="admin-updated"></span>
+      <button class="admin-icon-btn" onclick="AttendanceOffice.refresh()">↻ <span>রিফ্রেশ</span></button>
+      <button class="admin-icon-btn" onclick="Router.go('admin-dash')">← <span>Executive Office</span></button>
+    </div>
+  </header>
+
+  <div id="attendanceEmployeeWorkspace"></div>
+
+  <main class="sec attendance-office">
+    <section class="attendance-hero">
+      <div>
+        <span class="office-kicker">PEOPLE OPERATIONS · WORKFORCE TIME</span>
+        <h1>কর্মঘণ্টা, উপস্থিতি ও ছুটি—এক জায়গায়</h1>
+        <p>লাইভ চেক-ইন/চেক-আউট, দেরি, ওভারটাইম, ছুটির আবেদন এবং অফিস ক্যালেন্ডার পরিচালনা করুন।</p>
+      </div>
+      <div class="attendance-clock-card">
+        <small>অফিস সময়</small>
+        <strong id="attendanceLiveClock">--:--:--</strong>
+        <span id="attendanceLiveDate">—</span>
+      </div>
+    </section>
+
+    <section class="attendance-self-card">
+      <div>
+        <span class="office-kicker">MY TIME DESK</span>
+        <h2 id="attendanceSelfStatus">আজ এখনো চেক-ইন করা হয়নি</h2>
+        <p id="attendanceSelfMeta">লোকেশন অনুমতি দিলে উপস্থিতির সঙ্গে অবস্থান সংরক্ষণ হবে।</p>
+      </div>
+      <div class="attendance-self-actions">
+        <button id="attendanceCheckInBtn" class="btn btn-gold" onclick="AttendanceOffice.checkIn()">✓ চেক-ইন</button>
+        <button id="attendanceCheckOutBtn" class="btn attendance-dark-btn" onclick="AttendanceOffice.checkOut()">শেষ চেক-আউট</button>
+      </div>
+    </section>
+
+    <section class="attendance-stats">
+      <article><span>আজ উপস্থিত</span><strong id="attStatPresent">০</strong><small id="attStatPresentPct">০% কর্মী</small></article>
+      <article><span>দেরিতে এসেছে</span><strong id="attStatLate">০</strong><small>শিফট শুরুর পরে</small></article>
+      <article><span>আজ ছুটিতে</span><strong id="attStatLeave">০</strong><small>অনুমোদিত ছুটি</small></article>
+      <article><span>এখনো অনুপস্থিত</span><strong id="attStatAbsent">০</strong><small>সক্রিয় কর্মীর মধ্যে</small></article>
+      <article><span>ওভারটাইম</span><strong id="attStatOvertime">০h</strong><small>আজ মোট</small></article>
+    </section>
+
+    <section class="attendance-priority" id="attendancePriorityDesk"></section>
+
+    <section class="attendance-grid">
+      <article class="office-panel attendance-wide">
+        <div class="office-panel-head">
+          <div><span class="office-kicker">LIVE REGISTER</span><h2>আজকের উপস্থিতি রেজিস্টার</h2></div>
+          <div class="attendance-filters">
+            <input id="attendanceSearch" placeholder="নাম, ID বা পদবি খুঁজুন" oninput="AttendanceOffice.renderRegister()">
+            <select id="attendanceStatusFilter" onchange="AttendanceOffice.renderRegister()">
+              <option value="">সব স্ট্যাটাস</option><option value="present">উপস্থিত</option><option value="late">দেরি</option><option value="absent">অনুপস্থিত</option><option value="leave">ছুটি</option>
+            </select>
+            <button onclick="AttendanceOffice.exportCsv()">CSV</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table attendance-table">
+            <thead><tr><th>কর্মী</th><th>শিফট</th><th>চেক-ইন</th><th>চেক-আউট</th><th>কর্মঘণ্টা</th><th>স্ট্যাটাস</th><th>একশন</th></tr></thead>
+            <tbody id="attendanceRegisterBody"></tbody>
+          </table>
+        </div>
+      </article>
+
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">LEAVE DESK</span><h2>ছুটির আবেদন</h2></div><button onclick="AttendanceOffice.openLeaveForm()">+ আবেদন</button></div>
+        <div id="attendanceLeaveList" class="attendance-list"></div>
+      </article>
+
+      <article class="office-panel">
+        <div class="office-panel-head"><div><span class="office-kicker">OFFICE CALENDAR</span><h2>ছুটি ও বিশেষ দিন</h2></div><button onclick="AttendanceOffice.openHolidayForm()">+ দিন যোগ</button></div>
+        <div id="attendanceHolidayList" class="attendance-list"></div>
+      </article>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="attendanceLeaveModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="AttendanceOffice.closeModal('attendanceLeaveModal')"></div>
+    <div class="employee-modal-card attendance-modal-card">
+      <button class="employee-modal-close" onclick="AttendanceOffice.closeModal('attendanceLeaveModal')">×</button>
+      <h2>ছুটির আবেদন</h2>
+      <div class="attendance-form-grid">
+        <label>কর্মী<select id="leaveEmployee"></select></label>
+        <label>ছুটির ধরন<select id="leaveType"><option>Casual Leave</option><option>Sick Leave</option><option>Annual Leave</option><option>Emergency Leave</option><option>Unpaid Leave</option></select></label>
+        <label>শুরুর তারিখ<input id="leaveStart" type="date"></label>
+        <label>শেষ তারিখ<input id="leaveEnd" type="date"></label>
+        <label class="attendance-form-full">কারণ<textarea id="leaveReason" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="AttendanceOffice.saveLeave()">আবেদন সংরক্ষণ</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="attendanceHolidayModal" aria-hidden="true">
+    <div class="employee-modal-backdrop" onclick="AttendanceOffice.closeModal('attendanceHolidayModal')"></div>
+    <div class="employee-modal-card attendance-modal-card">
+      <button class="employee-modal-close" onclick="AttendanceOffice.closeModal('attendanceHolidayModal')">×</button>
+      <h2>অফিস ক্যালেন্ডারে দিন যোগ করুন</h2>
+      <div class="attendance-form-grid">
+        <label>তারিখ<input id="holidayDate" type="date"></label>
+        <label>ধরন<select id="holidayType"><option value="holiday">সরকারি/কোম্পানি ছুটি</option><option value="event">বিশেষ অনুষ্ঠান</option><option value="restricted">সীমিত কার্যক্রম</option></select></label>
+        <label class="attendance-form-full">শিরোনাম<input id="holidayTitle" placeholder="যেমন: ঈদুল ফিতর"></label>
+      </div>
+      <button class="btn btn-gold" onclick="AttendanceOffice.saveHoliday()">ক্যালেন্ডারে যোগ করুন</button>
+    </div>
+  </div>
+</div>

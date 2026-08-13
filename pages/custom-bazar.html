@@ -1,0 +1,49 @@
+<div class="page" id="page-custom-bazar">
+  <section class="sec" style="max-width:640px">
+    <div class="crumb"><a href="#" onclick="Router.go('home')">হোম</a> &gt; কাস্টম বাজার অর্ডার</div>
+    <h2 class="tiro" style="font-size:24px;margin-bottom:6px"><span class="ic ic-pencil" style="width:13px;height:13px;vertical-align:-2px;margin-right:3px"></span>আপনার বাজারের লিস্ট দিন</h2>
+    <p style="color:var(--ink-muted);font-size:13.5px;margin-bottom:16px">সাপ্তাহিক মুদি, মাসিক বাজার, বিয়ের বাজার, রমজানের বাজার, কুরবানির বাজার — যেকোনো লিস্ট লিখে দিন। আমাদের ড্রাইভার বাজার করে বাসায় পৌঁছে দেবে। ফর্মটা পূরণ করতে ২-৩ মিনিট লাগবে।</p>
+    <div id="cbPastOrdersBox" style="display:none;margin-bottom:16px"></div>
+    <div class="card-box">
+      <div class="field"><label>আপনার নাম *</label><input type="text" id="cbName"></div>
+      <div class="field"><label>মোবাইল নম্বর *</label><input type="tel" id="cbPhone" placeholder="01XXXXXXXXX"></div>
+      <div class="field"><label>সম্পূর্ণ ঠিকানা *</label><textarea id="cbAddress" rows="2" placeholder="বাড়ি/রোড/এলাকা"></textarea></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field"><label>উপজেলা *</label><select id="cbDistrict" onchange="onUpazilaChange('cb')"><option value="">বেছে নিন</option><option value="noakhali_sadar">নোয়াখালী সদর</option><option value="begumganj">বেগমগঞ্জ</option></select></div>
+        <div class="field"><label>ইউনিয়ন *</label><select id="cbZone"><option value="">প্রথমে উপজেলা বেছে নিন</option></select></div>
+      </div>
+      <div class="field"><label>গ্রাম / এলাকার নাম *</label><input type="text" id="cbVillage" placeholder="যেমন: পশ্চিম নাজিরপুর, ৩নং ওয়ার্ড"></div>
+      <div class="field"><label>বাজারের ধরন *</label>
+        <select id="cbType"><option value="weekly">সাপ্তাহিক মুদি বাজার</option><option value="monthly">মাসিক মুদি বাজার</option><option value="wedding">বিয়ের বাজার</option><option value="ramadan">রমজানের বাজার</option><option value="qurbani">কুরবানির বাজার</option><option value="other">অন্যান্য</option></select>
+      </div>
+      <div class="field"><label>বাজারের লিস্ট * <span style="color:var(--ink-dim)">(প্রতিটা আইটেম আলাদা লাইনে, পরিমাণ সহ)</span></label>
+        <textarea id="cbList" rows="7" placeholder="চাল মিনিকেট — ৫ কেজি&#10;মসুর ডাল — ২ কেজি&#10;সয়াবিন তেল — ২ লিটার&#10;পেঁয়াজ — ৩ কেজি..."></textarea>
+      </div>
+      <div class="field"><label>ডেলিভারি ইনস্ট্রাকশন * <span style="color:var(--ink-dim);font-weight:400">(বাধ্যতামূলক)</span></label><textarea id="cbInstructions" rows="2" placeholder="যেমন: বাড়ির সামনে সবুজ গেট, কল করে আসবেন"></textarea></div>
+      <div class="field"><label>বিশেষ নির্দেশনা (ঐচ্ছিক)</label><textarea id="cbNotes" rows="2" placeholder="যেমন: সবচেয়ে ভালো মানের চাল নিবেন"></textarea></div>
+      <div class="card" style="padding:14px;margin-bottom:16px;border-color:var(--gold-line);background:rgba(212,175,55,.05)">
+        <strong style="font-size:12.5px;color:var(--gold)">বিল পেমেন্ট নিয়ম</strong>
+        <p style="font-size:12px;color:var(--ink-soft);margin-top:4px;line-height:1.7">ড্রাইভার বাজার করার পর মোট বিলের পরিমাণ জানিয়ে বিলের স্পষ্ট ছবি অ্যাপে আপলোড করবে — আপনি সেটা দেখে টাকা রেডি রাখতে পারবেন। ডেলিভারির সময় ক্যাশে পরিশোধ করুন। ড্রাইভারের সাথে সরাসরি চ্যাটও করতে পারবেন অর্ডার পেজ থেকে।</p>
+      </div>
+      <div style="background:rgba(212,175,55,.06);border:1px solid var(--gold-line);border-radius:12px;padding:14px;margin-bottom:16px">
+        <strong style="color:var(--gold);font-size:13px">⚠️ কেন ১০০ টাকা ভেরিফিকেশন ফি লাগে:</strong>
+        <p style="font-size:12.5px;color:var(--ink-soft);line-height:1.7;margin-top:4px">কাস্টম বাজারে আমাদের ড্রাইভার আগে থেকে টাকা খরচ করে বাজার করে আনে, তাই ভুয়া বা মিথ্যা অর্ডার ঠেকাতে <strong style="color:var(--ink)">১০০ টাকা বিকাশ পে বাধ্যতামূলক</strong> — এটা আপনার মোট বিল থেকে বাদ যাবে। বিকাশ নম্বর: <strong id="cbBkashNum" style="color:var(--gold)">উপজেলা বেছে নিলে দেখাবে</strong><br>বাকি সম্পূর্ণ টাকা ক্যাশ অন ডেলিভারি — পণ্য হাতে পাওয়ার পর। <strong style="color:var(--ink)">bKash-এর নিজস্ব চার্জ (যদি থাকে) আমরা বহন করি, আপনাকে দিতে হবে না।</strong></p>
+      </div>
+
+      <div class="card-box" style="margin-bottom:16px">
+        <strong style="font-size:13px;color:var(--gold)">📋 ১০০ টাকা অগ্রিম নিয়ে পূর্ণ নিয়ম</strong>
+        <ul style="font-size:12.5px;color:var(--ink-soft);line-height:1.9;margin:8px 0 0;padding-left:18px">
+          <li>আমরা অর্ডার গ্রহণ করতে না পারলে (স্টক/লোকেশন/অন্য কারণে) — <strong style="color:var(--ink)">১০০ টাকা সম্পূর্ণ ফেরত</strong> দেওয়া হবে।</li>
+          <li>আপনি নিজে অর্ডার বাতিল করলে — ড্রাইভারের যাতায়াত খরচ বাবদ <strong style="color:var(--ink)">৫০% (৫০ টাকা) ফেরত</strong> দেওয়া হবে, বাকি ৫০ টাকা কাটা যাবে।</li>
+          <li>বাজারে কোনো পণ্য না পাওয়া গেলে — ড্রাইভার/আমাদের টিম আপনাকে ফোনে জানিয়ে সমঝোতা করবে (বিকল্প পণ্য বা বাদ দেওয়া)।</li>
+          <li>বাজারের মোট বিল আপনার আনুমানিক বাজেটের চেয়ে বেশি হলে — বাজার শেষ করার আগেই ফোনে জানিয়ে অনুমতি নেওয়া হবে।</li>
+          <li>বাজার সম্পূর্ণ হওয়ার পরই মূল রসিদ/বিলের ছবি অর্ডার পেজে আপলোড হবে — আগে থেকে দেখা যাবে না।</li>
+          <li>১০০ টাকা অগ্রিম সবসময় চূড়ান্ত বিল থেকে বাদ দিয়েই ডেলিভারির সময় বাকি টাকা নেওয়া হয়।</li>
+        </ul>
+      </div>
+      <div class="field"><label>বিকাশ ট্রানজেকশন ID *</label><input type="text" id="cbTrxId" placeholder="পেমেন্টের পর ট্রানজেকশন ID"></div>
+      <div id="cbMsg" class="form-msg"></div>
+      <button class="btn btn-rose btn-block" id="cbSubmitBtn" onclick="CustomBazar.submit()"><span class="ic ic-pencil" style="width:13px;height:13px;vertical-align:-2px;margin-right:3px"></span>বাজার অর্ডার জমা দিন</button>
+    </div>
+  </section>
+</div>

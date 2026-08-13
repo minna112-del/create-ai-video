@@ -1,0 +1,89 @@
+<div class="page zone-manager-page customer-care-page" id="page-support-dash">
+  <section class="sec zone-manager-shell">
+    <a class="zm-back-link" href="#" onclick="event.preventDefault();Router.go('home')">← সাইটে ফিরে যান</a>
+
+    <div id="supLoginBox" class="zm-login-wrap">
+      <div class="zm-login-intro"><span class="eyebrow">Customer Experience</span><h1 class="tiro">Customer Care Center</h1><p>অনুমোদিত কাস্টমার কেয়ার অ্যাকাউন্ট দিয়ে লগইন করুন।</p></div>
+      <div class="card-box zm-login-card">
+        <div id="supLoginMsg" class="form-msg" role="status" aria-live="polite"></div>
+        <div class="field"><label for="supEmail">ইমেইল</label><input type="email" id="supEmail" autocomplete="username"></div>
+        <div class="field"><label for="supPassword">পাসওয়ার্ড</label><input type="password" id="supPassword" autocomplete="current-password"></div>
+        <button class="btn btn-primary btn-block" type="button" onclick="SupportDash.login()">নিরাপদ লগইন</button>
+      </div>
+    </div>
+
+    <div id="supDashBox" class="zm-dashboard" style="display:none">
+      <header class="zm-dashboard-head">
+        <div><span class="eyebrow">Customer Experience Operations</span><h1 class="tiro">Customer Care Center</h1><p id="supUserLabel"></p></div>
+        <div class="cc-head-actions"><button class="btn btn-outline" type="button" onclick="SupportDash.exportCsv()">CSV রিপোর্ট</button><button class="btn btn-outline" type="button" onclick="SupportDash.refresh()">রিফ্রেশ</button><button class="btn btn-outline" type="button" onclick="SupportDash.logout()">লগআউট</button></div>
+      </header>
+      <div id="supEmployeeWorkspace"></div>
+
+      <section class="cc-command-grid" aria-label="Customer care summary">
+        <article class="cc-health-card"><span>Customer Care Health</span><strong id="supHealthScore">০</strong><small id="supHealthLabel">ডেটা বিশ্লেষণ হচ্ছে</small><div class="cc-health-track"><i id="supHealthBar"></i></div></article>
+        <article class="stat-card"><div class="lbl">ওপেন টিকেট</div><div class="val rose" id="supStatOpen">০</div></article>
+        <article class="stat-card"><div class="lbl">SLA ঝুঁকি</div><div class="val rose" id="supStatSlaRisk">০</div></article>
+        <article class="stat-card"><div class="lbl">আজ সমাধান</div><div class="val" id="supStatResolvedToday">০</div></article>
+        <article class="stat-card"><div class="lbl">এস্কেলেটেড</div><div class="val rose" id="supStatEscalated">০</div></article>
+        <article class="stat-card"><div class="lbl">গড় প্রথম উত্তর</div><div class="val" id="supStatFirstResponse">—</div></article>
+      </section>
+
+      <section class="cc-priority-panel card-box">
+        <div class="zm-pane-head"><div><span class="eyebrow">Priority Decision Desk</span><h2>এখন যেগুলোতে কাজ জরুরি</h2></div></div>
+        <div id="supPriorityDesk" class="cc-priority-list"></div>
+      </section>
+
+      <nav class="zm-tabs" aria-label="সাপোর্ট নেভিগেশন">
+        <button class="active" type="button" onclick="SupportDash.tab(this,'tickets')">টিকেট ডেস্ক</button>
+        <button type="button" onclick="SupportDash.tab(this,'newticket')">+ নতুন টিকেট</button>
+      </nav>
+
+      <main class="zm-content">
+        <section id="supTicketsPane">
+          <div class="zm-pane-head">
+            <div><span class="eyebrow">Service Inbox</span><h2>সব কাস্টমার টিকেট</h2></div>
+            <div class="zm-toolbar cc-toolbar">
+              <input id="supTicketSearch" type="search" placeholder="নাম, ফোন বা অর্ডার" oninput="SupportDash.filterTickets()">
+              <select id="supStatusFilter" onchange="SupportDash.filterTickets()"><option value="">সব স্ট্যাটাস</option><option value="open">ওপেন</option><option value="in_progress">প্রসেসিং</option><option value="resolved">সমাধান</option><option value="escalated">এস্কেলেটেড</option></select>
+              <select id="supPriorityFilter" onchange="SupportDash.filterTickets()"><option value="">সব প্রায়োরিটি</option><option value="urgent">অতি জরুরি</option><option value="high">জরুরি</option><option value="normal">সাধারণ</option></select>
+              <select id="supSlaFilter" onchange="SupportDash.filterTickets()"><option value="">সব SLA</option><option value="risk">SLA ঝুঁকি</option><option value="breached">SLA অতিক্রম</option></select>
+            </div>
+          </div>
+
+          <div class="cc-split-layout" id="supSplitLayout">
+            <div class="table-scroll card-box cc-ticket-table"><table class="data-table"><thead><tr><th>কাস্টমার</th><th>বিষয়</th><th>প্রায়োরিটি</th><th>SLA</th><th>স্ট্যাটাস</th></tr></thead><tbody id="supTicketList"></tbody></table></div>
+            <div class="card-box cc-detail-box" id="supDetailBox" style="display:none">
+              <div id="supDetailHeader"></div>
+              <div class="cc-detail-meta">
+                <label>দায়িত্বপ্রাপ্ত এজেন্ট<select id="supAssignee" onchange="SupportDash.assignTicket(this.value)"><option value="">অনির্ধারিত</option></select></label>
+                <label>স্ট্যাটাস<select id="supStatusUpdate" onchange="SupportDash.updateStatus(this.value)"><option value="open">ওপেন</option><option value="in_progress">প্রসেসিং</option><option value="resolved">সমাধান</option></select></label>
+              </div>
+              <div id="supOrderContext" class="zm-alert-card cc-order-context" style="display:none"></div>
+              <div id="supCustomerHistory" class="cc-customer-history"></div>
+              <div id="supConversation" class="cc-conversation"></div>
+              <div class="cc-reply-box">
+                <div class="cc-quick-replies">
+                  <button type="button" onclick="SupportDash.useQuickReply('delay')">ডেলিভারি বিলম্ব</button>
+                  <button type="button" onclick="SupportDash.useQuickReply('refund')">রিফান্ড প্রসেস</button>
+                  <button type="button" onclick="SupportDash.useQuickReply('resolved')">সমাধান নিশ্চিত</button>
+                </div>
+                <textarea id="supReplyText" rows="3" placeholder="কাস্টমারকে উত্তর লিখুন..."></textarea>
+                <div class="cc-reply-actions"><button class="btn btn-primary" type="button" onclick="SupportDash.sendReply()">উত্তর পাঠান</button><button class="btn btn-outline" type="button" onclick="SupportDash.escalate()">⚠️ এস্কেলেট</button><button class="btn btn-outline" type="button" onclick="SupportDash.openRefundForm()">💸 রিফান্ড অনুরোধ</button></div>
+                <div id="supRefundForm" class="cc-refund-form" style="display:none"><div class="field"><label>রিফান্ডের পরিমাণ (৳)</label><input type="number" id="supRefundAmount" min="0"></div><div class="field"><label>কারণ</label><input type="text" id="supRefundReason"></div><button class="btn btn-gold" type="button" onclick="SupportDash.submitRefund()">Finance Office-এ পাঠান</button></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="supNewticketPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">New Service Case</span><h2>নতুন টিকেট তৈরি করুন</h2></div></div>
+          <div class="card-box cc-new-ticket-form"><div id="supNewMsg" class="form-msg"></div><div class="cc-form-grid">
+            <div class="field"><label>কাস্টমারের নাম *</label><input type="text" id="ntName"></div><div class="field"><label>ফোন নম্বর *</label><input type="text" id="ntPhone" inputmode="tel"></div><div class="field"><label>অর্ডার আইডি</label><input type="text" id="ntOrderId"></div>
+            <div class="field"><label>সমস্যার ধরন *</label><select id="ntIssueType"><option value="delivery_delay">ডেলিভারি বিলম্ব</option><option value="damaged">পণ্য ক্ষতিগ্রস্ত</option><option value="wrong_item">ভুল পণ্য</option><option value="refund">রিফান্ড অনুরোধ</option><option value="payment_issue">পেমেন্ট সমস্যা</option><option value="other">অন্যান্য</option></select></div>
+            <div class="field"><label>প্রায়োরিটি</label><select id="ntPriority"><option value="normal">সাধারণ</option><option value="high">জরুরি</option><option value="urgent">অতি জরুরি</option></select></div><div class="field cc-span-2"><label>বিস্তারিত বার্তা *</label><textarea id="ntMessage" rows="4"></textarea></div>
+          </div><button class="btn btn-gold" onclick="SupportDash.createTicket()">টিকেট তৈরি করুন</button></div>
+        </section>
+      </main>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,14 @@
+{
+  "name": "golapishop-online-unified",
+  "private": true,
+  "version": "2.4.5",
+  "type": "module",
+  "scripts": {
+    "build": "npm --prefix driver-app ci --no-audit --no-fund && npm --prefix driver-app run build:web && node scripts/build-unified.mjs",
+    "validate": "node scripts/validate-unified.mjs",
+    "check": "npm run build && npm run validate && npm --prefix customer-app run validate && npm --prefix driver-app run validate && npm --prefix driver-app run typecheck"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

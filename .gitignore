@@ -1,0 +1,10 @@
+node_modules/
+dist/
+driver-app/dist/
+driver-app/node_modules/
+customer-app/www/
+npm-cache/
+npm-home/
+.DS_Store
+firebase-debug.log
+firebase-debug.*.log

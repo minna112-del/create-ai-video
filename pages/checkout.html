@@ -1,0 +1,106 @@
+<div class="page checkout-page" id="page-checkout">
+  <section class="sec checkout-shell">
+    <header class="checkout-heading">
+      <div>
+        <span class="checkout-kicker" data-bn="নিরাপদ অর্ডার প্রক্রিয়া" data-en="Secure Order Process">নিরাপদ অর্ডার প্রক্রিয়া</span>
+        <h1 class="tiro" data-bn="চেকআউট" data-en="Checkout">চেকআউট</h1>
+        <p data-bn="ঠিকানা, পেমেন্ট ও অর্ডারের তথ্য যাচাই করে অর্ডার সম্পন্ন করুন।" data-en="Verify your address, payment, and order details to complete your order.">ঠিকানা, পেমেন্ট ও অর্ডারের তথ্য যাচাই করে অর্ডার সম্পন্ন করুন।</p>
+      </div>
+      <button type="button" class="checkout-back-link" onclick="Cart.open()" aria-label="কার্টে ফিরে যান" data-bn="← কার্ট দেখুন" data-en="← View Cart">← কার্ট দেখুন</button>
+    </header>
+
+    <nav class="steps-row checkout-steps" id="ckSteps" aria-label="চেকআউট ধাপ">
+      <div class="step-item active" data-s="1"><div class="num">১</div><span data-bn="ঠিকানা" data-en="Address">ঠিকানা</span></div>
+      <div class="step-item" data-s="2"><div class="num">২</div><span data-bn="পেমেন্ট" data-en="Payment">পেমেন্ট</span></div>
+      <div class="step-item" data-s="3"><div class="num">৩</div><span data-bn="রিভিউ" data-en="Review">রিভিউ</span></div>
+    </nav>
+
+    <div class="checkout-layout">
+      <main class="checkout-main">
+        <section id="ckStep1" class="card-box checkout-card" aria-labelledby="ckAddressTitle">
+          <div class="checkout-card__head">
+            <span class="checkout-card__number">১</span>
+            <div><h2 id="ckAddressTitle" data-bn="ডেলিভারি ঠিকানা" data-en="Delivery Address">ডেলিভারি ঠিকানা</h2><p data-bn="সঠিক তথ্য দিলে ড্রাইভার দ্রুত আপনার ঠিকানা শনাক্ত করতে পারবেন।" data-en="Accurate details help the driver locate your address quickly.">সঠিক তথ্য দিলে ড্রাইভার দ্রুত আপনার ঠিকানা শনাক্ত করতে পারবেন।</p></div>
+          </div>
+
+          <div class="checkout-form-grid">
+            <div class="field"><label for="ckName" data-bn="পূর্ণ নাম *" data-en="Full Name *">পূর্ণ নাম *</label><input type="text" id="ckName" autocomplete="name" required></div>
+            <div class="field"><label for="ckPhone" data-bn="মোবাইল নম্বর *" data-en="Mobile Number *">মোবাইল নম্বর *</label><input type="tel" id="ckPhone" placeholder="01XXXXXXXXX" inputmode="tel" autocomplete="tel" required></div>
+            <div class="field"><label for="ckDistrict" data-bn="উপজেলা *" data-en="Upazila *">উপজেলা *</label><select id="ckDistrict" onchange="onUpazilaChange('ck')" required><option value="" data-bn="বেছে নিন" data-en="Select">বেছে নিন</option><option value="noakhali_sadar" data-bn="নোয়াখালী সদর" data-en="Noakhali Sadar">নোয়াখালী সদর</option><option value="begumganj" data-bn="বেগমগঞ্জ" data-en="Begumganj">বেগমগঞ্জ</option></select></div>
+            <div class="field"><label for="ckZone" data-bn="ইউনিয়ন *" data-en="Union *">ইউনিয়ন *</label><select id="ckZone" required><option value="" data-bn="প্রথমে উপজেলা বেছে নিন" data-en="Select upazila first">প্রথমে উপজেলা বেছে নিন</option></select></div>
+          </div>
+
+          <button type="button" class="checkout-location-btn" onclick="Checkout.openLocationPicker()">
+            <span class="checkout-location-btn__icon"><span class="ic ic-pin"></span></span>
+            <span><strong data-bn="ম্যাপে সঠিক লোকেশন পিন করুন *" data-en="Pin Exact Location on Map *">ম্যাপে সঠিক লোকেশন পিন করুন *</strong><small data-bn="ডেলিভারি জোন, দূরত্ব ও চার্জ যাচাই করতে প্রয়োজন" data-en="Needed to verify delivery zone, distance, and charge">ডেলিভারি জোন, দূরত্ব ও চার্জ যাচাই করতে প্রয়োজন</small></span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <div id="ckLocationSummary" class="checkout-location-summary" hidden></div>
+
+          <div class="field"><label for="ckVillage" data-bn="গ্রাম / এলাকার নাম *" data-en="Village / Area Name *">গ্রাম / এলাকার নাম *</label><input type="text" id="ckVillage" placeholder="যেমন: পশ্চিম নাজিরপুর, ৩নং ওয়ার্ড" autocomplete="address-level3" required></div>
+          <div class="field"><label for="ckAddress" data-bn="বাড়ি, রোড ও ল্যান্ডমার্ক *" data-en="House, Road &amp; Landmark *">বাড়ি, রোড ও ল্যান্ডমার্ক *</label><textarea id="ckAddress" rows="3" placeholder="বাড়ি নম্বর, রোড নম্বর, কাছাকাছি পরিচিত স্থান" autocomplete="street-address" required></textarea></div>
+          <div class="field"><label for="ckInstructions" data-bn="ডেলিভারি নির্দেশনা *" data-en="Delivery Instructions *">ডেলিভারি নির্দেশনা *</label><textarea id="ckInstructions" rows="2" placeholder="যেমন: সবুজ গেট, মসজিদের পাশের গলি, পৌঁছে কল করবেন" required></textarea></div>
+          <div class="field"><label for="ckNid" data-bn="জাতীয় পরিচয়পত্র নম্বর <span>(ঐচ্ছিক)</span>" data-en="National ID Number <span>(Optional)</span>">জাতীয় পরিচয়পত্র নম্বর <span>(ঐচ্ছিক)</span></label><input type="text" id="ckNid" placeholder="১০, ১৩ বা ১৭ সংখ্যার NID" inputmode="numeric" autocomplete="off"></div>
+
+          <div id="ckPrescriptionBox" class="checkout-prescription" hidden>
+            <div class="checkout-prescription__head"><span>Rx</span><div><strong data-bn="প্রেসক্রিপশন সংযুক্ত করুন" data-en="Attach Prescription">প্রেসক্রিপশন সংযুক্ত করুন</strong><p data-bn="প্রেসক্রিপশন-নির্ভর ঔষধ থাকলে স্পষ্ট ছবি দিন। সাধারণ ঔষধের জন্য প্রয়োজন নেই।" data-en="Attach a clear photo if any medicine requires a prescription. Not needed for general medicines.">প্রেসক্রিপশন-নির্ভর ঔষধ থাকলে স্পষ্ট ছবি দিন। সাধারণ ঔষধের জন্য প্রয়োজন নেই।</p></div></div>
+            <input type="file" id="ckPrescriptionFile" accept="image/*" aria-label="প্রেসক্রিপশনের ছবি">
+          </div>
+
+          <div class="checkout-info-note"><span>✓</span><p data-bn="<strong>অর্ডারের অগ্রগতি দেখুন</strong> প্যাকিং, পিকআপ ও ডেলিভারি স্ট্যাটাস “আমার অর্ডার” পেজে দেখা যাবে।" data-en="<strong>Track your order</strong> Packing, pickup, and delivery status will be visible on the &quot;My Orders&quot; page."><strong>অর্ডারের অগ্রগতি দেখুন</strong> প্যাকিং, পিকআপ ও ডেলিভারি স্ট্যাটাস "আমার অর্ডার" পেজে দেখা যাবে।</p></div>
+          <button type="button" class="btn btn-gold btn-block checkout-primary" onclick="Checkout.goStep(2)" data-bn="পেমেন্ট ধাপে যান <span>→</span>" data-en="Go to Payment <span>→</span>">পেমেন্ট ধাপে যান <span>→</span></button>
+        </section>
+
+        <section id="ckStep2" class="card-box checkout-card" hidden aria-labelledby="ckPaymentTitle">
+          <div class="checkout-card__head">
+            <span class="checkout-card__number">২</span>
+            <div><h2 id="ckPaymentTitle" data-bn="পেমেন্ট পদ্ধতি" data-en="Payment Method">পেমেন্ট পদ্ধতি</h2><p data-bn="আপনার সুবিধাজনক ও উপলভ্য পদ্ধতি নির্বাচন করুন।" data-en="Choose a payment method that's convenient and available to you.">আপনার সুবিধাজনক ও উপলভ্য পদ্ধতি নির্বাচন করুন।</p></div>
+          </div>
+          <div class="checkout-payment-list" role="radiogroup" aria-label="পেমেন্ট পদ্ধতি">
+            <button type="button" class="radio-card selected" onclick="Checkout.selectPay(this,'cod')" role="radio" aria-checked="true"><input type="radio" name="ckpay" checked tabindex="-1"><span class="payment-mark">৳</span><span><strong data-bn="ক্যাশ অন ডেলিভারি" data-en="Cash on Delivery">ক্যাশ অন ডেলিভারি</strong><small data-bn="পণ্য গ্রহণের সময় মূল্য পরিশোধ করুন" data-en="Pay when you receive the items">পণ্য গ্রহণের সময় মূল্য পরিশোধ করুন</small></span><span class="payment-check">✓</span></button>
+            <button type="button" class="radio-card" onclick="Checkout.selectPay(this,'bkash')" role="radio" aria-checked="false"><input type="radio" name="ckpay" tabindex="-1"><span class="payment-mark">b</span><span><strong>bKash</strong><small data-bn="শাখার নম্বরে টাকা পাঠান" data-en="Send money to branch number">শাখার নম্বরে টাকা পাঠান</small></span><span class="payment-check">✓</span></button>
+            <button type="button" class="radio-card" onclick="Checkout.selectPay(this,'nagad')" role="radio" aria-checked="false"><input type="radio" name="ckpay" tabindex="-1"><span class="payment-mark">N</span><span><strong>Nagad</strong><small data-bn="শাখার নম্বরে টাকা পাঠান" data-en="Send money to branch number">শাখার নম্বরে টাকা পাঠান</small></span><span class="payment-check">✓</span></button>
+          </div>
+          <div id="ckPayInfo" class="checkout-pay-info" hidden></div>
+          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(1)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" class="btn btn-gold" onclick="Checkout.goStep(3)" data-bn="রিভিউ করুন →" data-en="Review →">রিভিউ করুন →</button></div>
+        </section>
+
+        <section id="ckStep3" class="card-box checkout-card" hidden aria-labelledby="ckReviewTitle">
+          <div class="checkout-card__head">
+            <span class="checkout-card__number">৩</span>
+            <div><h2 id="ckReviewTitle" data-bn="অর্ডার রিভিউ" data-en="Order Review">অর্ডার রিভিউ</h2><p data-bn="কনফার্ম করার আগে পণ্য ও মোট মূল্য যাচাই করুন।" data-en="Verify the items and total amount before confirming.">কনফার্ম করার আগে পণ্য ও মোট মূল্য যাচাই করুন।</p></div>
+          </div>
+          <div id="ckSummary" class="checkout-item-summary"></div>
+
+          <div class="checkout-coupon">
+            <label for="ckCouponCode" data-bn="কুপন কোড" data-en="Coupon Code">কুপন কোড</label>
+            <div><input type="text" id="ckCouponCode" placeholder="কোড থাকলে লিখুন" autocomplete="off"><button type="button" class="btn btn-outline" onclick="Checkout.applyCoupon()" data-bn="প্রয়োগ" data-en="Apply">প্রয়োগ</button></div>
+            <p id="ckCouponMsg" aria-live="polite"></p>
+          </div>
+
+          <div id="ckWalletBox" class="checkout-wallet" hidden>
+            <label for="ckUseWallet"><span><strong data-bn="ওয়ালেট ব্যালেন্স ব্যবহার করুন" data-en="Use Wallet Balance">ওয়ালেট ব্যালেন্স ব্যবহার করুন</strong><small data-bn="উপলভ্য: <b id=&quot;ckWalletAvail&quot;>৳০</b>" data-en="Available: <b id=&quot;ckWalletAvail&quot;>৳0</b>">উপলভ্য: <b id="ckWalletAvail">৳০</b></small></span><input type="checkbox" id="ckUseWallet" onchange="Checkout.renderSummary()"></label>
+          </div>
+
+          <div class="checkout-totals">
+            <div class="row-between"><span data-bn="সাবটোটাল" data-en="Subtotal">সাবটোটাল</span><span id="ckSub">৳০</span></div>
+            <div class="row-between"><span data-bn="ডেলিভারি চার্জ" data-en="Delivery Charge">ডেলিভারি চার্জ</span><span id="ckShip">৳০</span></div>
+            <div class="row-between checkout-discount" id="ckCouponRow" hidden><span id="ckCouponLabel" data-bn="কুপন ছাড়" data-en="Coupon Discount">কুপন ছাড়</span><span id="ckCouponDiscount">−৳০</span></div>
+            <div class="row-between checkout-discount" id="ckWalletRow" hidden><span data-bn="ওয়ালেট ব্যবহার" data-en="Wallet Used">ওয়ালেট ব্যবহার</span><span id="ckWalletDiscount">−৳০</span></div>
+            <div class="row-total row-between"><span data-bn="সর্বমোট" data-en="Total">সর্বমোট</span><span id="ckTotal">৳০</span></div>
+          </div>
+
+          <label class="checkout-terms"><input type="checkbox" id="ckTerms" checked><span data-bn="আমি <button type=&quot;button&quot; onclick=&quot;Router.go('terms')&quot;>শর্তাবলী</button> পড়েছি এবং সম্মত আছি।" data-en="I have read and agree to the <button type=&quot;button&quot; onclick=&quot;Router.go('terms')&quot;>Terms &amp; Conditions</button>.">আমি <button type="button" onclick="Router.go('terms')">শর্তাবলী</button> পড়েছি এবং সম্মত আছি।</span></label>
+          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(2)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" id="ckPlaceOrderBtn" class="btn btn-rose" onclick="Checkout.placeOrder()"><span class="ck-btn-label" data-bn="অর্ডার কনফার্ম করুন" data-en="Confirm Order">অর্ডার কনফার্ম করুন</span><span class="ck-btn-loader" hidden data-bn="প্রক্রিয়াধীন…" data-en="Processing…">প্রক্রিয়াধীন…</span></button></div>
+        </section>
+      </main>
+
+      <aside class="checkout-assurance" aria-label="অর্ডার সহায়তা">
+        <h2 data-bn="নিশ্চিন্তে অর্ডার করুন" data-en="Order with Confidence">নিশ্চিন্তে অর্ডার করুন</h2>
+        <div><span>01</span><p><strong data-bn="লোকেশন যাচাই" data-en="Location Verification">লোকেশন যাচাই</strong><small data-bn="ম্যাপের মাধ্যমে ডেলিভারি এলাকা ও চার্জ নির্ধারিত হয়।" data-en="Delivery area and charge are determined via the map.">ম্যাপের মাধ্যমে ডেলিভারি এলাকা ও চার্জ নির্ধারিত হয়।</small></p></div>
+        <div><span>02</span><p><strong data-bn="মূল্য পর্যালোচনা" data-en="Price Review">মূল্য পর্যালোচনা</strong><small data-bn="কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।" data-en="See items, charges, and discounts before confirming.">কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।</small></p></div>
+        <div><span>03</span><p><strong data-bn="অর্ডার ট্র্যাকিং" data-en="Order Tracking">অর্ডার ট্র্যাকিং</strong><small data-bn="অর্ডারের বর্তমান অবস্থা “আমার অর্ডার” থেকে দেখুন।" data-en="Check current order status from &quot;My Orders&quot;.">অর্ডারের বর্তমান অবস্থা "আমার অর্ডার" থেকে দেখুন।</small></p></div>
+      </aside>
+    </div>
+  </section>
+</div>

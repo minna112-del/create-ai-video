@@ -1,0 +1,1259 @@
+<style>
+  /* =========================================================
+     GOLAPI SHOP — SELF-CONTAINED PREMIUM FOOTER
+     Mobile-first, overflow-safe, dark-mode compatible
+     ========================================================= */
+
+  .gs-footer,
+  .gs-footer * {
+    box-sizing: border-box;
+  }
+
+  .gs-footer {
+    width: 100%;
+    max-width: 100%;
+    margin-top: clamp(48px, 7vw, 88px);
+    overflow: hidden;
+    background: #171316;
+    color: #ffffff;
+  }
+
+  .gs-footer a,
+  .gs-footer button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .gs-footer a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* CTA */
+
+  .gs-footer-cta {
+    position: relative;
+    overflow: hidden;
+    padding:
+      28px
+      max(20px, env(safe-area-inset-right))
+      28px
+      max(20px, env(safe-area-inset-left));
+    background:
+      radial-gradient(circle at 92% 8%, rgba(255, 255, 255, 0.16), transparent 28%),
+      #c92f5f;
+  }
+
+  .gs-footer-cta::before,
+  .gs-footer-cta::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .gs-footer-cta::before {
+    width: 180px;
+    height: 180px;
+    top: -100px;
+    right: -55px;
+    background: rgba(255, 255, 255, 0.11);
+  }
+
+  .gs-footer-cta::after {
+    width: 120px;
+    height: 120px;
+    left: 18%;
+    bottom: -85px;
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .gs-footer-cta-inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .gs-footer-cta-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 7px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .gs-footer-cta-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.12);
+  }
+
+  .gs-footer-cta h2 {
+    margin: 0 0 6px;
+    color: #ffffff;
+    font-family: "Hind Siliguri", sans-serif;
+    font-size: clamp(22px, 6vw, 30px);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .gs-footer-cta p {
+    max-width: 600px;
+    margin: 0;
+    color: rgba(255, 255, 255, 0.84);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  .gs-footer-cta-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .gs-footer-cta-primary,
+  .gs-footer-cta-secondary {
+    width: 100%;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .gs-footer-cta-primary {
+    border: 1px solid #ffffff;
+    background: #ffffff;
+    color: #c82055;
+  }
+
+  .gs-footer-cta-secondary {
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+  }
+
+  /* Main area */
+
+  .gs-footer-main {
+    width: 100%;
+    padding:
+      36px
+      max(20px, env(safe-area-inset-right))
+      calc(110px + env(safe-area-inset-bottom))
+      max(20px, env(safe-area-inset-left));
+  }
+
+  .gs-footer-grid {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 34px;
+  }
+
+  .gs-footer-column {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  /* Brand */
+
+  .gs-footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    margin-bottom: 14px;
+  }
+
+  .gs-footer-logo {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 auto;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    border-radius: 15px;
+    background: #ffffff;
+  }
+
+  .gs-footer-brand-name {
+    display: block;
+    color: #ffffff;
+    font-family: "Poppins", sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.4px;
+  }
+
+  .gs-footer-brand-name span {
+    color: #ff7ba1;
+  }
+
+  .gs-footer-brand-type {
+    display: block;
+    margin-top: 5px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 10.5px;
+  }
+
+  .gs-footer-description {
+    max-width: 480px;
+    margin: 0 0 17px;
+    color: rgba(255, 255, 255, 0.62);
+    font-size: 12.5px;
+    line-height: 1.85;
+    overflow-wrap: anywhere;
+  }
+
+  .gs-footer-branches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .gs-footer-branch {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 11px;
+  }
+
+  .gs-footer-branch-dot {
+    width: 6px;
+    height: 6px;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #61d98b;
+    box-shadow: 0 0 0 4px rgba(97, 217, 139, 0.1);
+  }
+
+  /* Section titles */
+
+  .gs-footer-heading {
+    display: inline-block;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e94b79;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Navigation */
+
+  .gs-footer-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .gs-footer-link {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 9px 0;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.68);
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .gs-footer-link-icon {
+    width: 31px;
+    height: 31px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.055);
+    color: #ff6d96;
+  }
+
+  .gs-footer-link-icon .ic {
+    width: 14px;
+    height: 14px;
+  }
+
+  /* Contacts */
+
+  .gs-footer-contacts {
+    display: grid;
+    gap: 9px;
+  }
+
+  .gs-footer-contact {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.045);
+  }
+
+  .gs-footer-avatar {
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    object-fit: cover;
+    border-radius: 12px;
+    background: rgba(240, 53, 107, 0.13);
+  }
+
+  .gs-footer-contact-info {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .gs-footer-contact-role {
+    display: block;
+    margin-bottom: 2px;
+    color: rgba(255, 255, 255, 0.44);
+    font-size: 10.5px;
+  }
+
+  .gs-footer-contact-name {
+    display: block;
+    color: #ffffff;
+    font-size: 12.5px;
+    font-weight: 700;
+  }
+
+  .gs-footer-contact-number {
+    display: block;
+    margin-top: 3px;
+    color: #ff7ba0;
+    font-family: "Poppins", sans-serif;
+    font-size: 11.5px;
+    overflow-wrap: anywhere;
+  }
+
+  .gs-footer-call-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(240, 53, 107, 0.13);
+    color: #ff7299;
+  }
+
+  .gs-footer-call-icon .ic {
+    width: 15px;
+    height: 15px;
+  }
+
+  /* Payment */
+
+  .gs-footer-payments {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .gs-footer-payment {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.055);
+    color: rgba(255, 255, 255, 0.75);
+    font-family: "Poppins", sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* Social */
+
+  .gs-footer-socials {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .gs-footer-social {
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 11px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.045);
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 12px;
+    transition:
+      transform 0.18s ease,
+      border-color 0.18s ease,
+      background 0.18s ease;
+  }
+
+  .gs-footer-social-icon {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+  }
+
+  .gs-footer-social-icon svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .gs-footer-social-facebook {
+    background: rgba(24, 119, 242, 0.16);
+  }
+
+  .gs-footer-social-youtube {
+    background: rgba(255, 0, 0, 0.13);
+  }
+
+  .gs-footer-social-whatsapp {
+    background: rgba(37, 211, 102, 0.13);
+  }
+
+  .gs-footer-social-email {
+    background: rgba(240, 53, 107, 0.14);
+    color: #ff739a;
+  }
+
+  .gs-footer-social-text {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .gs-footer-social-text strong,
+  .gs-footer-social-text small {
+    display: block;
+  }
+
+  .gs-footer-social-text strong {
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .gs-footer-social-text small {
+    margin-top: 2px;
+    color: rgba(255, 255, 255, 0.43);
+    font-size: 10px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .gs-footer-social-arrow {
+    flex: 0 0 auto;
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 16px;
+  }
+
+  /* Service assurances */
+
+  .gs-footer-assurances {
+    width: 100%;
+    max-width: 1240px;
+    margin: 34px auto 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .gs-footer-assurance {
+    min-width: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .gs-footer-assurance-icon {
+    width: 34px;
+    height: 34px;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: rgba(233, 75, 121, 0.14);
+    color: #ff83a7;
+    font-size: 15px;
+  }
+
+  .gs-footer-assurance strong,
+  .gs-footer-assurance small {
+    display: block;
+  }
+
+  .gs-footer-assurance strong {
+    margin-bottom: 3px;
+    color: #fff;
+    font-size: 12.5px;
+  }
+
+  .gs-footer-assurance small {
+    color: rgba(255, 255, 255, 0.48);
+    font-size: 10.5px;
+    line-height: 1.55;
+  }
+
+  /* Bottom */
+
+  .gs-footer-bottom {
+    width: 100%;
+    max-width: 1240px;
+    margin: 34px auto 0;
+    padding-top: 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .gs-footer-policy-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 15px;
+    margin-bottom: 18px;
+  }
+
+  .gs-footer-policy-btn {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.48);
+    font-family: inherit;
+    font-size: 11.5px;
+    cursor: pointer;
+  }
+
+  .gs-footer-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .gs-footer-tool {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 11px;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.045);
+    color: rgba(255, 255, 255, 0.68);
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  .gs-footer-copyright {
+    display: block;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 10.5px;
+    line-height: 1.7;
+  }
+
+  /* States */
+
+  .gs-footer button:hover,
+  .gs-footer a:hover {
+    color: #ffffff;
+  }
+
+  .gs-footer-social:hover {
+    transform: translateY(-1px);
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.07);
+  }
+
+  .gs-footer button:focus-visible,
+  .gs-footer a:focus-visible {
+    outline: 3px solid rgba(255, 93, 139, 0.35);
+    outline-offset: 3px;
+  }
+
+  /* Tablet */
+
+  @media (min-width: 560px) {
+    .gs-footer-cta-inner {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+    }
+
+    .gs-footer-cta-actions {
+      grid-template-columns: max-content max-content;
+    }
+
+    .gs-footer-cta-primary,
+    .gs-footer-cta-secondary {
+      width: auto;
+    }
+
+    .gs-footer-grid {
+      grid-template-columns:
+        minmax(0, 1.3fr)
+        minmax(0, 0.8fr);
+    }
+
+    .gs-footer-socials {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .gs-footer-assurances {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .gs-footer-bottom-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .gs-footer-policy-links,
+    .gs-footer-tools {
+      margin-bottom: 0;
+    }
+  }
+
+  /* Desktop */
+
+  @media (min-width: 920px) {
+    .gs-footer-cta {
+      padding-top: 35px;
+      padding-bottom: 35px;
+    }
+
+    .gs-footer-main {
+      padding-top: 48px;
+      padding-bottom: 38px;
+    }
+
+    .gs-footer-grid {
+      grid-template-columns:
+        minmax(0, 1.35fr)
+        minmax(0, 0.72fr)
+        minmax(0, 1fr)
+        minmax(0, 1.05fr);
+      gap: 38px;
+    }
+
+    .gs-footer-socials {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gs-footer-social {
+      transition: none;
+    }
+  }
+</style>
+
+<footer
+  class="gs-footer"
+  id="custFooter"
+  aria-label="Golapi Shop Online ফুটার"
+>
+  <!-- Conversion CTA -->
+  <section class="gs-footer-cta" aria-labelledby="footerCtaTitle">
+    <div class="gs-footer-cta-inner">
+      <div>
+        <span class="gs-footer-cta-label" data-bn="নোয়াখালীর দৈনন্দিন কেনাকাটা" data-en="Noakhali Everyday Shopping">
+          <span class="gs-footer-cta-dot" aria-hidden="true"></span>
+          নোয়াখালীর দৈনন্দিন কেনাকাটা
+        </span>
+
+        <h2 id="footerCtaTitle" data-bn="দৈনন্দিন প্রয়োজন, এক জায়গায়" data-en="Everyday Needs, In One Place">
+          দৈনন্দিন প্রয়োজন, এক জায়গায়
+        </h2>
+
+        <p data-bn="প্রয়োজনীয় পণ্য বেছে অর্ডার করুন, অথবা আপনার সম্পূর্ণ বাজারের তালিকা পাঠান। স্থানীয় ডেলিভারি টিম অর্ডারের প্রয়োজনীয় তথ্য নিশ্চিত করবে।" data-en="Choose and order what you need, or send your entire shopping list. Our local delivery team will confirm your order details.">
+          প্রয়োজনীয় পণ্য বেছে অর্ডার করুন, অথবা আপনার সম্পূর্ণ বাজারের তালিকা পাঠান।
+          স্থানীয় ডেলিভারি টিম অর্ডারের প্রয়োজনীয় তথ্য নিশ্চিত করবে।
+        </p>
+      </div>
+
+      <div class="gs-footer-cta-actions">
+        <button
+          type="button"
+          class="gs-footer-cta-primary"
+          data-bn="পণ্য দেখুন<span aria-hidden=&quot;true&quot;>→</span>" data-en="View Products<span aria-hidden=&quot;true&quot;>→</span>"
+          onclick="Router.go('listing',{cat:'all'})"
+        >
+          পণ্য দেখুন
+          <span aria-hidden="true">→</span>
+        </button>
+
+        <button
+          type="button"
+          class="gs-footer-cta-secondary"
+          onclick="Router.go('custom-bazar')"
+          data-bn="বাজারের লিস্ট পাঠান" data-en="Send Shopping List"
+        >
+          বাজারের লিস্ট পাঠান
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <div class="gs-footer-main">
+    <div class="gs-footer-grid">
+      <!-- Brand -->
+      <section class="gs-footer-column" aria-labelledby="footerBrandTitle">
+        <div class="gs-footer-brand">
+          <img
+            class="gs-footer-logo"
+            src="icons/head_logo.webp"
+            alt="Golapi Shop Online লোগো"
+            loading="lazy"
+          >
+
+          <div>
+            <strong
+              class="gs-footer-brand-name"
+              id="footerBrandTitle"
+            >
+              Golapi<span>Shop</span>.online
+            </strong>
+
+            <span class="gs-footer-brand-type" data-bn="নোয়াখালীর স্থানীয় অনলাইন শপ" data-en="Noakhali's Local Online Shop">
+              নোয়াখালীর স্থানীয় অনলাইন শপ
+            </span>
+          </div>
+        </div>
+
+        <p class="gs-footer-description" data-bn="নোয়াখালী সদর ও বেগমগঞ্জের মানুষের দৈনন্দিন প্রয়োজনীয় পণ্য সহজে অর্ডার ও ঘরে পৌঁছে দেওয়ার লক্ষ্য নিয়ে কাজ করা একটি নতুন স্থানীয় উদ্যোগ।" data-en="A new local venture working to make it easy for people in Noakhali Sadar and Begumganj to order everyday essentials and get them delivered home.">
+          নোয়াখালী সদর ও বেগমগঞ্জের মানুষের দৈনন্দিন প্রয়োজনীয়
+          পণ্য সহজে অর্ডার ও ঘরে পৌঁছে দেওয়ার লক্ষ্য নিয়ে কাজ করা
+          একটি নতুন স্থানীয় উদ্যোগ।
+        </p>
+
+        <div
+          class="gs-footer-branches"
+          aria-label="বর্তমান সেবা শাখা"
+        >
+          <span class="gs-footer-branch">
+            <span
+              class="gs-footer-branch-dot"
+              aria-hidden="true"
+            ></span>
+            <span data-bn="নোয়াখালী সদর" data-en="Noakhali Sadar">নোয়াখালী সদর</span>
+          </span>
+
+          <span class="gs-footer-branch">
+            <span
+              class="gs-footer-branch-dot"
+              aria-hidden="true"
+            ></span>
+            <span data-bn="বেগমগঞ্জ" data-en="Begumganj">বেগমগঞ্জ</span>
+          </span>
+        </div>
+      </section>
+
+      <!-- Quick links -->
+      <nav
+        class="gs-footer-column"
+        aria-labelledby="footerLinksTitle"
+      >
+        <h3
+          class="gs-footer-heading"
+          id="footerLinksTitle"
+          data-bn="দ্রুত লিংক" data-en="Quick Links"
+        >
+          দ্রুত লিংক
+        </h3>
+
+        <div class="gs-footer-links">
+          <button
+            type="button"
+            class="gs-footer-link"
+            onclick="Router.go('listing',{cat:'all'})"
+            data-bn="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-cart&quot;></span></span>সব পণ্য" data-en="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-cart&quot;></span></span>All Products"
+          >
+            <span
+              class="gs-footer-link-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-cart"></span>
+            </span>
+            সব পণ্য
+          </button>
+
+          <button
+            type="button"
+            class="gs-footer-link"
+            onclick="Router.go('custom-bazar')"
+            data-bn="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-pencil&quot;></span></span>কাস্টম বাজার" data-en="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-pencil&quot;></span></span>Custom Bazar"
+          >
+            <span
+              class="gs-footer-link-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-pencil"></span>
+            </span>
+            কাস্টম বাজার
+          </button>
+
+          <button
+            type="button"
+            class="gs-footer-link"
+            onclick="Router.go('medical')"
+            data-bn="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-heart-pulse&quot;></span></span>স্বাস্থ্য সেবা" data-en="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-heart-pulse&quot;></span></span>Health Service"
+          >
+            <span
+              class="gs-footer-link-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-heart-pulse"></span>
+            </span>
+            স্বাস্থ্য সেবা
+          </button>
+
+          <button
+            type="button"
+            class="gs-footer-link"
+            onclick="Router.go('myorders')"
+            data-bn="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-clock&quot;></span></span>আমার অর্ডার" data-en="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-clock&quot;></span></span>My Orders"
+          >
+            <span
+              class="gs-footer-link-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-clock"></span>
+            </span>
+            আমার অর্ডার
+          </button>
+
+          <button
+            type="button"
+            class="gs-footer-link"
+            onclick="Router.go('contact')"
+            data-bn="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-phone&quot;></span></span>যোগাযোগ" data-en="<span class=&quot;gs-footer-link-icon&quot; aria-hidden=&quot;true&quot;><span class=&quot;ic ic-phone&quot;></span></span>Contact"
+          >
+            <span
+              class="gs-footer-link-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-phone"></span>
+            </span>
+            যোগাযোগ
+          </button>
+        </div>
+      </nav>
+
+      <!-- Contact team -->
+      <section
+        class="gs-footer-column"
+        aria-labelledby="footerContactTitle"
+      >
+        <h3
+          class="gs-footer-heading"
+          id="footerContactTitle"
+          data-bn="সরাসরি যোগাযোগ" data-en="Direct Contact"
+        >
+          সরাসরি যোগাযোগ
+        </h3>
+
+        <div class="gs-footer-contacts">
+          <a
+            class="gs-footer-contact"
+            href="tel:+8801612057371"
+            aria-label="হটলাইন ইনচার্জ হৃদয়কে কল করুন"
+          >
+            <img
+              class="gs-footer-avatar"
+              src="icons/team-hridoy.webp"
+              alt=""
+              loading="lazy"
+            >
+
+            <span class="gs-footer-contact-info">
+              <span class="gs-footer-contact-role" data-bn="হটলাইন ইনচার্জ" data-en="Hotline Manager">
+                হটলাইন ইনচার্জ
+              </span>
+
+              <strong class="gs-footer-contact-name">
+                হৃদয়
+              </strong>
+
+              <span class="gs-footer-contact-number">
+                +880 1612-057371
+              </span>
+            </span>
+
+            <span
+              class="gs-footer-call-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-phone"></span>
+            </span>
+          </a>
+
+          <a
+            class="gs-footer-contact"
+            href="tel:+8801627010060"
+            aria-label="সদর শাখার রিমনকে কল করুন"
+          >
+            <img
+              class="gs-footer-avatar"
+              src="icons/team-rimon.webp"
+              alt=""
+              loading="lazy"
+            >
+
+            <span class="gs-footer-contact-info">
+              <span class="gs-footer-contact-role" data-bn="সদর শাখা" data-en="Sadar Branch">
+                সদর শাখা
+              </span>
+
+              <strong class="gs-footer-contact-name">
+                রিমন
+              </strong>
+
+              <span class="gs-footer-contact-number">
+                +880 1627-010060
+              </span>
+            </span>
+
+            <span
+              class="gs-footer-call-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-phone"></span>
+            </span>
+          </a>
+
+          <a
+            class="gs-footer-contact"
+            href="tel:+8801310006959"
+            aria-label="বেগমগঞ্জ শাখার সৃজনকে কল করুন"
+          >
+            <img
+              class="gs-footer-avatar"
+              src="icons/team-srijon.webp"
+              alt=""
+              loading="lazy"
+            >
+
+            <span class="gs-footer-contact-info">
+              <span class="gs-footer-contact-role" data-bn="বেগমগঞ্জ শাখা" data-en="Begumganj Branch">
+                বেগমগঞ্জ শাখা
+              </span>
+
+              <strong class="gs-footer-contact-name">
+                সৃজন
+              </strong>
+
+              <span class="gs-footer-contact-number">
+                +880 1310-006959
+              </span>
+            </span>
+
+            <span
+              class="gs-footer-call-icon"
+              aria-hidden="true"
+            >
+              <span class="ic ic-phone"></span>
+            </span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Payment and social -->
+      <section
+        class="gs-footer-column"
+        aria-labelledby="footerSocialTitle"
+      >
+        <h3
+          class="gs-footer-heading"
+          id="footerSocialTitle"
+          data-bn="পেমেন্ট ও সোশ্যাল" data-en="Payment &amp; Social">
+          পেমেন্ট ও সোশ্যাল
+        </h3>
+
+        <div
+          class="gs-footer-payments"
+          aria-label="সমর্থিত পেমেন্ট পদ্ধতি"
+        >
+          <span class="gs-footer-payment">bKash</span>
+          <span class="gs-footer-payment">Nagad</span>
+          <span class="gs-footer-payment">COD</span>
+        </div>
+
+        <div class="gs-footer-socials">
+          <a
+            class="gs-footer-social"
+            href="https://facebook.com/golapishoponline"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Golapi Shop Online Facebook পেজ খুলুন"
+          >
+            <span
+              class="gs-footer-social-icon gs-footer-social-facebook"
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="#1877F2"
+              >
+                <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.78-3.91 1.09 0 2.23.2 2.23.2v2.46H15.2c-1.24 0-1.63.77-1.63 1.56v1.91h2.78l-.44 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z"/>
+              </svg>
+            </span>
+
+            <span class="gs-footer-social-text">
+              <strong>Facebook</strong>
+              <small data-bn="আপডেট ও অফার দেখুন" data-en="See updates &amp; offers">আপডেট ও অফার দেখুন</small>
+            </span>
+
+            <span
+              class="gs-footer-social-arrow"
+              aria-hidden="true"
+            >
+              ↗
+            </span>
+          </a>
+
+          <a
+            class="gs-footer-social"
+            href="https://www.youtube.com/@golapishoponline"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Golapi Shop Online YouTube চ্যানেল খুলুন"
+          >
+            <span
+              class="gs-footer-social-icon gs-footer-social-youtube"
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="#FF0000"
+              >
+                <path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.13C19.52 3.56 12 3.56 12 3.56s-7.52 0-9.38.51A3.02 3.02 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.13c1.86.51 9.38.51 9.38.51s7.52 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.13A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8ZM9.6 15.65v-7.3L15.9 12l-6.3 3.65Z"/>
+              </svg>
+            </span>
+
+            <span class="gs-footer-social-text">
+              <strong>YouTube</strong>
+              <small>@golapishoponline</small>
+            </span>
+
+            <span
+              class="gs-footer-social-arrow"
+              aria-hidden="true"
+            >
+              ↗
+            </span>
+          </a>
+
+          <a
+            class="gs-footer-social"
+            href="https://wa.me/8801612057371"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Golapi Shop Online WhatsApp-এ যোগাযোগ করুন"
+          >
+            <span
+              class="gs-footer-social-icon gs-footer-social-whatsapp"
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="#25D366"
+              >
+                <path d="M12.04 2C6.52 2 2.03 6.48 2.03 12c0 1.76.46 3.48 1.33 5L2 22l5.12-1.34A9.95 9.95 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10Zm0 18.31a8.3 8.3 0 0 1-4.23-1.16l-.3-.18-3.04.8.81-2.97-.2-.31A8.3 8.3 0 1 1 12.04 20.3Zm4.56-6.22c-.25-.12-1.48-.73-1.71-.81-.23-.08-.4-.12-.57.13-.17.25-.65.81-.8.98-.15.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.15-.25-.02-.38.11-.51.11-.11.25-.29.37-.44.12-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.49-.41-.42-.57-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09 0 1.23.9 2.42 1.02 2.59.12.17 1.76 2.68 4.26 3.76.6.26 1.06.41 1.42.52.6.19 1.14.16 1.57.1.48-.07 1.48-.61 1.69-1.2.21-.59.21-1.1.15-1.2-.06-.11-.23-.17-.48-.29Z"/>
+              </svg>
+            </span>
+
+            <span class="gs-footer-social-text">
+              <strong>WhatsApp</strong>
+              <small data-bn="হটলাইনে মেসেজ পাঠান" data-en="Message our hotline">হটলাইনে মেসেজ পাঠান</small>
+            </span>
+
+            <span
+              class="gs-footer-social-arrow"
+              aria-hidden="true"
+            >
+              ↗
+            </span>
+          </a>
+
+          <a
+            class="gs-footer-social"
+            href="mailto:golapishoponline.bd@gmail.com"
+            aria-label="Golapi Shop Online-কে ইমেইল করুন"
+          >
+            <span
+              class="gs-footer-social-icon gs-footer-social-email"
+              aria-hidden="true"
+            >
+              ✉
+            </span>
+
+            <span class="gs-footer-social-text">
+              <strong>ইমেইল</strong>
+              <small>golapishoponline.bd@gmail.com</small>
+            </span>
+
+            <span
+              class="gs-footer-social-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+          </a>
+        </div>
+      </section>
+    </div>
+
+
+    <section class="gs-footer-assurances" aria-label="সেবার নিশ্চয়তা">
+      <div class="gs-footer-assurance">
+        <span class="gs-footer-assurance-icon" aria-hidden="true">✓</span>
+        <span>
+          <strong data-bn="নিজস্ব ডেলিভারি টিম" data-en="Own Delivery Team">নিজস্ব ডেলিভারি টিম</strong>
+          <small>বর্তমান সেবা এলাকার অর্ডার স্থানীয় টিম পরিচালনা করে।</small>
+        </span>
+      </div>
+
+      <div class="gs-footer-assurance">
+        <span class="gs-footer-assurance-icon" aria-hidden="true">৳</span>
+        <span>
+          <strong data-bn="ক্যাশ অন ডেলিভারি" data-en="Cash on Delivery">ক্যাশ অন ডেলিভারি</strong>
+          <small>প্রযোজ্য অর্ডারে পণ্য গ্রহণের সময় মূল্য পরিশোধ করুন।</small>
+        </span>
+      </div>
+
+      <div class="gs-footer-assurance">
+        <span class="gs-footer-assurance-icon" aria-hidden="true">☎</span>
+        <span>
+          <strong>সরাসরি সহায়তা</strong>
+          <small>অর্ডার বা সেবা সংক্রান্ত প্রয়োজনে হটলাইনে যোগাযোগ করুন।</small>
+        </span>
+      </div>
+    </section>
+
+    <!-- Bottom -->
+    <div class="gs-footer-bottom">
+      <div class="gs-footer-bottom-row">
+        <div>
+          <nav
+            class="gs-footer-policy-links"
+            aria-label="আইনি ও কোম্পানি লিংক"
+          >
+            <button
+              type="button"
+              class="gs-footer-policy-btn"
+              onclick="Router.go('about-app')"
+              data-bn="আমাদের সম্পর্কে" data-en="About Us"
+            >
+              আমাদের সম্পর্কে
+            </button>
+
+            <button
+              type="button"
+              class="gs-footer-policy-btn"
+              onclick="Router.go('privacy-info')"
+              data-bn="প্রাইভেসি পলিসি" data-en="Privacy Policy"
+            >
+              প্রাইভেসি পলিসি
+            </button>
+
+            <button
+              type="button"
+              class="gs-footer-policy-btn"
+              onclick="Router.go('terms')"
+              data-bn="শর্তাবলী" data-en="Terms &amp; Conditions"
+            >
+              শর্তাবলী
+            </button>
+
+            <!-- ⚠️ আগে এখানে "শপ ম্যানেজমেন্ট" (Router.go('admin-dash')) ও
+                 "শাখা ব্যবস্থাপনা" (Router.go('zone-manager')) বাটন ছিল —
+                 প্রতিটি customer/guest-এর কাছে সবসময় visible, role চেক
+                 ছাড়াই। Firestore rules ও StaffAccess গেট থাকায় প্রকৃত
+                 ঢোকা কখনোই সম্ভব ছিল না (backend সুরক্ষিত), কিন্তু এটা
+                 তাও ভুল ছিল কারণ: (১) সাধারণ customer-কে অপ্রাসঙ্গিক,
+                 বিভ্রান্তিকর লিংক দেখানো হচ্ছিল, (২) staff-only route-এর
+                 নাম/অস্তিত্ব প্রকাশ পেয়ে যাচ্ছিল, যা admin panel discovery-
+                 এর প্রথম ধাপ হতে পারে। Staff/owner এই route-গুলোতে নিজস্ব
+                 bookmark, PWA shortcut অথবা company-os/OwnerAuth flow দিয়ে
+                 ঢোকে — customer-facing ফুটারে এন্ট্রি পয়েন্ট থাকার দরকার
+                 নেই, তাই সরিয়ে দেওয়া হলো। -->
+          </nav>
+
+          <small class="gs-footer-copyright" data-bn="© ২০২৬ Golapi Shop Online. সর্বস্বত্ব সংরক্ষিত।" data-en="© 2026 Golapi Shop Online. All rights reserved.">
+            © ২০২৬ Golapi Shop Online. সর্বস্বত্ব সংরক্ষিত।
+          </small>
+        </div>
+
+        <div class="gs-footer-tools">
+          <button
+            type="button"
+            class="gs-footer-tool"
+            onclick="ThemeToggle.toggle()"
+            title="থিম পরিবর্তন করুন"
+          >
+            <span class="mode-auto">🌗</span>
+            <span class="mode-light">☀️</span>
+            <span class="mode-dark">🌙</span>
+            <span data-bn="থিম" data-en="Theme">থিম</span>
+          </button>
+
+          <button
+            type="button"
+            class="gs-footer-tool"
+            onclick="toggleLang()"
+            id="langBtn"
+            title="ভাষা পরিবর্তন করুন"
+          >
+            🌐
+            <span id="langBtnLabel">EN</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

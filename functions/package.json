@@ -1,0 +1,17 @@
+{
+  "name": "golapishop-functions",
+  "private": true,
+  "description": "README.md-এ চিহ্নিত 'এখনো বাকি' backend অংশ — push notification পাঠানোর ট্রিগার এবং order cancel-এ wallet/coupon/stock refund এখন এখানে server-side (Admin SDK) নিরাপদভাবে হয়, client-side Firestore rules bypass না করেই।",
+  "type": "commonjs",
+  "engines": {
+    "node": "20"
+  },
+  "main": "index.js",
+  "scripts": {
+    "deploy": "firebase deploy --only functions"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^5.1.0"
+  }
+}

@@ -1,0 +1,79 @@
+<div class="page zone-manager-page" id="page-warehouse-dash">
+  <section class="sec zone-manager-shell warehouse-shell">
+    <a class="zm-back-link" href="#" onclick="event.preventDefault();Router.go('home')">← সাইটে ফিরে যান</a>
+
+    <div id="whLoginBox" class="zm-login-wrap">
+      <div class="zm-login-intro">
+        <span class="eyebrow">Fulfilment & Warehouse</span>
+        <h1 class="tiro">Warehouse Control Room</h1>
+        <p>পণ্য গ্রহণ, সংরক্ষণ, অর্ডার পিকিং, প্যাকিং ও ডিসপ্যাচ—একটি নিয়ন্ত্রিত অফিস ডেস্ক থেকে পরিচালনা করুন।</p>
+      </div>
+      <div class="card-box zm-login-card">
+        <div id="whLoginMsg" class="form-msg" role="status" aria-live="polite"></div>
+        <div class="field"><label for="whEmail">ইমেইল</label><input type="email" id="whEmail" autocomplete="username" inputmode="email"></div>
+        <div class="field"><label for="whPassword">পাসওয়ার্ড</label><input type="password" id="whPassword" autocomplete="current-password"></div>
+        <button class="btn btn-primary btn-block" type="button" onclick="WarehouseDash.login()">নিরাপদ লগইন</button>
+      </div>
+    </div>
+
+    <div id="whDashBox" class="zm-dashboard" style="display:none">
+      <header class="zm-dashboard-head">
+        <div><span class="eyebrow">Warehouse Control Room</span><h1 class="tiro">Fulfilment Operations</h1><p id="whManagerLabel"></p></div>
+        <div class="warehouse-head-actions"><button class="btn btn-outline" type="button" onclick="WarehouseDash.refresh()">↻ রিফ্রেশ</button><button class="btn btn-outline" type="button" onclick="WarehouseDash.logout()">লগআউট</button></div>
+      </header>
+      <div id="whEmployeeWorkspace"></div>
+
+      <nav class="zm-tabs" aria-label="Warehouse navigation">
+        <button class="active" type="button" onclick="WarehouseDash.tab(this,'overview')">ওভারভিউ</button>
+        <button type="button" onclick="WarehouseDash.tab(this,'receiving')">Goods Receiving</button>
+        <button type="button" onclick="WarehouseDash.tab(this,'fulfilment')">Pick & Pack</button>
+        <button type="button" onclick="WarehouseDash.tab(this,'cycle')">Cycle Count</button>
+      </nav>
+
+      <main class="zm-content">
+        <section id="whOverviewPane">
+          <div class="warehouse-health-card">
+            <div><span>Warehouse Health</span><strong id="whHealthScore">০</strong><small>/ 100</small></div>
+            <div class="warehouse-health-track"><i id="whHealthBar"></i></div>
+            <p id="whHealthText">অপারেশন ডেটা বিশ্লেষণ হচ্ছে…</p>
+          </div>
+          <div class="stat-grid zm-stat-grid warehouse-stat-grid">
+            <article class="stat-card"><div class="lbl">Receiving Queue</div><div class="val" id="whStatReceiving">০</div></article>
+            <article class="stat-card"><div class="lbl">Pick Queue</div><div class="val rose" id="whStatPick">০</div></article>
+            <article class="stat-card"><div class="lbl">Packed Today</div><div class="val" id="whStatPacked">০</div></article>
+            <article class="stat-card"><div class="lbl">Stock Variance</div><div class="val rose" id="whStatVariance">০</div></article>
+          </div>
+          <div class="zm-overview-grid warehouse-overview-grid">
+            <article class="card-box"><div class="section-head"><div><span class="eyebrow">Priority Desk</span><h2>আজকের জরুরি কাজ</h2></div></div><div id="whPriorityList" class="warehouse-priority-list"></div></article>
+            <article class="card-box"><div class="section-head"><div><span class="eyebrow">Branch Readiness</span><h2>শাখাভিত্তিক প্রস্তুতি</h2></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>শাখা</th><th>Pick</th><th>Packed</th><th>Risk</th></tr></thead><tbody id="whBranchTable"></tbody></table></div></article>
+          </div>
+        </section>
+
+        <section id="whReceivingPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">Inbound</span><h2>Goods Receiving Queue</h2></div><button class="btn btn-outline" type="button" onclick="WarehouseDash.exportReceivingCsv()">CSV Export</button></div>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>PO / Reference</th><th>Supplier</th><th>Branch</th><th>Expected</th><th>Status</th><th>Action</th></tr></thead><tbody id="whReceivingTable"></tbody></table></div>
+        </section>
+
+        <section id="whFulfilmentPane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">Outbound</span><h2>Pick, Pack & Dispatch Staging</h2></div><div class="zm-toolbar"><input id="whOrderSearch" type="search" placeholder="অর্ডার খুঁজুন" oninput="WarehouseDash.renderFulfilment()"><select id="whBranchFilter" onchange="WarehouseDash.renderFulfilment()"><option value="">সব শাখা</option></select></div></div>
+          <div class="table-scroll card-box"><table class="data-table"><thead><tr><th>অর্ডার</th><th>কাস্টমার</th><th>শাখা</th><th>আইটেম</th><th>স্ট্যাটাস</th><th>Action</th></tr></thead><tbody id="whFulfilmentTable"></tbody></table></div>
+        </section>
+
+        <section id="whCyclePane" style="display:none">
+          <div class="zm-pane-head"><div><span class="eyebrow">Inventory Accuracy</span><h2>Cycle Count Desk</h2></div></div>
+          <div class="warehouse-cycle-grid">
+            <article class="card-box warehouse-cycle-form">
+              <h3>নতুন Stock Count</h3>
+              <div class="field"><label>প্রোডাক্ট *</label><select id="whCycleProduct"></select></div>
+              <div class="field"><label>System Stock</label><input id="whCycleSystem" type="number" readonly></div>
+              <div class="field"><label>Physical Count *</label><input id="whCyclePhysical" type="number" min="0"></div>
+              <div class="field"><label>নোট</label><input id="whCycleNote" type="text" placeholder="ক্ষতি, ভুল গণনা বা সমন্বয়ের কারণ"></div>
+              <button class="btn btn-primary btn-block" type="button" onclick="WarehouseDash.saveCycleCount()">Count সংরক্ষণ করুন</button>
+            </article>
+            <article class="card-box"><h3>সাম্প্রতিক Variance</h3><div class="table-scroll"><table class="data-table"><thead><tr><th>প্রোডাক্ট</th><th>System</th><th>Physical</th><th>Variance</th><th>সময়</th></tr></thead><tbody id="whCycleTable"></tbody></table></div></article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </section>
+</div>

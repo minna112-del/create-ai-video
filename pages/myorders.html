@@ -1,0 +1,27 @@
+<div class="page" id="page-myorders">
+  <main class="orders-page" aria-labelledby="ordersTitle">
+    <header class="orders-hero">
+      <div>
+        <span class="orders-eyebrow">অ্যাকাউন্ট</span>
+        <h1 id="ordersTitle">আমার অর্ডার</h1>
+        <p>চলমান অর্ডার ট্র্যাক করুন, আগের অর্ডার দেখুন এবং সংরক্ষিত বাজারের লিস্ট ব্যবহার করুন।</p>
+      </div>
+      <button class="btn btn-outline orders-shop-btn" type="button" onclick="Router.go('listing',{cat:'all'})">পণ্য দেখুন</button>
+    </header>
+
+    <nav class="orders-tabs" aria-label="অর্ডার বিভাগ" role="tablist">
+      <button id="ordersTabActive" class="orders-tab active" type="button" role="tab" aria-selected="true" aria-controls="myOrdersList" onclick="MyOrders.switchTab('active')">
+        <span>চলমান</span><b id="activeOrdersCount">0</b>
+      </button>
+      <button id="ordersTabPast" class="orders-tab" type="button" role="tab" aria-selected="false" aria-controls="myOrdersList" onclick="MyOrders.switchTab('past')">
+        <span>আগের অর্ডার</span><b id="pastOrdersCount">0</b>
+      </button>
+      <button id="ordersTabSaved" class="orders-tab" type="button" role="tab" aria-selected="false" aria-controls="savedListsBox" onclick="MyOrders.switchTab('saved')">
+        <span>সেভড লিস্ট</span>
+      </button>
+    </nav>
+
+    <section id="myOrdersList" class="orders-list" aria-live="polite"></section>
+    <section id="savedListsBox" class="orders-list" aria-live="polite" hidden></section>
+  </main>
+</div>

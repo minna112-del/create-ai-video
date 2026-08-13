@@ -1,0 +1,184 @@
+<div class="page asset-erp-page" id="page-asset-erp">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('company-os')">
+      <img src="icons/head_logo.webp" alt="Golapi Shop Online">
+      <span><small>Golapi Shop Online</small><strong>Company Asset Management</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="assetUpdated"></span>
+      <button onclick="AssetERP.refresh()">↻ Refresh</button>
+      <button onclick="AssetERP.exportAssets()">CSV</button>
+      <button onclick="Router.go('company-os')">◈ Company OS</button>
+    </div>
+  </header>
+
+  <div id="assetEmployeeWorkspace"></div>
+
+  <main class="sec asset-office">
+    <section class="asset-hero">
+      <div>
+        <span class="office-kicker">ASSET · CUSTODY · LIFECYCLE</span>
+        <h1>কোম্পানির প্রতিটি সম্পদ—কোথায়, কার কাছে এবং কী অবস্থায় আছে</h1>
+        <p>Laptop, mobile, vehicle, office equipment, machinery ও digital device-এর registry, assignment, depreciation, maintenance, warranty এবং disposal একই Asset ERP থেকে পরিচালনা করুন।</p>
+      </div>
+      <div class="asset-hero-actions">
+        <button class="btn btn-gold" onclick="AssetERP.open('assetRegisterModal')">+ Asset</button>
+        <button class="btn" onclick="AssetERP.openAssignment()">Assign Asset</button>
+      </div>
+    </section>
+
+    <section class="asset-stats">
+      <article><span>Total Assets</span><strong id="assetTotal">০</strong><small>Registered</small></article>
+      <article><span>Assigned</span><strong id="assetAssigned">০</strong><small>In custody</small></article>
+      <article><span>Available</span><strong id="assetAvailable">০</strong><small>Ready to assign</small></article>
+      <article><span>Maintenance Due</span><strong id="assetMaintenance">০</strong><small>Action required</small></article>
+      <article><span>Warranty Expiring</span><strong id="assetWarranty">০</strong><small>Within 30 days</small></article>
+      <article><span>Book Value</span><strong id="assetBookValue">৳০</strong><small>Estimated</small></article>
+    </section>
+
+    <section id="assetPriority" class="asset-priority"></section>
+
+    <section class="asset-tabs">
+      <button class="active" onclick="AssetERP.tab('register',this)">Asset Register</button>
+      <button onclick="AssetERP.tab('assignments',this)">Assignments</button>
+      <button onclick="AssetERP.tab('maintenance',this)">Maintenance</button>
+      <button onclick="AssetERP.tab('depreciation',this)">Depreciation</button>
+      <button onclick="AssetERP.tab('audits',this)">Asset Audits</button>
+      <button onclick="AssetERP.tab('disposals',this)">Disposals</button>
+    </section>
+
+    <section id="assetRegisterPane">
+      <div class="office-panel-head">
+        <div><span class="office-kicker">MASTER REGISTER</span><h2>Company Asset Directory</h2></div>
+        <div class="asset-filters">
+          <input id="assetSearch" placeholder="Asset, tag, serial বা assignee" oninput="AssetERP.renderAssets()">
+          <select id="assetCategoryFilter" onchange="AssetERP.renderAssets()"><option value="">সব Category</option><option value="laptop">Laptop</option><option value="mobile">Mobile</option><option value="vehicle">Vehicle</option><option value="office_equipment">Office Equipment</option><option value="machinery">Machinery</option><option value="network">Network</option><option value="other">Other</option></select>
+          <select id="assetStatusFilter" onchange="AssetERP.renderAssets()"><option value="">সব Status</option><option value="available">Available</option><option value="assigned">Assigned</option><option value="maintenance">Maintenance</option><option value="retired">Retired</option><option value="lost">Lost</option></select>
+        </div>
+      </div>
+      <div id="assetGrid" class="asset-card-grid"></div>
+    </section>
+
+    <section id="assetAssignmentsPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">CUSTODY CONTROL</span><h2>Asset Assignment History</h2></div><button class="btn btn-gold" onclick="AssetERP.openAssignment()">+ Assignment</button></div>
+      <div id="assetAssignmentList" class="asset-list"></div>
+    </section>
+
+    <section id="assetMaintenancePane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">SERVICE CONTROL</span><h2>Maintenance & Repair</h2></div><button class="btn btn-gold" onclick="AssetERP.openMaintenance()">+ Maintenance</button></div>
+      <div id="assetMaintenanceList" class="asset-list"></div>
+    </section>
+
+    <section id="assetDepreciationPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">FINANCIAL VALUE</span><h2>Asset Depreciation Schedule</h2></div></div>
+      <div id="assetDepreciationGrid" class="asset-card-grid"></div>
+    </section>
+
+    <section id="assetAuditsPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">PHYSICAL VERIFICATION</span><h2>Asset Audit Sessions</h2></div><button class="btn btn-gold" onclick="AssetERP.openAudit()">+ Audit</button></div>
+      <div id="assetAuditList" class="asset-list"></div>
+    </section>
+
+    <section id="assetDisposalsPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">RETIREMENT CONTROL</span><h2>Disposal & Write-off Register</h2></div><button class="btn btn-gold" onclick="AssetERP.openDisposal()">+ Disposal</button></div>
+      <div id="assetDisposalList" class="asset-list"></div>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="assetRegisterModal">
+    <div class="employee-modal-backdrop" onclick="AssetERP.close('assetRegisterModal')"></div>
+    <div class="employee-modal-card asset-modal">
+      <button class="employee-modal-close" onclick="AssetERP.close('assetRegisterModal')">×</button>
+      <h2>Register Company Asset</h2>
+      <div class="asset-form">
+        <label>Asset Name<input id="assetName"></label>
+        <label>Category<select id="assetCategory"><option value="laptop">Laptop</option><option value="mobile">Mobile</option><option value="vehicle">Vehicle</option><option value="office_equipment">Office Equipment</option><option value="machinery">Machinery</option><option value="network">Network</option><option value="other">Other</option></select></label>
+        <label>Asset Tag<input id="assetTag"></label>
+        <label>Serial Number<input id="assetSerial"></label>
+        <label>Brand<input id="assetBrand"></label>
+        <label>Model<input id="assetModel"></label>
+        <label>Branch<input id="assetBranch"></label>
+        <label>Location<input id="assetLocation"></label>
+        <label>Purchase Date<input id="assetPurchaseDate" type="date"></label>
+        <label>Purchase Cost<input id="assetPurchaseCost" type="number" min="0"></label>
+        <label>Useful Life (Years)<input id="assetLife" type="number" min="1" value="3"></label>
+        <label>Residual Value<input id="assetResidual" type="number" min="0" value="0"></label>
+        <label>Warranty End<input id="assetWarrantyEnd" type="date"></label>
+        <label>Status<select id="assetState"><option value="available">Available</option><option value="assigned">Assigned</option><option value="maintenance">Maintenance</option><option value="retired">Retired</option></select></label>
+        <label class="asset-full">Notes<textarea id="assetNotes" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="AssetERP.saveAsset()">Save Asset</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="assetAssignmentModal">
+    <div class="employee-modal-backdrop" onclick="AssetERP.close('assetAssignmentModal')"></div>
+    <div class="employee-modal-card asset-modal">
+      <button class="employee-modal-close" onclick="AssetERP.close('assetAssignmentModal')">×</button>
+      <h2>Assign Asset</h2>
+      <div class="asset-form">
+        <label>Asset<select id="assetAssignmentAsset"></select></label>
+        <label>Employee<select id="assetAssignmentEmployee"></select></label>
+        <label>Assigned Date<input id="assetAssignmentDate" type="date"></label>
+        <label>Expected Return<input id="assetAssignmentReturn" type="date"></label>
+        <label>Condition<select id="assetAssignmentCondition"><option value="excellent">Excellent</option><option value="good">Good</option><option value="fair">Fair</option></select></label>
+        <label>Accessories<input id="assetAssignmentAccessories" placeholder="Charger, bag, keys"></label>
+        <label class="asset-full">Custody Terms<textarea id="assetAssignmentTerms" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="AssetERP.saveAssignment()">Assign Asset</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="assetMaintenanceModal">
+    <div class="employee-modal-backdrop" onclick="AssetERP.close('assetMaintenanceModal')"></div>
+    <div class="employee-modal-card asset-modal">
+      <button class="employee-modal-close" onclick="AssetERP.close('assetMaintenanceModal')">×</button>
+      <h2>Maintenance Record</h2>
+      <div class="asset-form">
+        <label>Asset<select id="assetMaintenanceAsset"></select></label>
+        <label>Type<select id="assetMaintenanceType"><option value="preventive">Preventive</option><option value="repair">Repair</option><option value="inspection">Inspection</option><option value="upgrade">Upgrade</option></select></label>
+        <label>Scheduled Date<input id="assetMaintenanceDate" type="date"></label>
+        <label>Vendor<input id="assetMaintenanceVendor"></label>
+        <label>Estimated Cost<input id="assetMaintenanceCost" type="number" min="0"></label>
+        <label>Status<select id="assetMaintenanceStatus"><option value="scheduled">Scheduled</option><option value="in_progress">In Progress</option><option value="completed">Completed</option></select></label>
+        <label class="asset-full">Description<textarea id="assetMaintenanceDescription" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="AssetERP.saveMaintenance()">Save Maintenance</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="assetAuditModal">
+    <div class="employee-modal-backdrop" onclick="AssetERP.close('assetAuditModal')"></div>
+    <div class="employee-modal-card asset-modal">
+      <button class="employee-modal-close" onclick="AssetERP.close('assetAuditModal')">×</button>
+      <h2>Asset Audit Session</h2>
+      <div class="asset-form">
+        <label>Audit Name<input id="assetAuditName"></label>
+        <label>Branch<input id="assetAuditBranch"></label>
+        <label>Scheduled Date<input id="assetAuditDate" type="date"></label>
+        <label>Auditor<select id="assetAuditAuditor"></select></label>
+        <label>Scope<select id="assetAuditScope"><option value="all">All Assets</option><option value="assigned">Assigned Assets</option><option value="high_value">High Value Assets</option><option value="selected_branch">Selected Branch</option></select></label>
+        <label>Priority<select id="assetAuditPriority"><option value="normal">Normal</option><option value="high">High</option></select></label>
+      </div>
+      <button class="btn btn-gold" onclick="AssetERP.saveAudit()">Create Audit</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="assetDisposalModal">
+    <div class="employee-modal-backdrop" onclick="AssetERP.close('assetDisposalModal')"></div>
+    <div class="employee-modal-card asset-modal">
+      <button class="employee-modal-close" onclick="AssetERP.close('assetDisposalModal')">×</button>
+      <h2>Asset Disposal / Write-off</h2>
+      <div class="asset-form">
+        <label>Asset<select id="assetDisposalAsset"></select></label>
+        <label>Method<select id="assetDisposalMethod"><option value="sale">Sale</option><option value="recycle">Recycle</option><option value="donation">Donation</option><option value="write_off">Write-off</option><option value="return_vendor">Return Vendor</option></select></label>
+        <label>Disposal Date<input id="assetDisposalDate" type="date"></label>
+        <label>Recovery Amount<input id="assetDisposalRecovery" type="number" min="0"></label>
+        <label>Approved By<input id="assetDisposalApprover"></label>
+        <label>Status<select id="assetDisposalStatus"><option value="pending">Pending</option><option value="approved">Approved</option><option value="completed">Completed</option></select></label>
+        <label class="asset-full">Reason<textarea id="assetDisposalReason" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="AssetERP.saveDisposal()">Save Disposal</button>
+    </div>
+  </div>
+</div>

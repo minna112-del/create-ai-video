@@ -1,0 +1,6 @@
+{
+  "name": "Golapi Driver",
+  "description": "Golapi Shop live delivery driver application with Firestore orders, tracking, earnings, tips, opportunities, payouts and a zero-touch deployed-release sync.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "online.golapishop.driver",
+      "sha256_cert_fingerprints": [
+        "18:48:E4:22:8E:34:4C:F5:CD:3A:04:CE:2C:98:FB:FB:9B:C1:BD:80:AC:60:7E:FA:6E:7D:6E:0D:8A:CB:D2:1E"
+      ]
+    }
+  },
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "online.golapishop.customer",
+      "sha256_cert_fingerprints": [
+        "9F:8A:1A:D7:3F:FB:59:9B:DC:19:2C:AF:0E:43:57:E3:25:38:21:C6:BC:E7:51:DA:97:D7:55:14:08:36:B3:DD"
+      ]
+    }
+  }
+]

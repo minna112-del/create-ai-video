@@ -1,0 +1,227 @@
+name: Build Golapi Customer and Driver APKs
+
+# Manual APK builder for Golapi customer and driver apps.
+# If ANDROID_KEYSTORE_* secrets are present, it builds signed release APKs.
+# Otherwise it builds unsigned/debug test APKs.
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  build-driver-apk:
+    name: Build Driver APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: driver-app/package-lock.json
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install driver-app dependencies
+        working-directory: driver-app
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate project
+        working-directory: driver-app
+        run: npm run validate
+
+      - name: Typecheck
+        working-directory: driver-app
+        run: npm run typecheck
+
+      - name: Build web assets
+        working-directory: driver-app
+        run: npm run build
+
+      - name: Add Android native project
+        working-directory: driver-app
+        run: npx cap add android
+
+      - name: Sync Capacitor Android
+        working-directory: driver-app
+        run: npx cap sync android
+
+      - name: Configure Android permissions
+        working-directory: driver-app
+        run: npm run android:configure
+
+      - name: Write google-services.json
+        working-directory: driver-app
+        env:
+          DRIVER_GOOGLE_SERVICES_JSON: ${{ secrets.DRIVER_GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$DRIVER_GOOGLE_SERVICES_JSON" ]; then
+            echo "$DRIVER_GOOGLE_SERVICES_JSON" > android/app/google-services.json
+            echo "google-services.json written from secret."
+          else
+            echo "::warning::DRIVER_GOOGLE_SERVICES_JSON secret not set. Firebase push notifications will not work in this build."
+          fi
+
+      - name: Detect Android signing secrets
+        id: detect-signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "has_signing=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_signing=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure stable release signing
+        if: ${{ steps.detect-signing.outputs.has_signing == 'true' }}
+        working-directory: driver-app
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/driver-app/android/app/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+          node ../scripts/configure-release-signing.mjs
+
+      - name: Build signed release APK
+        if: ${{ steps.detect-signing.outputs.has_signing == 'true' }}
+        working-directory: driver-app/android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/driver-app/android/app/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew assembleRelease
+
+      - name: Build unsigned test APK
+        if: ${{ steps.detect-signing.outputs.has_signing != 'true' }}
+        working-directory: driver-app/android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Upload Driver APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: golapi-driver-apk
+          path: |
+            driver-app/android/app/build/outputs/apk/release/*.apk
+            driver-app/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+
+  build-customer-apk:
+    name: Build Customer APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: customer-app/package-lock.json
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Install customer-app dependencies
+        working-directory: customer-app
+        run: npm ci --no-audit --no-fund
+
+      - name: Validate project
+        working-directory: customer-app
+        run: npm run validate
+
+      - name: Build native fallback bundle
+        working-directory: customer-app
+        run: npm run build
+
+      - name: Add Android native project
+        working-directory: customer-app
+        run: npx cap add android
+
+      - name: Sync Capacitor Android
+        working-directory: customer-app
+        run: npx cap sync android
+
+      - name: Configure Android permissions
+        working-directory: customer-app
+        run: npm run android:configure
+
+      - name: Write google-services.json
+        working-directory: customer-app
+        env:
+          CUSTOMER_GOOGLE_SERVICES_JSON: ${{ secrets.CUSTOMER_GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$CUSTOMER_GOOGLE_SERVICES_JSON" ]; then
+            echo "$CUSTOMER_GOOGLE_SERVICES_JSON" > android/app/google-services.json
+            echo "google-services.json written from secret."
+          else
+            echo "::warning::CUSTOMER_GOOGLE_SERVICES_JSON secret not set. Firebase push notifications will not work in this build."
+          fi
+
+      - name: Detect Android signing secrets
+        id: detect-signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$ANDROID_KEYSTORE_BASE64" ] && [ -n "$ANDROID_KEYSTORE_PASSWORD" ] && [ -n "$ANDROID_KEY_ALIAS" ] && [ -n "$ANDROID_KEY_PASSWORD" ]; then
+            echo "has_signing=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_signing=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure stable release signing
+        if: ${{ steps.detect-signing.outputs.has_signing == 'true' }}
+        working-directory: customer-app
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/customer-app/android/app/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+          node ../scripts/configure-release-signing.mjs
+
+      - name: Build signed release APK
+        if: ${{ steps.detect-signing.outputs.has_signing == 'true' }}
+        working-directory: customer-app/android
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ github.workspace }}/customer-app/android/app/release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew assembleRelease
+
+      - name: Build unsigned test APK
+        if: ${{ steps.detect-signing.outputs.has_signing != 'true' }}
+        working-directory: customer-app/android
+        run: chmod +x gradlew && ./gradlew assembleDebug
+
+      - name: Upload Customer APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: golapi-customer-apk
+          path: |
+            customer-app/android/app/build/outputs/apk/release/*.apk
+            customer-app/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

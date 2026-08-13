@@ -1,0 +1,94 @@
+<div class="page company-settings-page" id="page-company-settings">
+  <header class="workspace-topbar">
+    <div class="workspace-brand">
+      <img src="icons/head_logo.webp" alt="Golapi Shop">
+      <span><small>Golapi Shop Company OS</small><strong>Company Settings & Access Control</strong></span>
+    </div>
+    <div class="workspace-actions">
+      <span id="companySettingsUpdated" class="admin-updated"></span>
+      <button class="btn btn-light" onclick="CompanySettings.refresh()">↻ রিফ্রেশ</button>
+      <button class="btn btn-dark" onclick="Router.go('admin-dash')">← Executive Office</button>
+    </div>
+  </header>
+
+  <div id="companySettingsEmployeeWorkspace"></div>
+  <div id="companySettingsAuthMessage" class="form-msg"></div>
+
+  <section class="sec company-settings-content">
+    <div class="company-settings-hero">
+      <div>
+        <span class="eyebrow">Governance • Security • Control</span>
+        <h1>কোম্পানির কেন্দ্রীয় নিয়ন্ত্রণকক্ষ</h1>
+        <p>কোম্পানির পরিচয়, শাখা-ডিফল্ট, কর্মী প্রবেশাধিকার এবং প্রতিটি পদের অনুমোদিত কাজ এক জায়গা থেকে নিয়ন্ত্রণ করুন।</p>
+      </div>
+      <div class="settings-health-card">
+        <span>Configuration Health</span>
+        <strong id="settingsHealthScore">—</strong>
+        <small id="settingsHealthText">ডেটা যাচাই করা হচ্ছে</small>
+      </div>
+    </div>
+
+    <div class="settings-summary-grid">
+      <article><span>সক্রিয় Role</span><strong id="settingsRoleCount">০</strong></article>
+      <article><span>নির্ধারিত Permission</span><strong id="settingsPermissionCount">০</strong></article>
+      <article><span>সক্রিয় শাখা</span><strong id="settingsBranchCount">০</strong></article>
+      <article><span>সর্বশেষ পরিবর্তন</span><strong id="settingsLastChange">—</strong></article>
+    </div>
+
+    <div class="settings-layout">
+      <aside class="settings-nav" aria-label="Company Settings navigation">
+        <button class="active" data-settings-tab="company" onclick="CompanySettings.openTab('company',this)">🏢 কোম্পানি পরিচয়</button>
+        <button data-settings-tab="operations" onclick="CompanySettings.openTab('operations',this)">⚙️ অপারেশন ডিফল্ট</button>
+        <button data-settings-tab="permissions" onclick="CompanySettings.openTab('permissions',this)">🔐 পদভিত্তিক অনুমতি</button>
+        <button data-settings-tab="audit" onclick="CompanySettings.openTab('audit',this)">🧾 পরিবর্তনের ইতিহাস</button>
+      </aside>
+
+      <main class="settings-main">
+        <section id="settingsCompanyPane" class="settings-pane">
+          <div class="settings-section-head"><div><h2>কোম্পানি পরিচয়</h2><p>সব Workspace ও অফিসিয়াল নথিতে ব্যবহৃত কেন্দ্রীয় তথ্য।</p></div></div>
+          <form id="companyIdentityForm" class="settings-form-grid" onsubmit="CompanySettings.saveCompany(event)">
+            <label><span>কোম্পানির অফিসিয়াল নাম</span><input id="csCompanyName" required></label>
+            <label><span>সংক্ষিপ্ত নাম</span><input id="csShortName" maxlength="30"></label>
+            <label><span>অফিসিয়াল ইমেইল</span><input id="csEmail" type="email"></label>
+            <label><span>অফিসিয়াল ফোন</span><input id="csPhone" inputmode="tel"></label>
+            <label><span>ওয়েবসাইট</span><input id="csWebsite" type="url" placeholder="https://"></label>
+            <label><span>প্রধান কার্যালয়</span><input id="csHeadOffice"></label>
+            <label class="full"><span>অফিসিয়াল ঠিকানা</span><textarea id="csAddress" rows="3"></textarea></label>
+            <label><span>Employee ID Prefix</span><input id="csEmployeePrefix" maxlength="8" placeholder="GS"></label>
+            <label><span>Default Currency</span><select id="csCurrency"><option value="BDT">BDT — ৳</option></select></label>
+            <div class="full settings-save-row"><button class="btn btn-gold" type="submit">কোম্পানি পরিচয় সংরক্ষণ করুন</button></div>
+          </form>
+        </section>
+
+        <section id="settingsOperationsPane" class="settings-pane" hidden>
+          <div class="settings-section-head"><div><h2>অপারেশন ডিফল্ট</h2><p>নতুন অর্ডার, শাখা ও স্টাফ রেকর্ডে ব্যবহৃত ডিফল্ট নীতি।</p></div></div>
+          <form id="operationsDefaultsForm" class="settings-form-grid" onsubmit="CompanySettings.saveOperations(event)">
+            <label><span>ডিফল্ট শাখা</span><select id="csDefaultBranch"><option value="">নির্বাচন করুন</option></select></label>
+            <label><span>ডিফল্ট ভাষা</span><select id="csLanguage"><option value="bn">বাংলা</option><option value="en">English</option></select></label>
+            <label><span>ডিফল্ট Timezone</span><select id="csTimezone"><option value="Asia/Dhaka">Asia/Dhaka</option></select></label>
+            <label><span>অর্ডার নম্বর Prefix</span><input id="csOrderPrefix" maxlength="12" placeholder="GSO"></label>
+            <label><span>Low Stock Threshold</span><input id="csLowStock" type="number" min="0"></label>
+            <label><span>Probation Period (দিন)</span><input id="csProbationDays" type="number" min="0"></label>
+            <label><span>Customer Care SLA (ঘণ্টা)</span><input id="csSupportSla" type="number" min="1"></label>
+            <label><span>Delivery SLA (মিনিট)</span><input id="csDeliverySla" type="number" min="1"></label>
+            <label class="settings-check"><input id="csRequireId" type="checkbox"><span>সব সক্রিয় স্টাফের Company ID বাধ্যতামূলক</span></label>
+            <label class="settings-check"><input id="csRequirePhoto" type="checkbox"><span>স্টাফ প্রোফাইলে অফিসিয়াল ছবি বাধ্যতামূলক</span></label>
+            <div class="full settings-save-row"><button class="btn btn-gold" type="submit">অপারেশন নীতি সংরক্ষণ করুন</button></div>
+          </form>
+        </section>
+
+        <section id="settingsPermissionsPane" class="settings-pane" hidden>
+          <div class="settings-section-head"><div><h2>পদভিত্তিক অনুমতি</h2><p>প্রতিটি Role কোন অফিস ও কাজ ব্যবহার করতে পারবে তা নির্ধারণ করুন।</p></div><button class="btn btn-light" onclick="CompanySettings.resetPermissions()">ডিফল্ট পুনরুদ্ধার</button></div>
+          <div class="permission-legend"><span><i class="on"></i> অনুমোদিত</span><span><i></i> অনুমোদিত নয়</span></div>
+          <div class="permission-table-wrap"><table class="permission-table"><thead id="permissionHead"></thead><tbody id="permissionBody"></tbody></table></div>
+          <div class="settings-save-row"><button class="btn btn-gold" onclick="CompanySettings.savePermissions()">Permission Matrix সংরক্ষণ করুন</button></div>
+        </section>
+
+        <section id="settingsAuditPane" class="settings-pane" hidden>
+          <div class="settings-section-head"><div><h2>পরিবর্তনের ইতিহাস</h2><p>কখন, কে এবং কোন সেটিং পরিবর্তন করেছে তার audit trail।</p></div><button class="btn btn-light" onclick="CompanySettings.loadAudit()">↻ Reload</button></div>
+          <div id="settingsAuditList" class="settings-audit-list"></div>
+        </section>
+      </main>
+    </div>
+  </section>
+</div>

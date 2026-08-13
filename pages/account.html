@@ -1,0 +1,114 @@
+<div class="page" id="page-account">
+  <main class="account-shell" aria-labelledby="accountPageTitle">
+    <section class="account-hero" aria-label="অ্যাকাউন্ট পরিচিতি">
+      <div class="account-hero__content">
+        <div class="account-avatar" id="accAvatar" aria-hidden="true">👤</div>
+        <div class="account-identity">
+          <p class="account-eyebrow">আমার অ্যাকাউন্ট</p>
+          <h1 id="accountPageTitle" class="account-title"><span id="accName">অতিথি</span></h1>
+          <p id="accEmail" class="account-contact"></p>
+          <p id="accPhone" class="account-contact account-contact--secondary"></p>
+        </div>
+      </div>
+      <div class="account-hero__actions" id="accountHeroActions">
+        <button class="btn btn-outline account-edit-trigger" type="button" onclick="AccountPage.toggleEditor(true)">
+          <span aria-hidden="true">✎</span> প্রোফাইল সম্পাদনা
+        </button>
+      </div>
+    </section>
+
+    <section id="accountGuestState" class="account-guest" hidden>
+      <div class="account-guest__icon" aria-hidden="true">🔐</div>
+      <div>
+        <h2>আপনার অ্যাকাউন্টে লগইন করুন</h2>
+        <p>অর্ডার, সংরক্ষিত ঠিকানা ও অ্যাকাউন্ট তথ্য এক জায়গা থেকে পরিচালনা করুন।</p>
+      </div>
+      <button class="btn btn-gold" type="button" onclick="AuthUI.open()">লগইন / রেজিস্ট্রেশন</button>
+    </section>
+
+    <section id="accountEditor" class="account-editor" hidden aria-labelledby="accountEditorTitle">
+      <div class="account-section-head">
+        <div>
+          <p class="account-kicker">ব্যক্তিগত তথ্য</p>
+          <h2 id="accountEditorTitle">প্রোফাইল আপডেট করুন</h2>
+        </div>
+        <button class="account-icon-btn" type="button" onclick="AccountPage.toggleEditor(false)" aria-label="সম্পাদনা বন্ধ করুন">×</button>
+      </div>
+      <div class="account-form-grid">
+        <div class="field">
+          <label for="profileName">নাম</label>
+          <input id="profileName" type="text" autocomplete="name" maxlength="80" placeholder="আপনার পূর্ণ নাম">
+        </div>
+        <div class="field">
+          <label for="profilePhone">মোবাইল নম্বর</label>
+          <input id="profilePhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="18" placeholder="01XXXXXXXXX">
+        </div>
+        <div class="field account-form-grid__full">
+          <label for="profileEmail">ইমেইল</label>
+          <input id="profileEmail" type="email" autocomplete="email" disabled aria-describedby="profileEmailHelp">
+          <small id="profileEmailHelp">নিরাপত্তার জন্য এখান থেকে ইমেইল পরিবর্তন করা যাবে না।</small>
+        </div>
+      </div>
+      <div id="profileMsg" class="form-msg" role="status" aria-live="polite"></div>
+      <div class="account-editor__actions">
+        <button class="btn btn-outline" type="button" onclick="AccountPage.toggleEditor(false)">বাতিল</button>
+        <button id="profileSaveBtn" class="btn btn-gold" type="button" onclick="AccountPage.saveProfile()">পরিবর্তন সংরক্ষণ</button>
+      </div>
+    </section>
+
+    <section id="accountMemberContent" class="account-member-content">
+      <div class="account-quick-grid" aria-label="অ্যাকাউন্ট সুবিধা">
+        <button class="account-quick-card" type="button" onclick="Router.go('myorders')">
+          <span class="account-quick-card__icon" aria-hidden="true">▣</span>
+          <span><strong>আমার অর্ডার</strong><small>অর্ডার ও ডেলিভারি স্ট্যাটাস দেখুন</small></span>
+          <span class="account-quick-card__arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="account-quick-card" type="button" onclick="Router.go('account-addresses')">
+          <span class="account-quick-card__icon" aria-hidden="true">⌖</span>
+          <span><strong>সংরক্ষিত ঠিকানা</strong><small>ডেলিভারি ঠিকানা যোগ বা মুছুন</small></span>
+          <span class="account-quick-card__arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="account-quick-card" type="button" onclick="Router.go('wishlist')">
+          <span class="account-quick-card__icon" aria-hidden="true">♡</span>
+          <span><strong>উইশলিস্ট</strong><small>পছন্দের পণ্যগুলো আবার দেখুন</small></span>
+          <span class="account-quick-card__arrow" aria-hidden="true">›</span>
+        </button>
+        <button class="account-quick-card" type="button" onclick="Router.go('contact')">
+          <span class="account-quick-card__icon" aria-hidden="true">?</span>
+          <span><strong>সহায়তা</strong><small>অর্ডার বা সেবা বিষয়ে যোগাযোগ করুন</small></span>
+          <span class="account-quick-card__arrow" aria-hidden="true">›</span>
+        </button>
+      </div>
+
+
+      <section id="loyaltyBox" class="account-loyalty" style="display:none" aria-labelledby="loyaltyTitle">
+        <div class="account-section-head">
+          <div>
+            <p class="account-kicker">রেফারেল ও ওয়ালেট</p>
+            <h2 id="loyaltyTitle">আপনার সুবিধা</h2>
+          </div>
+          <div class="account-wallet"><small>ওয়ালেট ব্যালেন্স</small><strong id="loyaltyBalance">৳০</strong></div>
+        </div>
+        <div class="account-referral">
+          <div><small>রেফারেল কোড</small><strong id="loyaltyCode">—</strong></div>
+          <button class="btn btn-outline" type="button" onclick="AccountPage.shareReferral()">শেয়ার করুন</button>
+        </div>
+      </section>
+
+      <section class="account-settings" aria-labelledby="accountSettingsTitle">
+        <div class="account-section-head">
+          <div>
+            <p class="account-kicker">সেটিংস</p>
+            <h2 id="accountSettingsTitle">অ্যাকাউন্ট নিয়ন্ত্রণ</h2>
+          </div>
+        </div>
+        <button class="account-setting-row" type="button" onclick="AccountPage.requestNotifications()">
+          <span aria-hidden="true">♢</span><span><strong>অর্ডার নোটিফিকেশন</strong><small>ব্রাউজারের অনুমতি থাকলে আপডেট পান</small></span><span aria-hidden="true">›</span>
+        </button>
+        <button class="account-setting-row account-setting-row--danger" type="button" onclick="AccountPage.signOut()">
+          <span aria-hidden="true">↪</span><span><strong>লগআউট</strong><small>এই ডিভাইসে আপনার সেশন শেষ করুন</small></span><span aria-hidden="true">›</span>
+        </button>
+      </section>
+    </section>
+  </main>
+</div>

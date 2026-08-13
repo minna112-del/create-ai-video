@@ -1,0 +1,118 @@
+<div class="page workflow-erp-page" id="page-workflow-erp">
+  <header class="admin-topbar">
+    <a href="#" class="admin-brand" onclick="event.preventDefault();Router.go('company-os')">
+      <img src="icons/head_logo.webp" alt="">
+      <span><small>Golapi Shop Online</small><strong>Workflow Automation Engine</strong></span>
+    </a>
+    <div class="admin-topbar-actions">
+      <span id="workflowUpdated"></span>
+      <button onclick="WorkflowERP.refresh()">↻ Refresh</button>
+      <button onclick="WorkflowERP.exportRuns()">CSV</button>
+      <button onclick="Router.go('company-os')">◈ Company OS</button>
+    </div>
+  </header>
+
+  <div id="workflowEmployeeWorkspace"></div>
+
+  <main class="sec workflow-office">
+    <section class="workflow-hero">
+      <div>
+        <span class="office-kicker">WORKFLOW · APPROVAL · AUTOMATION</span>
+        <h1>এক বিভাগের কাজ শেষ হলে পরের বিভাগে কাজ স্বয়ংক্রিয়ভাবে পৌঁছাবে</h1>
+        <p>Trigger, condition, approval step, assignment, notification এবং cross-department action দিয়ে বাস্তব workflow তৈরি ও নিয়ন্ত্রণ করুন।</p>
+      </div>
+      <div class="workflow-hero-actions">
+        <button class="btn btn-gold" onclick="WorkflowERP.open('workflowBuilderModal')">+ Workflow</button>
+        <button class="btn" onclick="WorkflowERP.open('workflowRequestModal')">+ Request</button>
+      </div>
+    </section>
+
+    <section class="workflow-stats">
+      <article><span>Active Workflows</span><strong id="workflowActive">০</strong></article>
+      <article><span>Running Instances</span><strong id="workflowRunning">০</strong></article>
+      <article><span>Pending Approvals</span><strong id="workflowApprovals">০</strong></article>
+      <article><span>Overdue Tasks</span><strong id="workflowOverdue">০</strong></article>
+      <article><span>Completed Today</span><strong id="workflowCompleted">০</strong></article>
+      <article><span>Automation Success</span><strong id="workflowSuccess">০%</strong></article>
+    </section>
+
+    <section id="workflowPriority" class="workflow-priority"></section>
+
+    <section class="workflow-tabs">
+      <button class="active" onclick="WorkflowERP.tab('definitions',this)">Workflow Library</button>
+      <button onclick="WorkflowERP.tab('runs',this)">Running Workflows</button>
+      <button onclick="WorkflowERP.tab('approvals',this)">Approval Inbox</button>
+      <button onclick="WorkflowERP.tab('tasks',this)">Task Queue</button>
+      <button onclick="WorkflowERP.tab('logs',this)">Execution Logs</button>
+    </section>
+
+    <section id="workflowDefinitionsPane">
+      <div class="office-panel-head">
+        <div><span class="office-kicker">WORKFLOW LIBRARY</span><h2>Automation Definitions</h2></div>
+        <div class="workflow-filters">
+          <input id="workflowSearch" placeholder="Workflow, trigger বা department" oninput="WorkflowERP.renderDefinitions()">
+          <select id="workflowStateFilter" onchange="WorkflowERP.renderDefinitions()"><option value="">সব Status</option><option value="active">Active</option><option value="draft">Draft</option><option value="paused">Paused</option></select>
+        </div>
+      </div>
+      <div id="workflowDefinitionGrid" class="workflow-card-grid"></div>
+    </section>
+
+    <section id="workflowRunsPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">PROCESS MONITOR</span><h2>Workflow Instances</h2></div></div>
+      <div id="workflowRunList" class="workflow-list"></div>
+    </section>
+
+    <section id="workflowApprovalsPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">APPROVAL INBOX</span><h2>Pending Decisions</h2></div></div>
+      <div id="workflowApprovalList" class="workflow-list"></div>
+    </section>
+
+    <section id="workflowTasksPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">TASK QUEUE</span><h2>Assigned Tasks</h2></div></div>
+      <div id="workflowTaskList" class="workflow-list"></div>
+    </section>
+
+    <section id="workflowLogsPane" hidden>
+      <div class="office-panel-head"><div><span class="office-kicker">EXECUTION LOG</span><h2>Workflow Audit Trail</h2></div></div>
+      <div id="workflowLogList" class="workflow-list"></div>
+    </section>
+  </main>
+
+  <div class="employee-modal" id="workflowBuilderModal">
+    <div class="employee-modal-backdrop" onclick="WorkflowERP.close('workflowBuilderModal')"></div>
+    <div class="employee-modal-card workflow-modal">
+      <button class="employee-modal-close" onclick="WorkflowERP.close('workflowBuilderModal')">×</button>
+      <h2>Workflow Builder</h2>
+      <div class="workflow-form">
+        <label>Workflow Name<input id="workflowName"></label>
+        <label>Department<input id="workflowDepartment"></label>
+        <label>Trigger<select id="workflowTrigger"><option value="manual">Manual Request</option><option value="document_created">Document Created</option><option value="expense_submitted">Expense Submitted</option><option value="purchase_requested">Purchase Requested</option><option value="employee_joined">Employee Joined</option><option value="stock_low">Stock Low</option><option value="incident_created">Incident Created</option></select></label>
+        <label>Status<select id="workflowStatus"><option value="draft">Draft</option><option value="active">Active</option><option value="paused">Paused</option></select></label>
+        <label>Priority<select id="workflowPriorityValue"><option value="normal">Normal</option><option value="high">High</option><option value="critical">Critical</option></select></label>
+        <label>SLA Hours<input id="workflowSla" type="number" min="1" value="24"></label>
+        <label class="workflow-full">Description<textarea id="workflowDescription" rows="3"></textarea></label>
+      </div>
+
+      <h3>Workflow Steps</h3>
+      <div id="workflowStepBuilder" class="workflow-step-builder"></div>
+      <button class="btn" onclick="WorkflowERP.addStep()">+ Add Step</button>
+      <button class="btn btn-gold" onclick="WorkflowERP.saveWorkflow()">Save Workflow</button>
+    </div>
+  </div>
+
+  <div class="employee-modal" id="workflowRequestModal">
+    <div class="employee-modal-backdrop" onclick="WorkflowERP.close('workflowRequestModal')"></div>
+    <div class="employee-modal-card workflow-modal">
+      <button class="employee-modal-close" onclick="WorkflowERP.close('workflowRequestModal')">×</button>
+      <h2>Start Workflow</h2>
+      <div class="workflow-form">
+        <label>Workflow<select id="workflowRequestDefinition"></select></label>
+        <label>Reference<input id="workflowRequestReference"></label>
+        <label>Requested For<input id="workflowRequestSubject"></label>
+        <label>Amount / Value<input id="workflowRequestAmount" type="number" min="0"></label>
+        <label class="workflow-full">Request Details<textarea id="workflowRequestDetails" rows="4"></textarea></label>
+      </div>
+      <button class="btn btn-gold" onclick="WorkflowERP.startWorkflow()">Start Workflow</button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,48 @@
+./.env.example
+./.gitignore
+./BUILD-MANIFEST.txt
+./CHANGELOG.md
+./FIREBASE-INTEGRATION.md
+./README.md
+./assets/.aistudio/.gitignore
+./capacitor.config.json
+./docs/FIREBASE-SETUP-BN.md
+./docs/FIRESTORE-RULES-GUIDE-BN.md
+./index.html
+./metadata.json
+./package.json
+./package-lock.json
+./scripts/configure-android.mjs
+./scripts/validate-project.mjs
+./src/App.tsx
+./src/components/ActiveOrderModal.tsx
+./src/components/AuthScreen.tsx
+./src/components/BottomNav.tsx
+./src/components/CashOutModal.tsx
+./src/components/DesktopSidebar.tsx
+./src/components/Header.tsx
+./src/components/Heatmap.tsx
+./src/components/OrderCard.tsx
+./src/components/ProfileModal.tsx
+./src/components/WebDashboard.tsx
+./src/context/DriverContext.tsx
+./src/index.css
+./src/lib/firebase.ts
+./src/lib/releaseSync.ts
+./src/lib/sound.ts
+./src/main.tsx
+./src/pages/Discover.tsx
+./src/pages/Earnings.tsx
+./src/pages/Home.tsx
+./src/pages/Inbox.tsx
+./src/pages/Menu.tsx
+./src/pages/Preferences.tsx
+./src/types.ts
+./src/vite-env.d.ts
+./tsconfig.json
+./vite.config.ts
+
+Validation date: 2026-08-06
+Source: Golapi unified v2.4.2 live production source
+Root workflow: ../.github/workflows/build-mobile-apks.yml
+Native URL: https://www.golapishop.online/driver/
