@@ -246,7 +246,7 @@ const OrderEdit = {
     const village = document.getElementById('eoVillage').value.trim();
     const address = document.getElementById('eoAddress').value.trim();
     const instructions = document.getElementById('eoInstructions').value.trim();
-    if(!address || !instructions){ msgEl.textContent='ঠিকানা ও ইনস্ট্রাকশন দুটোই দিন'; msgEl.className='form-msg err'; return; }
+    if(!address || !instructions){ msgEl.textContent='ঠিকানা ও নির্দেশনা দুটোই দিন'; msgEl.className='form-msg err'; return; }
     if(!FB){ msgEl.textContent='সংযোগ সমস্যা'; msgEl.className='form-msg err'; return; }
     try{
       await FB.updateDoc(FB.doc(FB.db,'orders',this.orderId), {village, address, instructions});

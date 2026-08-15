@@ -106,14 +106,14 @@ const SMSGateway = {
      ============================================ */
   tpl: {
     orderNew(no, name, total) {
-      return `Golapi Shop: ${name} ভাই, অর্ডার #${no} কনফার্ম! মোট: ${total}৳। ৬০-৯০ মিনিটে ডেলিভারি। ধন্যবাদ 🌹 golapishop.online`;
+      return `Golapi Shop: ${name} ভাই, অর্ডার #${no} নিশ্চিত হয়েছে! মোট: ${total}৳। ৬০-৯০ মিনিটে ডেলিভারি। ধন্যবাদ 🌹 golapishop.online`;
     },
     orderAssigned(no, driverName, driverPhone) {
       return `Golapi Shop: অর্ডার #${no} রওনা হয়েছে! ড্রাইভার: ${driverName} (${driverPhone})। অ্যাপে লাইভ ট্র্যাক করুন।`;
     },
     orderDelivered(no, productId) {
       const link = productId ? `golapishop.online/#product?id=${productId}` : 'golapishop.online';
-      return `Golapi Shop: অর্ডার #${no} ডেলিভারি সম্পন্ন ✅ কেমন লাগলো জানান, ৩০ সেকেন্ডে রিভিউ দিন: ${link}`;
+      return `Golapi Shop: অর্ডার #${no} ডেলিভারি সম্পন্ন ✅ কেমন লাগলো জানান, ৩০ সেকেন্ডে মতামত দিন: ${link}`;
     },
     orderCancelled(no) {
       return `Golapi Shop: অর্ডার #${no} বাতিল হয়েছে। যোগাযোগ: 01612-057371`;

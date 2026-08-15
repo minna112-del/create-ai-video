@@ -174,9 +174,9 @@ const ReviewService = {
       };
       if(verified) reviewDoc.orderId = matchedOrderId; // rule এই orderId খুলে সত্যিই delivered+এই ইউজারের কিনা যাচাই করে
       await FB.addDoc(FB.collection(FB.db,'reviews'), reviewDoc);
-      toast(verified ? '✓ যাচাইকৃত রিভিউ সাবমিট হয়েছে' : '✓ রিভিউ সাবমিট হয়েছে','success');
+      toast(verified ? '✓ যাচাইকৃত মতামত জমা হয়েছে' : '✓ মতামত জমা হয়েছে','success');
       return true;
-    }catch(e){ toast('রিভিউ সাবমিট ব্যর্থ: '+e.message,'error'); return false; }
+    }catch(e){ toast('মতামত জমা ব্যর্থ: '+e.message,'error'); return false; }
   },
 
   async renderReviews(productId, containerId){
@@ -184,7 +184,7 @@ const ReviewService = {
     if(!el) return;
     const reviews = await this.loadReviews(productId);
     if(!reviews.length){
-      el.innerHTML = `<p style="color:var(--ink-muted);font-size:13px;text-align:center;padding:14px">এখনো কোনো রিভিউ নেই। আপনি প্রথম রিভিউ দিন!</p>`;
+      el.innerHTML = `<p style="color:var(--ink-muted);font-size:13px;text-align:center;padding:14px">এখনো কোনো মতামত নেই। আপনিই প্রথম মতামত দিন!</p>`;
       return;
     }
     reviews.sort((a,b)=>(b.verified===true)-(a.verified===true));

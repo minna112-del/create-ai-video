@@ -39,8 +39,8 @@
 
           <div class="field"><label for="ckVillage" data-bn="গ্রাম / এলাকার নাম *" data-en="Village / Area Name *">গ্রাম / এলাকার নাম *</label><input type="text" id="ckVillage" placeholder="যেমন: পশ্চিম নাজিরপুর, ৩নং ওয়ার্ড" autocomplete="address-level3" required></div>
           <div class="field"><label for="ckAddress" data-bn="বাড়ি, রোড ও ল্যান্ডমার্ক *" data-en="House, Road &amp; Landmark *">বাড়ি, রোড ও ল্যান্ডমার্ক *</label><textarea id="ckAddress" rows="3" placeholder="বাড়ি নম্বর, রোড নম্বর, কাছাকাছি পরিচিত স্থান" autocomplete="street-address" required></textarea></div>
-          <div class="field"><label for="ckInstructions" data-bn="ডেলিভারি নির্দেশনা *" data-en="Delivery Instructions *">ডেলিভারি নির্দেশনা *</label><textarea id="ckInstructions" rows="2" placeholder="যেমন: সবুজ গেট, মসজিদের পাশের গলি, পৌঁছে কল করবেন" required></textarea></div>
-          <div class="field"><label for="ckNid" data-bn="জাতীয় পরিচয়পত্র নম্বর <span>(ঐচ্ছিক)</span>" data-en="National ID Number <span>(Optional)</span>">জাতীয় পরিচয়পত্র নম্বর <span>(ঐচ্ছিক)</span></label><input type="text" id="ckNid" placeholder="১০, ১৩ বা ১৭ সংখ্যার NID" inputmode="numeric" autocomplete="off"></div>
+          <div class="field"><label for="ckInstructions" data-bn="ডেলিভারির জন্য কিছু বলার থাকলে লিখুন *" data-en="Delivery Instructions *">ডেলিভারির জন্য কিছু বলার থাকলে লিখুন *</label><textarea id="ckInstructions" rows="2" placeholder="যেমন: সবুজ গেট, মসজিদের পাশের গলি, পৌঁছে কল করবেন" required></textarea></div>
+          <div class="field"><label for="ckNid" data-bn="জাতীয় পরিচয়পত্র নম্বর <span>(না দিলেও চলবে)</span>" data-en="National ID Number <span>(Optional)</span>">জাতীয় পরিচয়পত্র নম্বর <span>(না দিলেও চলবে)</span></label><input type="text" id="ckNid" placeholder="১০, ১৩ বা ১৭ সংখ্যার NID" inputmode="numeric" autocomplete="off"></div>
 
           <div id="ckPrescriptionBox" class="checkout-prescription" hidden>
             <div class="checkout-prescription__head"><span>Rx</span><div><strong data-bn="প্রেসক্রিপশন সংযুক্ত করুন" data-en="Attach Prescription">প্রেসক্রিপশন সংযুক্ত করুন</strong><p data-bn="প্রেসক্রিপশন-নির্ভর ঔষধ থাকলে স্পষ্ট ছবি দিন। সাধারণ ঔষধের জন্য প্রয়োজন নেই।" data-en="Attach a clear photo if any medicine requires a prescription. Not needed for general medicines.">প্রেসক্রিপশন-নির্ভর ঔষধ থাকলে স্পষ্ট ছবি দিন। সাধারণ ঔষধের জন্য প্রয়োজন নেই।</p></div></div>
@@ -62,13 +62,13 @@
             <button type="button" class="radio-card" onclick="Checkout.selectPay(this,'nagad')" role="radio" aria-checked="false"><input type="radio" name="ckpay" tabindex="-1"><span class="payment-mark">N</span><span><strong>Nagad</strong><small data-bn="শাখার নম্বরে টাকা পাঠান" data-en="Send money to branch number">শাখার নম্বরে টাকা পাঠান</small></span><span class="payment-check">✓</span></button>
           </div>
           <div id="ckPayInfo" class="checkout-pay-info" hidden></div>
-          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(1)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" class="btn btn-gold" onclick="Checkout.goStep(3)" data-bn="রিভিউ করুন →" data-en="Review →">রিভিউ করুন →</button></div>
+          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(1)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" class="btn btn-gold" onclick="Checkout.goStep(3)" data-bn="শেষবার দেখুন →" data-en="Review →">শেষবার দেখুন →</button></div>
         </section>
 
         <section id="ckStep3" class="card-box checkout-card" hidden aria-labelledby="ckReviewTitle">
           <div class="checkout-card__head">
             <span class="checkout-card__number">৩</span>
-            <div><h2 id="ckReviewTitle" data-bn="অর্ডার রিভিউ" data-en="Order Review">অর্ডার রিভিউ</h2><p data-bn="কনফার্ম করার আগে পণ্য ও মোট মূল্য যাচাই করুন।" data-en="Verify the items and total amount before confirming.">কনফার্ম করার আগে পণ্য ও মোট মূল্য যাচাই করুন।</p></div>
+            <div><h2 id="ckReviewTitle" data-bn="অর্ডার শেষবার দেখুন" data-en="Order Review">অর্ডার শেষবার দেখুন</h2><p data-bn="অর্ডার দেওয়ার আগে পণ্য ও মোট টাকা দেখে নিন।" data-en="Verify the items and total amount before confirming.">অর্ডার দেওয়ার আগে পণ্য ও মোট টাকা দেখে নিন।</p></div>
           </div>
           <div id="ckSummary" class="checkout-item-summary"></div>
 
@@ -91,14 +91,14 @@
           </div>
 
           <label class="checkout-terms"><input type="checkbox" id="ckTerms" checked><span data-bn="আমি <button type=&quot;button&quot; onclick=&quot;Router.go('terms')&quot;>শর্তাবলী</button> পড়েছি এবং সম্মত আছি।" data-en="I have read and agree to the <button type=&quot;button&quot; onclick=&quot;Router.go('terms')&quot;>Terms &amp; Conditions</button>.">আমি <button type="button" onclick="Router.go('terms')">শর্তাবলী</button> পড়েছি এবং সম্মত আছি।</span></label>
-          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(2)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" id="ckPlaceOrderBtn" class="btn btn-rose" onclick="Checkout.placeOrder()"><span class="ck-btn-label" data-bn="অর্ডার কনফার্ম করুন" data-en="Confirm Order">অর্ডার কনফার্ম করুন</span><span class="ck-btn-loader" hidden data-bn="অর্ডার জমা হচ্ছে…" data-en="Processing…">অর্ডার জমা হচ্ছে…</span></button></div>
+          <div class="checkout-actions"><button type="button" class="btn btn-outline" onclick="Checkout.goStep(2)" data-bn="← পেছনে" data-en="← Back">← পেছনে</button><button type="button" id="ckPlaceOrderBtn" class="btn btn-rose" onclick="Checkout.placeOrder()"><span class="ck-btn-label" data-bn="অর্ডার জমা দিন" data-en="Confirm Order">অর্ডার জমা দিন</span><span class="ck-btn-loader" hidden data-bn="অর্ডার জমা হচ্ছে…" data-en="Processing…">অর্ডার জমা হচ্ছে…</span></button></div>
         </section>
       </main>
 
       <aside class="checkout-assurance" aria-label="অর্ডার সহায়তা">
         <h2 data-bn="নিশ্চিন্তে অর্ডার করুন" data-en="Order with Confidence">নিশ্চিন্তে অর্ডার করুন</h2>
         <div><span>01</span><p><strong data-bn="লোকেশন যাচাই" data-en="Location Verification">লোকেশন যাচাই</strong><small data-bn="ম্যাপ দেখে ডেলিভারি এলাকা ও চার্জ ঠিক হবে।" data-en="Delivery area and charge are determined via the map.">ম্যাপ দেখে ডেলিভারি এলাকা ও চার্জ ঠিক হবে।</small></p></div>
-        <div><span>02</span><p><strong data-bn="দাম আগে দেখে নিন" data-en="Price Review">দাম আগে দেখে নিন</strong><small data-bn="কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।" data-en="See items, charges, and discounts before confirming.">কনফার্ম করার আগেই পণ্য, চার্জ ও ছাড় দেখা যায়।</small></p></div>
+        <div><span>02</span><p><strong data-bn="দাম আগে দেখে নিন" data-en="Price Review">দাম আগে দেখে নিন</strong><small data-bn="অর্ডার দেওয়ার আগেই পণ্য, চার্জ ও ছাড় দেখে নিতে পারবেন।" data-en="See items, charges, and discounts before confirming.">অর্ডার দেওয়ার আগেই পণ্য, চার্জ ও ছাড় দেখে নিতে পারবেন।</small></p></div>
         <div><span>03</span><p><strong data-bn="অর্ডারের খবর" data-en="Order Tracking">অর্ডারের খবর</strong><small data-bn="আপনার অর্ডার কোথায় আছে, “আমার অর্ডার” থেকে দেখুন।" data-en="Check current order status from &quot;My Orders&quot;.">আপনার অর্ডার কোথায় আছে, "আমার অর্ডার" থেকে দেখুন।</small></p></div>
       </aside>
     </div>

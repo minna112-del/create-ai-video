@@ -152,7 +152,7 @@ const OrderTracker = {
     'pending': { label: 'অর্ডার গৃহীত', icon: '📝', color: '#facc15' },
     'confirmed': { label: 'নিশ্চিত হয়েছে', icon: '✅', color: '#4ade80' },
     'assigned': { label: 'ড্রাইভার বরাদ্দ', icon: '🛵', color: '#60a5fa' },
-    'picked': { label: 'পিকআপ হয়েছে', icon: '📦', color: '#60a5fa' },
+    'picked': { label: 'ড্রাইভার পণ্য নিয়েছে', icon: '📦', color: '#60a5fa' },
     'transit': { label: 'পথিমধ্যে', icon: '🛵', color: '#60a5fa' },
     'delivered': { label: 'ডেলিভারি সম্পন্ন', icon: '🎉', color: '#4ade80' },
     'cancelled': { label: 'বাতিল হয়েছে', icon: '❌', color: '#f87171' }
@@ -213,7 +213,7 @@ const OrderTracker = {
           </div>
           <div style="flex:1">
             <div style="font-size:13px;font-weight:${isCurrent ? '700' : '400'};color:${isDone ? '#fff' : 'var(--ink-muted)'}">${info.label}</div>
-            ${isCurrent ? '<div style="font-size:11px;color:' + info.color + ';margin-top:2px">● বর্তমান স্ট্যাটাস</div>' : ''}
+            ${isCurrent ? '<div style="font-size:11px;color:' + info.color + ';margin-top:2px">● বর্তমান অবস্থা</div>' : ''}
           </div>
           ${idx < this.STATUS_ORDER.length - 1 ? '<div style="position:absolute;left:17px;top:46px;width:2px;height:20px;background:' + (idx < currentIdx ? info.color : 'rgba(255,255,255,0.1)') + '"></div>' : ''}
         </div>`;

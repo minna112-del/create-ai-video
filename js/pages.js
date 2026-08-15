@@ -210,10 +210,10 @@ const SiteReview = {
           <span onclick="SiteReview.setRating(5)" data-star="5">☆</span>
         </div>
         <div class="field"><textarea id="siteReviewText" rows="3" placeholder="অর্ডার, ডেলিভারি বা সাইট ব্যবহারের অভিজ্ঞতা লিখুন..."></textarea></div>
-        <button class="btn btn-gold" style="font-size:13px" onclick="SiteReview.submit()">রিভিউ সাবমিট করুন</button>`;
+        <button class="btn btn-gold" style="font-size:13px" onclick="SiteReview.submit()">মতামত জমা দিন</button>`;
       }else{
         formEl.innerHTML = `
-        <p style="font-size:13px;color:var(--ink-muted);margin-bottom:12px">রিভিউ দিতে অ্যাকাউন্ট প্রয়োজন — লগইন করা থাকলেই দেওয়া যায়।</p>
+        <p style="font-size:13px;color:var(--ink-muted);margin-bottom:12px">মতামত দিতে অ্যাকাউন্ট প্রয়োজন — লগইন করা থাকলেই দেওয়া যায়।</p>
         <button class="btn btn-gold" style="font-size:13px" onclick="AuthUI.open()">লগইন / অ্যাকাউন্ট তৈরি করুন</button>`;
       }
     }
@@ -261,9 +261,9 @@ const PDP = {
     const meta=document.getElementById('pdpMeta');
     if(meta) meta.innerHTML = p.reviews>0
       ? (currentLang==='bn'
-          ? `<span aria-label="রেটিং">★ ${p.rating}</span> <span>(${bn(p.reviews)} রিভিউ)</span>`
+          ? `<span aria-label="রেটিং">★ ${p.rating}</span> <span>(${bn(p.reviews)} মতামত)</span>`
           : `<span aria-label="Rating">★ ${p.rating}</span> <span>(${p.reviews} reviews)</span>`)
-      : `<span>${currentLang==='bn'?'এই পণ্যে এখনো কোনো প্রকাশিত রিভিউ নেই':'No published reviews for this product yet'}</span>`;
+      : `<span>${currentLang==='bn'?'এই পণ্যে এখনো কোনো মতামত নেই':'No published reviews for this product yet'}</span>`;
     const price=document.getElementById('pdpPrice'); if(price) price.textContent = money(p.salePrice);
     const disc = p.price>p.salePrice ? Math.round((1-p.salePrice/p.price)*100) : 0;
     const old=document.getElementById('pdpOld'); if(old) old.textContent = disc? money(p.price):'';
@@ -325,7 +325,7 @@ const PDP = {
       // বাধ্যতামূলক করা হলো, purchase-এর কোনো শর্ত নেই।
       if(Auth.currentUser){
         reviewForm.innerHTML = `
-        <h3 class="tiro" style="font-size:16px;margin-bottom:10px">আপনার রিভিউ দিন</h3>
+        <h3 class="tiro" style="font-size:16px;margin-bottom:10px">আপনার মতামত দিন</h3>
         <div style="display:flex;gap:4px;margin-bottom:10px;font-size:24px;cursor:pointer" id="starInput">
           <span onclick="PDP.setRating(1)" data-star="1">☆</span>
           <span onclick="PDP.setRating(2)" data-star="2">☆</span>
@@ -334,12 +334,12 @@ const PDP = {
           <span onclick="PDP.setRating(5)" data-star="5">☆</span>
         </div>
         <div class="field"><textarea id="reviewText" rows="2" placeholder="আপনার অভিজ্ঞতা লিখুন..."></textarea></div>
-        <div class="field"><label style="font-size:11.5px">ছবি যোগ করুন (ঐচ্ছিক)</label><input type="file" id="reviewPhoto" accept="image/*"></div>
-        <button class="btn btn-gold" style="font-size:13px" onclick="PDP.submitReview()">রিভিউ সাবমিট করুন</button>`;
+        <div class="field"><label style="font-size:11.5px">ছবি যোগ করুন (না দিলেও চলবে)</label><input type="file" id="reviewPhoto" accept="image/*"></div>
+        <button class="btn btn-gold" style="font-size:13px" onclick="PDP.submitReview()">মতামত জমা দিন</button>`;
       }else{
         reviewForm.innerHTML = `
-        <h3 class="tiro" style="font-size:16px;margin-bottom:8px">রিভিউ দিতে অ্যাকাউন্ট প্রয়োজন</h3>
-        <p style="font-size:13px;color:var(--ink-muted);margin-bottom:12px">পণ্য কেনা বাধ্যতামূলক নয় — লগইন করা থাকলেই রিভিউ দেওয়া যায়।</p>
+        <h3 class="tiro" style="font-size:16px;margin-bottom:8px">মতামত দিতে অ্যাকাউন্ট প্রয়োজন</h3>
+        <p style="font-size:13px;color:var(--ink-muted);margin-bottom:12px">পণ্য কেনা জরুরি নয় — লগইন করা থাকলেই মতামত দেওয়া যায়।</p>
         <button class="btn btn-gold" style="font-size:13px" onclick="AuthUI.open()">লগইন / অ্যাকাউন্ট তৈরি করুন</button>`;
       }
     }
@@ -740,14 +740,14 @@ const OrderSuccess = {
     const lead=document.getElementById('orderSuccessLead');
     const note=document.getElementById('successPaymentNote');
     if(data.paymentMethod==='bkash' || data.paymentMethod==='nagad'){
-      if(lead) lead.textContent='পেমেন্ট তথ্য জমা হয়েছে। যাচাই সম্পন্ন হলে অর্ডারের স্ট্যাটাস আপডেট হবে।';
-      if(note) note.querySelector('p').textContent='ট্রানজেকশন তথ্য যাচাই না হওয়া পর্যন্ত পেমেন্ট স্ট্যাটাস অপেক্ষমাণ থাকবে।';
+      if(lead) lead.textContent='পেমেন্টের তথ্য জমা হয়েছে। মিলিয়ে দেখা হলে অর্ডারের খবর আপডেট হবে।';
+      if(note) note.querySelector('p').textContent='ট্রানজেকশন মিলিয়ে দেখা না হওয়া পর্যন্ত পেমেন্ট অপেক্ষায় থাকবে।';
     }else if(data.paymentMethod==='bkash+cod'){
       if(lead) lead.textContent='আপনার Custom Bazar অর্ডার জমা হয়েছে। ড্রাইভার বাজার করার পর বিলের ছবি এখানেই দেখতে পাবেন।';
       if(note) note.querySelector('p').textContent='অগ্রিম ৳১০০ বাদে বাকি বিল ডেলিভারির সময় নগদ পরিশোধ করুন।';
     }else{
       if(lead) lead.textContent='অর্ডারের পরবর্তী আপডেট “আমার অর্ডার” পেজে দেখতে পারবেন।';
-      if(note) note.querySelector('p').textContent='ডেলিভারির সময় নির্ধারিত পরিমাণ নগদ পরিশোধ করুন। প্রয়োজন হলে আমাদের টিম ফোনে যোগাযোগ করবে।';
+      if(note) note.querySelector('p').textContent='ডেলিভারির সময় যে টাকা দেখানো হবে, সেটি নগদ পরিশোধ করুন। দরকার হলে আমাদের টিম ফোন করবে।';
     }
     const memoBtnWrap=document.getElementById('successMemoBtnWrap');
     if(memoBtnWrap){
@@ -801,9 +801,9 @@ const OrderChat = {
 
 /* ---------- Order tracking ---------- */
 const TRACK_STAGES = [
-  {key:'confirmed', label:'অর্ডার কনফার্মড'},
+  {key:'confirmed', label:'অর্ডার নিশ্চিত হয়েছে'},
   {key:'packed', label:'প্যাকিং সম্পন্ন'},
-  {key:'picked_up', label:'পিকআপ হয়েছে'},
+  {key:'picked_up', label:'ড্রাইভার পণ্য নিয়েছে'},
   {key:'in_transit', label:'ড্রাইভার আপনার পথে (লাইভ)'},
   {key:'delivered', label:'ডেলিভারি সম্পন্ন'}
 ];
@@ -1024,7 +1024,7 @@ const MyOrders = {
       const paymentLabel=o.paymentStatus==='paid'?'পরিশোধিত':(o.paymentMethod==='cod'||!o.paymentStatus?'ক্যাশ অন ডেলিভারি':'পেমেন্ট অপেক্ষমাণ');
       return `<article class="order-card">
         <header class="order-card-head"><div><span class="order-date">${this.formatDate(o)}</span><h2>${safeNumber}</h2></div><span class="status-pill ${s.cls}">${s.label}</span></header>
-        <div class="order-meta-grid"><div><span>অর্ডার</span><strong>${this.itemSummary(o)}</strong></div><div><span>মোট</span><strong>${money(this.amount(o))}</strong></div><div><span>পেমেন্ট</span><strong>${paymentLabel}</strong></div><div><span>ডেলিভারি এলাকা</span><strong>${esc(o.zoneName||o.zone||o.village||'নির্ধারিত ঠিকানা')}</strong></div></div>
+        <div class="order-meta-grid"><div><span>অর্ডার</span><strong>${this.itemSummary(o)}</strong></div><div><span>মোট</span><strong>${money(this.amount(o))}</strong></div><div><span>পেমেন্ট</span><strong>${paymentLabel}</strong></div><div><span>ডেলিভারি এলাকা</span><strong>${esc(o.zoneName||o.zone||o.village||'ঠিকানা')}</strong></div></div>
         ${(editBtn||reorderBtn)?`<div class="order-actions">${editBtn}${reorderBtn}</div>`:''}
         ${this.tab==='active'?orderTrackHTML(o):''}
       </article>`;

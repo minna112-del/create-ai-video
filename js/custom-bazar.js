@@ -71,7 +71,7 @@ const CustomBazar = {
     const list=document.getElementById('cbList')?.value.trim()||'';
     const notes=document.getElementById('cbNotes')?.value.trim()||'';
     const trxId=document.getElementById('cbTrxId')?.value.trim()||'';
-    if(!name||!phone||!address||!district||!zone||!village||!instructions||!list||!trxId){ msgEl.textContent='সব প্রয়োজনীয় তথ্য পূরণ করুন (ডেলিভারি ইনস্ট্রাকশন সহ)'; msgEl.className='form-msg err'; return; }
+    if(!name||!phone||!address||!district||!zone||!village||!instructions||!list||!trxId){ msgEl.textContent='সব প্রয়োজনীয় তথ্য পূরণ করুন (ডেলিভারি নির্দেশনা সহ)'; msgEl.className='form-msg err'; return; }
     const phoneRe=/^(?:\+880|880|0)1[3-9]\d{8}$/;
     if(!phoneRe.test(phone.replace(/[\s-]/g,''))){ msgEl.textContent='সঠিক মোবাইল নম্বর দিন'; msgEl.className='form-msg err'; return; }
     // ⚠️ duplicate submission guard: form reset না হওয়ায় ও বাটন সাথে সাথে আবার

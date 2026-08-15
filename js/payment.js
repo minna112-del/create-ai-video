@@ -23,7 +23,7 @@ const PaymentGateway = {
         `নম্বর: ${number}`,
         `টাকা: ${amount}৳`,
         `রেফারেন্স: ${orderId.substring(0,8).toUpperCase()}`,
-        `PIN দিয়ে কনফার্ম করুন`,
+        `PIN দিয়ে নিশ্চিত করুন`,
         `ট্রানজেকশন ID কপি করে নিচে পেস্ট করুন`
       ]
     };
@@ -41,7 +41,7 @@ const PaymentGateway = {
         `নম্বর: ${number}`,
         `টাকা: ${amount}৳`,
         `রেফারেন্স: ${orderId.substring(0,8).toUpperCase()}`,
-        `PIN দিয়ে কনফার্ম করুন`,
+        `PIN দিয়ে নিশ্চিত করুন`,
         `ট্রানজেকশন ID কপি করে নিচে পেস্ট করুন`
       ]
     };
@@ -92,7 +92,7 @@ const PaymentGateway = {
           </div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-outline" style="flex:1" onclick="PaymentGateway.showCancelOptions('${orderId}','${method}',${amount},'${zone}')">বাতিল</button>
-            <button class="btn" style="flex:1;background:${color};border:none;color:#fff" onclick="PaymentGateway.confirmPayment('${method}', '${orderId}', ${amount})">কনফার্ম ✅</button>
+            <button class="btn" style="flex:1;background:${color};border:none;color:#fff" onclick="PaymentGateway.confirmPayment('${method}', '${orderId}', ${amount})">হয়ে গেছে ✅</button>
           </div>
         </div>
       </div>
@@ -204,7 +204,7 @@ const PaymentGateway = {
         });
         try{ localStorage.removeItem('golapi_pending_payment'); }catch(e){}
         this.closeModal();
-        toast('✓ পেমেন্ট সাবমিট হয়েছে! যাচাই হলে অর্ডার কনফার্ম হবে', 'success');
+        toast('✓ পেমেন্ট তথ্য পাঠানো হয়েছে! মিলিয়ে দেখার পর অর্ডার নিশ্চিত হবে', 'success');
         setTimeout(() => Router.go('order-success'), 1500);
       } catch (e) {
         toast('সাবমিট ব্যর্থ: ' + e.message, 'error');

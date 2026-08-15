@@ -62,13 +62,13 @@ const Checkout = {
       const num = method==='bkash'?info.bkashNumber:info.nagadNumber;
       box.hidden=false;
       box.innerHTML = currentLang==='bn'
-        ? `<div><strong>${method==='bkash'?'bKash':'Nagad'} পেমেন্ট নম্বর — ${info.label}</strong><br><b>${num}</b><br>অর্ডার কনফার্ম করার পর Send Money নির্দেশনা ও ট্রানজেকশন ID জমা দেওয়ার অপশন দেখানো হবে।</div>`
+        ? `<div><strong>${method==='bkash'?'bKash':'Nagad'} পেমেন্ট নম্বর — ${info.label}</strong><br><b>${num}</b><br>অর্ডার নিশ্চিত করার পর Send Money নির্দেশনা ও ট্রানজেকশন ID জমা দেওয়ার অপশন দেখানো হবে।</div>`
         : `<div><strong>${method==='bkash'?'bKash':'Nagad'} Payment Number — ${info.label}</strong><br><b>${num}</b><br>After confirming the order, you'll get an option to submit the Send Money instructions and Transaction ID.</div>`;
 
     } else { box.hidden=true; box.innerHTML=''; }
   },
   goStep(n){
-    if(n>1 && this.currentStep===1 && !this.isStep1Valid()){ toast(currentLang==='bn'?'ঠিকানা ও ডেলিভারি ইনস্ট্রাকশন সঠিকভাবে পূরণ করুন':'Please fill in the address and delivery instructions correctly','error'); return; }
+    if(n>1 && this.currentStep===1 && !this.isStep1Valid()){ toast(currentLang==='bn'?'ঠিকানা ও ডেলিভারি নির্দেশনা সঠিকভাবে পূরণ করুন':'Please fill in the address and delivery instructions correctly','error'); return; }
     if(n===2 && typeof dataLayer!=='undefined'){
       dataLayer.push({event:'begin_checkout', currency:'BDT', value: Cart.totalPrice()});
     }
@@ -170,7 +170,7 @@ const Checkout = {
       if(this.couponExpired(c.expiresAt)){ this.rejectCoupon(msgEl,currentLang==='bn'?'❌ কুপনের মেয়াদ শেষ হয়ে গেছে':'❌ This coupon has expired'); return; }
       if(c.usageLimit && (c.usedCount||0) >= c.usageLimit){ this.rejectCoupon(msgEl,currentLang==='bn'?'❌ কুপনের ব্যবহারসীমা শেষ':'❌ Coupon usage limit reached'); return; }
       const sub = Cart.totalPrice();
-      if(c.minOrder && sub < c.minOrder){ this.rejectCoupon(msgEl,currentLang==='bn'?`❌ ন্যূনতম ${money(c.minOrder)} অর্ডারে এই কুপন প্রযোজ্য`:`❌ This coupon applies to orders of ${money(c.minOrder)} or more`); return; }
+      if(c.minOrder && sub < c.minOrder){ this.rejectCoupon(msgEl,currentLang==='bn'?`❌ ন্যূনতম ${money(c.minOrder)} অর্ডারে এই কুপন কার্যকর`:`❌ This coupon applies to orders of ${money(c.minOrder)} or more`); return; }
       this.couponCode = code; this.couponData = c;
       msgEl.textContent = currentLang==='bn'?'✓ কুপন প্রয়োগ হয়েছে!':'✓ Coupon applied!'; msgEl.style.color='#22c55e';
       this.renderSummary();
