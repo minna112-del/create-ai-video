@@ -76,6 +76,7 @@
 # ─── Fresh Deploy / Browser Cache Control ─────────────────────
 # HTML, scripts, styles, page fragments and service workers must always be
 # revalidated so customers receive the latest deployment without manual cache clear.
+
 [[headers]]
   for = "/*.html"
   [headers.values]
@@ -96,6 +97,7 @@
 # ৬০ সেকেন্ড পার হলেই নতুন deploy থাকলে সাথে সাথে ধরা পড়বে — বেশিদিন stale
 # থাকার ঝুঁকি নেই। Service Worker-এর network-first strategy-র সাথেও এখন
 # আর সাংঘর্ষিক না, বরং একে অপরের পরিপূরক।
+
 [[headers]]
   for = "/js/*"
   [headers.values]
@@ -123,13 +125,11 @@
     Pragma = "no-cache"
     Expires = "0"
 
+# ─── Static images/icons ───────────────────────────────────────
+# একই filename-এর image replace হলেও বেশি সময় stale না থাকার জন্য
+# short cache + revalidation রাখা হয়েছে।
+
 [[headers]]
   for = "/icons/*"
   [headers.values]
     Cache-Control = "public, max-age=60, must-revalidate"
-# ─── Static images/icons — এগুলো কার্যত অপরিবর্তনীয়, তাই দীর্ঘমেয়াদি cache ───
-# (নতুন ছবি সবসময় নতুন filename-এ যোগ হয়, তাই stale হওয়ার ঝুঁকি নেই)
-[[headers]]
-  for = "/icons/*"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000"
