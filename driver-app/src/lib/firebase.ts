@@ -1,22 +1,40 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import {
+  browserLocalPersistence,
+  browserSessionPersistence,
+  inMemoryPersistence,
+  initializeAuth,
+} from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getFunctions } from 'firebase/functions';
 
+/*
+ * Production Firebase config is intentionally pinned here.
+ * Firebase web config is public client configuration, not a secret. Keeping one
+ * canonical config prevents Netlify/Vite environment variables from silently
+ * pointing the Driver app at a different Firebase project.
+ */
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyBdtIlcoPFFqzkI6X9KOIH-f4QAyEfH4o8',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'golapishoponline.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'golapishoponline',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'golapishoponline.firebasestorage.app',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '871653454194',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:871653454194:web:67e207a7df46503169edeb',
+  apiKey: 'AIzaSyBdtIlcoPFFqzkI6X9KOIH-f4QAyEfH4o8',
+  authDomain: 'golapishoponline.firebaseapp.com',
+  projectId: 'golapishoponline',
+  storageBucket: 'golapishoponline.firebasestorage.app',
+  messagingSenderId: '871653454194',
+  appId: '1:871653454194:web:67e207a7df46503169edeb',
 };
 
 const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
+
+/*
+ * Explicit persistence order makes authentication robust on mobile Safari and
+ * embedded/webview contexts. If local/session storage is unavailable, Firebase
+ * can still keep the current session in memory instead of failing sign-in.
+ */
+export const auth = initializeAuth(app, {
+  persistence: [browserLocalPersistence, browserSessionPersistence, inMemoryPersistence],
+});
+
 export const db = getFirestore(app);
 export const storage = getStorage(app);
-// functions/index.js-এর setGlobalOptions({ region: 'asia-south1' })-এর সাথে region মিলিয়ে
-// রাখা জরুরি — না মিললে httpsCallable() 'not-found'/'internal' error দেয়।
 export const functions = getFunctions(app, 'asia-south1');

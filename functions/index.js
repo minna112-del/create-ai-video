@@ -20,10 +20,39 @@ const { onDocumentCreated, onDocumentUpdated } = require('firebase-functions/v2/
 const { onCall, HttpsError } = require('firebase-functions/v2/https');
 const { setGlobalOptions } = require('firebase-functions/v2');
 const admin = require('firebase-admin');
+const crypto = require('node:crypto');
 
 admin.initializeApp();
 const db = admin.firestore();
 const messaging = admin.messaging();
+
+function createGuestAccessToken() {
+  return crypto.randomBytes(24).toString('base64url');
+}
+function hashGuestAccessToken(token) {
+  return crypto.createHash('sha256').update(String(token || ''), 'utf8').digest('hex');
+}
+function guestTokenMatches(storedHash, token) {
+  if (typeof storedHash !== 'string' || storedHash.length !== 64 || typeof token !== 'string' || !token) return false;
+  const suppliedHash = hashGuestAccessToken(token);
+  try {
+    return crypto.timingSafeEqual(Buffer.from(storedHash, 'hex'), Buffer.from(suppliedHash, 'hex'));
+  } catch {
+    return false;
+  }
+}
+
+async function canMutateOrder({ tx, orderRef, order, uid, guestAccessToken, allowStaff = false }) {
+  if (uid && order.userId === uid) return true;
+  if (uid && allowStaff) {
+    const staffSnap = await tx.get(db.collection('staff').doc(uid));
+    const role = staffSnap.exists ? staffSnap.data()?.role : null;
+    if (role === 'admin' || role === 'zone_manager') return true;
+  }
+  if (order.userId != null) return false;
+  const accessSnap = await tx.get(orderRef.collection('private').doc('access'));
+  return accessSnap.exists && guestTokenMatches(accessSnap.data()?.guestAccessHash, guestAccessToken);
+}
 
 // ঢাকা/বাংলাদেশের কাছাকাছি region — network latency কমাতে
 setGlobalOptions({ region: 'asia-south1', maxInstances: 10 });
@@ -68,10 +97,14 @@ exports.onOrderCreated = onDocumentCreated('orders/{orderId}', async (event) => 
 exports.onOrderStatusChange = onDocumentUpdated('orders/{orderId}', async (event) => {
   const before = event.data?.before?.data();
   const after = event.data?.after?.data();
-  if (!before || !after) return;
-  if (before.status === after.status) return;
-  if (!after.userId) return; // guest order — কোনো account/token নেই
+  if (!before || !after || before.status === after.status) return;
 
+  // Referral wallet credit is money movement, so keep it server-side and atomic.
+  if (after.status === 'delivered' && after.userId) {
+    await awardReferralBonusIfEligible(after.userId).catch(err => console.warn('referral bonus failed', err.message));
+  }
+
+  if (!after.userId) return; // guest order — কোনো account/token নেই
   const tokenDoc = await db.collection('fcmTokens').doc(after.userId).get();
   if (!tokenDoc.exists || !tokenDoc.data().token) return;
 
@@ -82,27 +115,45 @@ exports.onOrderStatusChange = onDocumentUpdated('orders/{orderId}', async (event
   }, { type: 'order_status', orderId: event.params.orderId, status: after.status });
 });
 
+async function awardReferralBonusIfEligible(userId) {
+  const BONUS = 20;
+  return db.runTransaction(async tx => {
+    const userRef = db.collection('users').doc(userId);
+    const userSnap = await tx.get(userRef);
+    if (!userSnap.exists) return false;
+    const user = userSnap.data();
+    if (!user.referredBy || user.referralBonusGiven === true || user.referredBy === userId) return false;
+
+    const referrerRef = db.collection('users').doc(user.referredBy);
+    const referrerSnap = await tx.get(referrerRef);
+    if (!referrerSnap.exists) return false;
+
+    tx.update(userRef, {
+      walletBalance: admin.firestore.FieldValue.increment(BONUS),
+      referralBonusGiven: true,
+      referralBonusAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    tx.update(referrerRef, {
+      walletBalance: admin.firestore.FieldValue.increment(BONUS),
+      referralRewardAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    return true;
+  });
+}
+
 /* ---------------------------------------------------------------------
  * ৩) নিরাপদ, server-side order cancel — wallet + coupon + stock একসাথে
  *    একটাই transaction-এ atomic ভাবে refund হয় (Admin SDK, rules bypass
  *    করে না — নিজেই owner/staff verify করে)
  * ------------------------------------------------------------------- */
 exports.cancelOrderSecure = onCall(async (request) => {
-  const uid = request.auth?.uid;
-  if (!uid) throw new HttpsError('unauthenticated', 'লগইন করা আবশ্যক।');
-
+  const uid = request.auth?.uid || null;
   const orderId = request.data?.orderId;
+  const guestAccessToken = typeof request.data?.guestAccessToken === 'string' ? request.data.guestAccessToken : '';
   const reason = typeof request.data?.reason === 'string' ? request.data.reason.trim().slice(0, 500) : null;
   if (!orderId || typeof orderId !== 'string') {
     throw new HttpsError('invalid-argument', 'orderId প্রয়োজন।');
   }
-
-  const staffDoc = await db.collection('staff').doc(uid).get();
-  const staffRole = staffDoc.exists ? staffDoc.data()?.role : null;
-  // MT Studio audit fix: আগে "যেকোনো staff role" (isStaff = staffDoc.exists) দিয়ে
-  // অন্যের অর্ডার বাতিল করা যেত — যেকোনো নিচু-স্তরের staff (যেমন CRM/procurement)
-  // চাইলেই যেকোনো গ্রাহকের অর্ডার cancel করতে পারত। এখন শুধু admin/zone_manager।
-  const isStaff = staffRole === 'admin' || staffRole === 'zone_manager';
 
   const result = await db.runTransaction(async (tx) => {
     const orderRef = db.collection('orders').doc(orderId);
@@ -110,7 +161,8 @@ exports.cancelOrderSecure = onCall(async (request) => {
     if (!orderSnap.exists) throw new HttpsError('not-found', 'অর্ডার পাওয়া যায়নি।');
     const order = orderSnap.data();
 
-    if (!isStaff && order.userId !== uid) {
+    const authorized = await canMutateOrder({ tx, orderRef, order, uid, guestAccessToken, allowStaff: true });
+    if (!authorized) {
       throw new HttpsError('permission-denied', 'এই অর্ডার বাতিল করার অনুমতি নেই।');
     }
     if (order.status === 'cancelled') {
@@ -164,11 +216,64 @@ exports.cancelOrderSecure = onCall(async (request) => {
 
     return {
       alreadyCancelled: false,
-      walletRefunded: Number(order.walletUsed) || 0
+      walletRefunded: Number(order.walletUsed) || 0,
+      items: Array.isArray(order.items) ? order.items.map(it => ({ productId: it.productId, qty: Number(it.qty) || 0 })) : []
     };
   });
 
   return result;
+});
+
+/* ---------------------------------------------------------------------
+ * ৩.৫) Secure customer profile bootstrap + referral resolution.
+ *      Client-authenticated users cannot create arbitrary wallet balances.
+ * ------------------------------------------------------------------- */
+exports.createCustomerProfileSecure = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError('unauthenticated', 'লগইন করা আবশ্যক।');
+
+  const data = request.data || {};
+  const name = typeof data.name === 'string' ? data.name.trim().slice(0, 120) : 'গ্রাহক';
+  const phone = typeof data.phone === 'string' ? data.phone.trim().replace(/[\s-]/g, '').slice(0, 30) : '';
+  const email = typeof data.email === 'string' ? data.email.trim().toLowerCase().slice(0, 254) : '';
+  const referralInput = typeof data.referralCode === 'string' ? data.referralCode.trim().toUpperCase().slice(0, 20) : '';
+  if (name.length < 2) throw new HttpsError('invalid-argument', 'সঠিক নাম দিন।');
+  if (phone && !PHONE_RE.test(phone)) throw new HttpsError('invalid-argument', 'সঠিক মোবাইল নম্বর দিন।');
+
+  const userRef = db.collection('users').doc(uid);
+  const existing = await userRef.get();
+  if (existing.exists) {
+    const profile = existing.data();
+    return { created: false, referralCode: profile.referralCode || '' };
+  }
+
+  let referredBy = null;
+  if (referralInput) {
+    const referralSnap = await db.collection('users').where('referralCode', '==', referralInput).limit(1).get();
+    if (!referralSnap.empty && referralSnap.docs[0].id !== uid) referredBy = referralSnap.docs[0].id;
+  }
+
+  let referralCode = uid.slice(0, 6).toUpperCase();
+  for (const size of [6, 8, 10, 12]) {
+    const candidate = uid.slice(0, size).toUpperCase();
+    const collision = await db.collection('users').where('referralCode', '==', candidate).limit(1).get();
+    if (collision.empty) { referralCode = candidate; break; }
+  }
+
+  await userRef.create({
+    name,
+    email: email || request.auth.token?.email || '',
+    phone: phone || request.auth.token?.phone_number || '',
+    role: 'customer',
+    referralCode,
+    referredBy,
+    referralBonusGiven: false,
+    walletBalance: 0,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+  });
+
+  return { created: true, referralCode, referralApplied: !!referredBy };
 });
 
 /* ---------------------------------------------------------------------
@@ -190,14 +295,77 @@ const DELIVERY_DEFAULTS = { baseFee: 30, perKmFee: 8, perItemFee: 3, avgDistance
 const PHONE_RE = /^(?:\+880|880|0)1[3-9]\d{8}$/;
 const NID_RE = /^\d{10}$|^\d{13}$/;
 
-function calcDeliveryChargeServer(itemCount, subtotal, distanceKm, settings) {
-  if (subtotal >= settings.freeAboveSubtotal) return 0;
-  // MT Studio audit fix: client-supplied distanceKm আগে সরাসরি বিশ্বাস করা হতো —
-  // negative/অস্বাভাবিক মান পাঠিয়ে ডেলিভারি ফি কমানো/শূন্য করা সম্ভব ছিল। এখন
-  // 0..50km রেঞ্জে clamp করা হয় (bounds validation)।
-  const km = Number.isFinite(distanceKm) ? Math.min(Math.max(distanceKm, 0), 50) : settings.avgDistanceKm;
-  const fee = settings.baseFee + km * settings.perKmFee + itemCount * settings.perItemFee;
-  return Math.max(0, Math.round(fee));
+const SERVICE_AREA_DEFAULTS = {
+  noakhali_sadar: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
+  begumganj: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','বেগমগঞ্জ','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
+  zone_c: []
+};
+const SERVICE_BRANCH_DEFAULTS = {
+  noakhali_sadar: { label:'Zone - A', lat:22.8710, lng:91.0996, active:true, bkashNumber:'01627010060', nagadNumber:'01627010060' },
+  begumganj: { label:'Zone - B', lat:22.9412, lng:91.1119, active:true, bkashNumber:'01612057371', nagadNumber:'01310006959' },
+  zone_c: { label:'Zone - C', lat:null, lng:null, active:false, bkashNumber:'', nagadNumber:'' }
+};
+const SERVICE_DELIVERY_DEFAULTS = {
+  noakhali_sadar:[{id:'sadar_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'sadar_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'sadar_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
+  begumganj:[{id:'begum_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'begum_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'begum_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
+  zone_c:[]
+};
+function normalizeServiceZoneId(value) {
+  if (value === 'zone_a') return 'noakhali_sadar';
+  if (value === 'zone_b') return 'begumganj';
+  return value;
+}
+function haversineKmServer(lat1, lng1, lat2, lng2) {
+  const r = 6371;
+  const toRad = value => value * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+  return r * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+function normalizeServerTierLabel(label, index) {
+  const text = String(label || '').trim();
+  if (/^Zone\s*[- ]?A\b/i.test(text)) return 'নিকটবর্তী ডেলিভারি সীমা';
+  if (/^Zone\s*[- ]?B\b/i.test(text)) return 'মাঝারি ডেলিভারি সীমা';
+  if (/^Zone\s*[- ]?C\b/i.test(text)) return 'সর্বোচ্চ ডেলিভারি সীমা';
+  return text || ['নিকটবর্তী ডেলিভারি সীমা','মাঝারি ডেলিভারি সীমা','সর্বোচ্চ ডেলিভারি সীমা'][index] || 'ডেলিভারি সীমা';
+}
+function resolveDeliveryServer({ branchZone, areaName, deliveryZoneId, customerLat, customerLng, branches, zones, serviceAreas, subtotal, settings }) {
+  const normalizedBranchZone = normalizeServiceZoneId(branchZone);
+  if (!Number.isFinite(customerLat) || !Number.isFinite(customerLng) || Math.abs(customerLat) > 90 || Math.abs(customerLng) > 180) {
+    throw new HttpsError('invalid-argument', 'সঠিক ম্যাপ লোকেশন প্রয়োজন।');
+  }
+  const branch = branches?.[normalizedBranchZone];
+  if (!branch || branch.active === false) throw new HttpsError('failed-precondition', 'এই ডেলিভারি জোনটি বর্তমানে বন্ধ আছে।');
+  const allowedAreas = Array.isArray(serviceAreas?.[normalizedBranchZone]) ? serviceAreas[normalizedBranchZone] : [];
+  if (!areaName || !allowedAreas.includes(areaName)) throw new HttpsError('failed-precondition', 'এই এরিয়ায় এখনো Golapi Shop-এর ডেলিভারি চালু হয়নি।');
+
+  const branchEntries = Object.entries(branches || {})
+    .filter(([, b]) => b?.active !== false && Number.isFinite(Number(b?.lat)) && Number.isFinite(Number(b?.lng)))
+    .map(([id,b]) => [normalizeServiceZoneId(id), b]);
+  if (!branchEntries.length) throw new HttpsError('failed-precondition', 'ডেলিভারি জোনের লোকেশন কনফিগার করা নেই।');
+  const ranked = branchEntries.map(([id, b]) => ({ id, branch: b, distanceKm: haversineKmServer(customerLat, customerLng, Number(b.lat), Number(b.lng)) }))
+    .sort((a, b) => a.distanceKm - b.distanceKm);
+  const nearest = ranked[0];
+  if (nearest.id !== normalizedBranchZone) throw new HttpsError('failed-precondition', 'ম্যাপ লোকেশন ও নির্বাচিত জোন মিলছে না। লোকেশন আবার কনফার্ম করুন।');
+
+  const branchZones = Array.isArray(zones?.[normalizedBranchZone]) ? zones[normalizedBranchZone] : [];
+  const matchedIndex = branchZones
+    .map((z, index) => ({ z, index }))
+    .filter(({z}) => Number.isFinite(Number(z?.radiusKm)) && nearest.distanceKm <= Number(z.radiusKm))
+    .sort((a, b) => Number(a.z.radiusKm) - Number(b.z.radiusKm))[0];
+  if (!matchedIndex) throw new HttpsError('failed-precondition', 'এই লোকেশন বর্তমানে আমাদের ডেলিভারি সীমার বাইরে।');
+  const matched = matchedIndex.z;
+  if (String(matched.id || '') !== String(deliveryZoneId || '')) throw new HttpsError('failed-precondition', 'ডেলিভারি সীমা পরিবর্তিত হয়েছে। লোকেশন আবার কনফার্ম করুন।');
+  const freeAbove = Number(settings?.freeAboveSubtotal || 0);
+  const zoneFee = Math.max(0, Number(matched.fee || 0));
+  return {
+    branchZone: normalizedBranchZone,
+    distanceKm: Math.round(nearest.distanceKm * 100) / 100,
+    deliveryZoneId: String(matched.id || ''),
+    deliveryZoneLabel: normalizeServerTierLabel(matched.label, matchedIndex.index),
+    shippingCost: freeAbove > 0 && subtotal >= freeAbove ? 0 : zoneFee
+  };
 }
 
 exports.createOrderSecure = onCall(async (request) => {
@@ -231,10 +399,7 @@ exports.createOrderSecure = onCall(async (request) => {
   const couponCode = typeof data.couponCode === 'string' && data.couponCode.trim() ? data.couponCode.trim().toUpperCase() : null;
   const wantsWallet = !!data.useWallet && !!uid;
   const prescriptionUrl = typeof data.prescriptionUrl === 'string' ? data.prescriptionUrl.slice(0, 1000) : null;
-  const distanceKm = Number.isFinite(Number(data.distanceKm)) ? Number(data.distanceKm) : null;
   const deliveryZoneId = typeof data.deliveryZoneId === 'string' ? data.deliveryZoneId.slice(0, 100) : null;
-  const deliveryZoneLabel = typeof data.deliveryZoneLabel === 'string' ? data.deliveryZoneLabel.slice(0, 200) : null;
-  const etaMinutes = Number.isFinite(Number(data.etaMinutes)) ? Number(data.etaMinutes) : null;
   const customerLat = Number.isFinite(Number(data.customerLat)) ? Number(data.customerLat) : null;
   const customerLng = Number.isFinite(Number(data.customerLng)) ? Number(data.customerLng) : null;
 
@@ -254,12 +419,17 @@ exports.createOrderSecure = onCall(async (request) => {
   }
 
   const orderNo = 'GS-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900000) + 100000);
+  const guestAccessToken = uid ? null : createGuestAccessToken();
+  const guestAccessHash = guestAccessToken ? hashGuestAccessToken(guestAccessToken) : null;
 
   const result = await db.runTransaction(async (tx) => {
     // --- সব read আগে (transaction rule) ---
     const productRefs = items.map(it => db.collection('products').doc(it.productId));
     const productSnaps = await Promise.all(productRefs.map(ref => tx.get(ref)));
     const settingSnap = await tx.get(db.collection('setting').doc('delivery'));
+    const branchesSnap = await tx.get(db.collection('setting').doc('branches'));
+    const zonesSnap = await tx.get(db.collection('setting').doc('delivery_zones'));
+    const serviceAreasSnap = await tx.get(db.collection('setting').doc('service_areas'));
     const userRef = wantsWallet ? db.collection('users').doc(uid) : null;
     const userSnap = userRef ? await tx.get(userRef) : null;
     const couponSnap = couponRef ? await tx.get(couponRef) : null;
@@ -283,9 +453,13 @@ exports.createOrderSecure = onCall(async (request) => {
       itemsForOrder.push({ productId: items[i].productId, name: p.name || '', qty, unitPrice });
     }
 
-    // --- শিপিং — server-side setting থেকে হিসাব করা; client কোনো shippingCost পাঠাতে পারে না ---
+    // --- শিপিং — live branch + delivery zone + GPS server-side verify করে হিসাব ---
     const settings = Object.assign({}, DELIVERY_DEFAULTS, settingSnap.exists ? settingSnap.data() : {});
-    const shippingCost = calcDeliveryChargeServer(itemCount, subtotal, distanceKm, settings);
+    const branches = Object.assign({}, SERVICE_BRANCH_DEFAULTS, branchesSnap.exists ? (branchesSnap.data().branches || {}) : {});
+    const zones = Object.assign({}, SERVICE_DELIVERY_DEFAULTS, zonesSnap.exists ? (zonesSnap.data().zones || {}) : {});
+    const serviceAreas = Object.assign({}, SERVICE_AREA_DEFAULTS, serviceAreasSnap.exists ? (serviceAreasSnap.data().zones || {}) : {});
+    const delivery = resolveDeliveryServer({ branchZone, areaName: zone, deliveryZoneId, customerLat, customerLng, branches, zones, serviceAreas, subtotal, settings });
+    const shippingCost = delivery.shippingCost;
 
     // --- কুপন — live document verify করে discount নিজে হিসাব করা ---
     let appliedCouponCode = null;
@@ -328,10 +502,10 @@ exports.createOrderSecure = onCall(async (request) => {
     const orderRef = db.collection('orders').doc();
     tx.set(orderRef, {
       orderNumber: orderNo, customerName, customerPhone,
-      address, village, branchZone, district, zone,
+      address, village, branchZone: delivery.branchZone, district, zone,
       customerLat, customerLng,
-      deliveryZoneId, deliveryZoneLabel,
-      distanceKm, etaMinutes,
+      deliveryZoneId: delivery.deliveryZoneId, deliveryZoneLabel: delivery.deliveryZoneLabel,
+      distanceKm: delivery.distanceKm, etaMinutes: Math.max(10, Math.round(delivery.distanceKm * 3.5 + 10)),
       prescriptionUrl,
       instructions, paymentMethod, paymentStatus, deliverySlot: 'express',
       items: itemsForOrder,
@@ -340,6 +514,13 @@ exports.createOrderSecure = onCall(async (request) => {
       status: 'pending', driverId: null, driverName: null,
       userId: uid, createdAt: admin.firestore.FieldValue.serverTimestamp()
     });
+
+    if (guestAccessHash) {
+      tx.set(orderRef.collection('private').doc('access'), {
+        guestAccessHash,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+    }
 
     // ⚠️ MT Studio audit fix (NID exposure): customerNid আর মূল order
     // ডকুমেন্টে থাকে না — আগে orders read rule isDriver()-কে পুরো ডকুমেন্ট
@@ -357,7 +538,7 @@ exports.createOrderSecure = onCall(async (request) => {
     return { orderId: orderRef.id, orderNumber: orderNo, subtotal, shippingCost, walletUsed, couponDiscount, total };
   });
 
-  return result;
+  return { ...result, ...(guestAccessToken ? { guestAccessToken } : {}) };
 });
 
 /* ---------------------------------------------------------------------
@@ -400,7 +581,18 @@ exports.createCustomBazarOrderSecure = onCall(async (request) => {
   if (!bazarList) throw new HttpsError('invalid-argument', 'বাজারের লিস্ট দিন।');
   if (bkashTrxId.length < 6) throw new HttpsError('invalid-argument', 'সঠিক bKash ট্রানজেকশন ID দিন।');
 
-  // ডুপ্লিকেট পেমেন্ট গার্ড — server-side (client sessionStorage গার্ড বাইপাস করা সহজ ছিল)
+  const normalizedBazarZone = normalizeServiceZoneId(branchZone);
+  const [bazarAreasSnap, bazarBranchesSnap] = await Promise.all([
+    db.collection('setting').doc('service_areas').get(),
+    db.collection('setting').doc('branches').get()
+  ]);
+  const bazarAreas = Object.assign({}, SERVICE_AREA_DEFAULTS, bazarAreasSnap.exists ? (bazarAreasSnap.data().zones || {}) : {});
+  const bazarBranches = Object.assign({}, SERVICE_BRANCH_DEFAULTS, bazarBranchesSnap.exists ? (bazarBranchesSnap.data().branches || {}) : {});
+  if (bazarBranches[normalizedBazarZone]?.active === false || !Array.isArray(bazarAreas[normalizedBazarZone]) || !bazarAreas[normalizedBazarZone].includes(zone)) {
+    throw new HttpsError('failed-precondition', 'এই এরিয়ায় এখনো Golapi Shop-এর ডেলিভারি চালু হয়নি।');
+  }
+
+  // Legacy orders used the transaction id on the root document; reject those first.
   const dupQuery = await db.collection('orders')
     .where('orderType', '==', 'custom-bazar')
     .where('bkashTrxId', '==', bkashTrxId)
@@ -409,14 +601,27 @@ exports.createCustomBazarOrderSecure = onCall(async (request) => {
     throw new HttpsError('already-exists', 'এই ট্রানজেকশন ID দিয়ে ইতিমধ্যে একটি অর্ডার জমা হয়েছে।');
   }
 
-  const orderNo = 'CB-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900000) + 100000);
+  // New orders use a hash-keyed claim document inside the same transaction, closing
+  // the query-then-write race. The raw transaction id is kept private from drivers.
+  const claimId = hashGuestAccessToken(`custom-bazar:bkash:${bkashTrxId}`);
+  const claimRef = db.collection('payment_claims').doc(claimId);
   const orderRef = db.collection('orders').doc();
-  await orderRef.set({
-    orderNumber: orderNo, orderType: 'custom-bazar', bazarType, bazarTypeLabel: BAZAR_TYPE_LABELS[bazarType],
-    customerName, customerPhone, address, village, instructions, branchZone, district,
-    zone, bazarList, notes, bkashTrxId, advanceAmount: 100, paymentMethod: 'bkash+cod',
-    billPhotoUrl: null, billAmount: null,
-    status: 'pending', userId: uid, createdAt: admin.firestore.FieldValue.serverTimestamp()
+  const orderNo = 'CB-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random() * 900000) + 100000);
+  await db.runTransaction(async tx => {
+    const claimSnap = await tx.get(claimRef);
+    if (claimSnap.exists) {
+      throw new HttpsError('already-exists', 'এই ট্রানজেকশন ID দিয়ে ইতিমধ্যে একটি অর্ডার জমা হয়েছে।');
+    }
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    tx.create(claimRef, { orderId: orderRef.id, method: 'bkash', purpose: 'custom-bazar', createdAt: now });
+    tx.set(orderRef, {
+      orderNumber: orderNo, orderType: 'custom-bazar', bazarType, bazarTypeLabel: BAZAR_TYPE_LABELS[bazarType],
+      customerName, customerPhone, address, village, instructions, branchZone: normalizedBazarZone, district,
+      zone, bazarList, notes, advanceAmount: 100, paymentMethod: 'bkash+cod',
+      billPhotoUrl: null, billAmount: null,
+      status: 'pending', userId: uid, createdAt: now
+    });
+    tx.set(orderRef.collection('private').doc('payment'), { bkashTrxId, advanceAmount: 100, method: 'bkash', createdAt: now });
   });
 
   return { orderId: orderRef.id, orderNumber: orderNo };
@@ -434,6 +639,174 @@ exports.createCustomBazarOrderSecure = onCall(async (request) => {
  *    আর driverEarning ফিল্ড নিজে বদলাতে পারে না (আগে isDriver() unrestricted
  *    ছিল) — তাই earning-এর উৎসও এখন নির্ভরযোগ্য।
  * ------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------
+ * ৪.৬) Secure customer/guest payment mutation and pending-payment lookup.
+ *      Guest orders are authorized with a one-time random token whose SHA-256
+ *      hash is stored under orders/{id}/private/access. Firestore rules no
+ *      longer allow anonymous direct order mutations.
+ * ------------------------------------------------------------------- */
+exports.updateOrderPaymentSecure = onCall(async (request) => {
+  const uid = request.auth?.uid || null;
+  const data = request.data || {};
+  const orderId = typeof data.orderId === 'string' ? data.orderId : '';
+  const guestAccessToken = typeof data.guestAccessToken === 'string' ? data.guestAccessToken : '';
+  const action = data.action === 'cod' ? 'cod' : data.action === 'submit' ? 'submit' : '';
+  if (!orderId || !action) throw new HttpsError('invalid-argument', 'সঠিক অর্ডার ও action প্রয়োজন।');
+
+  return db.runTransaction(async (tx) => {
+    const orderRef = db.collection('orders').doc(orderId);
+    const orderSnap = await tx.get(orderRef);
+    if (!orderSnap.exists) throw new HttpsError('not-found', 'অর্ডার পাওয়া যায়নি।');
+    const order = orderSnap.data();
+    const authorized = await canMutateOrder({ tx, orderRef, order, uid, guestAccessToken });
+    if (!authorized) throw new HttpsError('permission-denied', 'এই অর্ডার পরিবর্তনের অনুমতি নেই।');
+    if (!['pending','confirmed','packed','assigned'].includes(order.status)) {
+      throw new HttpsError('failed-precondition', 'এই অবস্থায় পেমেন্ট পরিবর্তন করা যাবে না।');
+    }
+
+    if (action === 'cod') {
+      tx.update(orderRef, {
+        paymentMethod: 'cod',
+        paymentStatus: 'cod',
+        updatedAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+      return { paymentMethod: 'cod', paymentStatus: 'cod' };
+    }
+
+    const method = ['bkash','nagad'].includes(data.method) ? data.method : '';
+    const trxId = typeof data.trxId === 'string' ? data.trxId.trim().toUpperCase().slice(0, 64) : '';
+    if (!method || !/^[A-Z0-9]{8,64}$/.test(trxId)) {
+      throw new HttpsError('invalid-argument', 'সঠিক পেমেন্ট মাধ্যম ও ট্রানজেকশন ID দিন।');
+    }
+    tx.update(orderRef, {
+      paymentMethod: method,
+      paymentStatus: 'paid_pending_verification',
+      paymentTrxId: trxId,
+      paymentVerifiedAt: null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    return { paymentMethod: method, paymentStatus: 'paid_pending_verification' };
+  });
+});
+
+exports.getOrderPaymentStateSecure = onCall(async (request) => {
+  const uid = request.auth?.uid || null;
+  const orderId = typeof request.data?.orderId === 'string' ? request.data.orderId : '';
+  const guestAccessToken = typeof request.data?.guestAccessToken === 'string' ? request.data.guestAccessToken : '';
+  if (!orderId) throw new HttpsError('invalid-argument', 'orderId প্রয়োজন।');
+
+  return db.runTransaction(async (tx) => {
+    const orderRef = db.collection('orders').doc(orderId);
+    const orderSnap = await tx.get(orderRef);
+    if (!orderSnap.exists) throw new HttpsError('not-found', 'অর্ডার পাওয়া যায়নি।');
+    const order = orderSnap.data();
+    const authorized = await canMutateOrder({ tx, orderRef, order, uid, guestAccessToken });
+    if (!authorized) throw new HttpsError('permission-denied', 'এই অর্ডার দেখার অনুমতি নেই।');
+    return {
+      orderNumber: order.orderNumber || '',
+      status: order.status || '',
+      paymentMethod: order.paymentMethod || '',
+      paymentStatus: order.paymentStatus || ''
+    };
+  });
+});
+
+exports.getStaffDirectorySecure = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError('unauthenticated', 'লগইন করা আবশ্যক।');
+  const self = await db.collection('staff').doc(uid).get();
+  if (!self.exists) throw new HttpsError('permission-denied', 'Staff account প্রয়োজন।');
+
+  const snap = await db.collection('staff').get();
+  const staff = snap.docs.map(d => {
+    const v = d.data() || {};
+    return {
+      uid: d.id,
+      name: String(v.name || ''),
+      nameEn: String(v.nameEn || ''),
+      employeeId: String(v.employeeId || ''),
+      role: String(v.role || ''),
+      designation: String(v.designation || ''),
+      department: String(v.department || ''),
+      branchId: String(v.branchId || ''),
+      branchCode: String(v.branchCode || ''),
+      branchName: String(v.branchName || ''),
+      workspaceName: String(v.workspaceName || ''),
+      status: String(v.status || ''),
+      active: v.active !== false,
+      photoURL: String(v.photoURL || v.photoUrl || v.avatar || ''),
+      shiftStart: String(v.shiftStart || ''),
+      shiftHours: Number(v.shiftHours || 8)
+    };
+  });
+  return { staff };
+});
+
+exports.updateDriverOrderSecure = onCall(async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError('unauthenticated', 'লগইন করা আবশ্যক।');
+
+  const orderId = typeof request.data?.orderId === 'string' ? request.data.orderId.trim() : '';
+  const action = typeof request.data?.action === 'string' ? request.data.action.trim() : '';
+  if (!orderId || !['accept', 'decline', 'advance'].includes(action)) {
+    throw new HttpsError('invalid-argument', 'সঠিক orderId ও action প্রয়োজন।');
+  }
+
+  const staffRef = db.collection('staff').doc(uid);
+  const orderRef = db.collection('orders').doc(orderId);
+  return db.runTransaction(async (tx) => {
+    const [staffSnap, orderSnap] = await Promise.all([tx.get(staffRef), tx.get(orderRef)]);
+    if (!staffSnap.exists || staffSnap.data()?.role !== 'driver' || staffSnap.data()?.active === false ||
+        ['inactive', 'suspended', 'resigned'].includes(String(staffSnap.data()?.status || ''))) {
+      throw new HttpsError('permission-denied', 'সক্রিয় ড্রাইভার অ্যাকাউন্ট প্রয়োজন।');
+    }
+    if (!orderSnap.exists) throw new HttpsError('not-found', 'অর্ডার পাওয়া যায়নি।');
+
+    const staff = staffSnap.data();
+    const driverId = String(staff?.driverId || uid);
+    const order = orderSnap.data();
+    if (![driverId, uid].includes(String(order.driverId || ''))) {
+      throw new HttpsError('permission-denied', 'এই অর্ডারটি আপনার জন্য অ্যাসাইন করা নয়।');
+    }
+
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const current = String(order.status || '');
+    let patch;
+
+    if (action === 'accept') {
+      if (current !== 'assigned' || order.driverAccepted === true) {
+        throw new HttpsError('failed-precondition', 'এই অর্ডারটি এখন গ্রহণ করা যাবে না।');
+      }
+      patch = { driverAccepted: true, acceptedAt: now, updatedAt: now };
+    } else if (action === 'decline') {
+      // A driver may release an order only before pickup has started.
+      if (current !== 'assigned') {
+        throw new HttpsError('failed-precondition', 'পিকআপ শুরু হওয়ার পর অর্ডার ছাড়া যাবে না।');
+      }
+      patch = {
+        status: 'confirmed', driverId: null, driverName: null, driverAccepted: false,
+        rejectedAt: now, updatedAt: now
+      };
+    } else {
+      if (order.driverAccepted !== true) {
+        throw new HttpsError('failed-precondition', 'আগে অর্ডারটি গ্রহণ করুন।');
+      }
+      const transitions = {
+        assigned: { status: 'packed' },
+        packed: { status: 'picked_up', pickedUpAt: now },
+        picked_up: { status: 'in_transit', startedDeliveryAt: now },
+        in_transit: { status: 'delivered', deliveredAt: now }
+      };
+      patch = transitions[current];
+      if (!patch) throw new HttpsError('failed-precondition', 'এই স্ট্যাটাস থেকে পরবর্তী ধাপে যাওয়া যাবে না।');
+      patch.updatedAt = now;
+    }
+
+    tx.update(orderRef, patch);
+    return { orderId, status: patch.status || current, action };
+  });
+});
+
 exports.requestPayoutSecure = onCall(async (request) => {
   const uid = request.auth?.uid;
   if (!uid) throw new HttpsError('unauthenticated', 'লগইন করা আবশ্যক।');

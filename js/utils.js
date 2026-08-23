@@ -322,14 +322,15 @@ window.loadScriptOnce = function(src){
 document.addEventListener('error', function(e){
   const img = e.target;
   if(!(img instanceof HTMLImageElement)) return;
-  if(img.dataset.retryCount === undefined) img.dataset.retryCount = '0';
-  const retries = parseInt(img.dataset.retryCount, 10);
-  if(retries >= 3) return; // ৩ বার চেষ্টার পরও ব্যর্থ হলে থেমে যাওয়া, infinite loop এড়াতে
+  const retries = Number(img.dataset.retryCount || 0);
+  if(retries >= 2) return;
   img.dataset.retryCount = String(retries + 1);
-  const delay = 1500 * (retries + 1); // ১.৫সে, ৩সে, ৪.৫সে — ক্রমবর্ধমান বিরতি
-  setTimeout(()=>{
-    const originalSrc = img.src;
-    img.src = ''; // cache-বাস্টিং রিলোড ট্রিগার করতে
-    img.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'retry=' + Date.now();
-  }, delay);
+  const retrySrc = img.currentSrc || img.src;
+  if(!retrySrc) return;
+  setTimeout(() => {
+    // Retry the canonical URL instead of generating endless ?retry= timestamps.
+    // Failed image responses are not useful cache entries, and keeping one URL
+    // lets the browser/CDN reuse a successful response normally.
+    img.src = retrySrc.replace(/([?&])retry=\d+(&?)/, (_, lead, tail) => tail ? lead : '');
+  }, 1200 * (retries + 1));
 }, true); // capture phase-এ শোনা হয়, কারণ img-এর error ইভেন্ট bubble করে না
