@@ -72,7 +72,7 @@ const BazarMemo = {
     <div class="head">
       <img src="https://www.golapishop.online/icons/head_logo.webp" onerror="this.style.display='none'">
       <h1>🌹 Golapi Shop Online</h1>
-      <p>নোয়াখালী সদর ও বেগমগঞ্জ — কাস্টম বাজার মেমো</p>
+      <p>নোয়াখালিতে — কাস্টম বাজার মেমো</p>
     </div>
     <div class="meta">
       <span>অর্ডার নং: <strong>${orderNo}</strong></span>

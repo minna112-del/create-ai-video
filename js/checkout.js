@@ -304,7 +304,7 @@ const Checkout = {
       return;
     }
     try{
-      const {orderId,orderNumber:orderNo,subtotal:sub,shippingCost:ship,walletUsed,couponDiscount,total} = committedOrder;
+      const {orderId,orderNumber:orderNo,subtotal:sub,shippingCost:ship,walletUsed,couponDiscount,total,guestAccessToken} = committedOrder;
       const appliedCouponCode = this.couponCode;
       if(this.couponData){
         this.couponCode=null; this.couponData=null;
@@ -318,11 +318,13 @@ const Checkout = {
         });
       }
       OrderSuccess.save({
+        orderId,
         orderNumber:orderNo,
         total,
         itemCount,
         paymentMethod:this.pay,
-        deliveryArea:this.locationData?.zone?.label || AREA_LABELS[upazila] || upazila
+        deliveryArea:this.locationData?.zone?.label || AREA_LABELS[upazila] || upazila,
+        guestAccessToken: guestAccessToken || null
       });
       Cart.items={}; Cart.save();
       if(this.pay==='bkash' || this.pay==='nagad'){
@@ -333,7 +335,9 @@ const Checkout = {
         // banner দেখাবে — order হারিয়ে গেছে ভাবার সুযোগ থাকবে না।
         try{
           localStorage.setItem('golapi_pending_payment', JSON.stringify({
-            orderId, method:this.pay, amount:total, zone, orderNo, at: Date.now()
+            orderId, method:this.pay, amount:total, zone, orderNo,
+            guestAccessToken: guestAccessToken || null,
+            at: Date.now()
           }));
         }catch(e){}
         PaymentGateway.showPaymentModal(this.pay, total, orderId, upazila);

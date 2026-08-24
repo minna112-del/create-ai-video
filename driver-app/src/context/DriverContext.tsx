@@ -55,10 +55,6 @@ const statusToUi = (status: string, accepted?: boolean): Order['status'] => {
   if (status === 'delivered') return 'completed';
   return 'incoming';
 };
-const uiToStatus: Record<Order['status'], string> = {
-  idle: 'assigned', incoming: 'assigned', picking_up: 'packed', verifying: 'picked_up',
-  delivering: 'in_transit', arrived: 'delivered', completed: 'delivered'
-};
 const mapOrder = (id: string, data: any): Order => {
   const items = Array.isArray(data.items) ? data.items.map((item: any, index: number) => ({
     id: String(item.id || item.productId || index), name: String(item.name || item.title || 'পণ্য'),
@@ -92,27 +88,58 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [unableOnlineMessage, setUnableOnlineMessage] = useState<string | null>(null); const [isPayoutSuccess, setIsPayoutSuccess] = useState(false);
 
   useEffect(() => onAuthStateChanged(auth, async user => {
-    setAuthError(null); setCurrentUser(user);
-    if (!user) { setDriverId(null); setProfile(defaultProfile); setRawOrders([]); setActiveOrder(null); setAuthReady(true); return; }
+    setAuthReady(false);
+
+    if (!user) {
+      setCurrentUser(null); setDriverId(null); setProfile(defaultProfile); setRawOrders([]); setActiveOrder(null); setAuthReady(true); return;
+    }
+
+    setAuthError(null);
     try {
       const staff = await getDoc(doc(db, 'staff', user.uid));
       const staffData = staff.data();
-      if (!staff.exists() || staffData?.role !== 'driver' || staffData?.active === false || ['inactive', 'suspended', 'resigned'].includes(staffData?.status)) {
-        await signOut(auth); setAuthError('এই অ্যাকাউন্টটি সক্রিয় অনুমোদিত ড্রাইভার অ্যাকাউন্ট নয়।'); setAuthReady(true); return;
+      if (!staff.exists() || staffData?.role !== 'driver' || staffData?.active === false || ['inactive', 'suspended', 'resigned'].includes(String(staffData?.status || ''))) {
+        await signOut(auth);
+        setCurrentUser(null);
+        setAuthError('এই অ্যাকাউন্টটি সক্রিয় অনুমোদিত ড্রাইভার অ্যাকাউন্ট নয়।');
+        setAuthReady(true);
+        return;
       }
-      const id = String(staffData?.driverId || user.uid); setDriverId(id);
-      const driverSnap = await getDoc(doc(db, 'drivers', id)); const driver = driverSnap.data() || {};
+
+      const id = String(staffData?.driverId || user.uid);
+      const driverSnap = await getDoc(doc(db, 'drivers', id));
+      if (!driverSnap.exists()) {
+        await signOut(auth);
+        setCurrentUser(null);
+        setAuthError('এই ড্রাইভার অ্যাকাউন্টের প্রোফাইল পাওয়া যায়নি।');
+        setAuthReady(true);
+        return;
+      }
+
+      const driver = driverSnap.data() || {};
+      setCurrentUser(user);
+      setDriverId(id);
       setDriverLocation(coordPair(driver.lat, driver.lng));
       setPreferences({ ...defaultPreferences, ...(driver.preferences || {}) });
       setProfile({
         ...defaultProfile, name: staffData?.name || driver.name || 'ড্রাইভার', nameEn: staffData?.nameEn || staffData?.name || driver.nameEn || driver.name || 'Driver',
         phone: driver.phone || staffData?.phone || '',
-        avatar: staffData?.photoURL || staffData?.photoUrl || staffData?.photo || staffData?.avatar || driver.avatar || driver.photoURL || '',
+        avatar: staffData?.photoURL || staffData?.photoUrl || staffData?.photo || staffData?.avatar || driver.avatar || driver.photoURL || defaultProfile.avatar,
         rating: Number(driver.rating || 0), acceptanceRate: Number(driver.acceptanceRate || 0), cancellationRate: Number(driver.cancellationRate || 0),
         points: Number(driver.points || 0), vehicleType: driver.vehicleType || '', tier: driver.tier || 'গোল্ড', tierEn: driver.tierEn || 'Gold'
       });
-      setOnline(driver.online === true); setAuthReady(true);
-    } catch (error) { console.error(error); setAuthError('ড্রাইভার তথ্য লোড করা যায়নি।'); setAuthReady(true); }
+      setOnline(driver.online === true);
+      setAuthReady(true);
+    } catch (error: any) {
+      console.error('Driver bootstrap failed:', error);
+      await signOut(auth).catch(() => undefined);
+      setCurrentUser(null); setDriverId(null);
+      const code = String(error?.code || '');
+      setAuthError(code === 'permission-denied' || code === 'firestore/permission-denied'
+        ? 'ড্রাইভার প্রোফাইল পড়ার অনুমতি পাওয়া যায়নি। Firestore role/rules যাচাই করুন।'
+        : 'ড্রাইভার তথ্য লোড করা যায়নি। আবার লগইন করুন।');
+      setAuthReady(true);
+    }
   }), []);
 
   useEffect(() => onSnapshot(doc(db, 'setting', 'branches'), snapshot => {
@@ -186,7 +213,32 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return { id: order.id, amount: moneyNumber(order.tipAmount ?? order.driverTip), dateStr: date.toLocaleDateString('bn-BD'), dateStrEn: date.toLocaleDateString('en-US'), timeAgo: date.toLocaleString('bn-BD'), timeAgoEn: date.toLocaleString('en-US'), sentThanks: order.driverThanksSent === true, type: 'tip', read: order.driverTipRead === true };
   }), [delivered]);
 
-  const login = async (email: string, password: string) => { setAuthError(null); try { await signInWithEmailAndPassword(auth, email, password); } catch { setAuthError('লগইন ব্যর্থ: ইমেইল বা পাসওয়ার্ড সঠিক নয়।'); throw new Error('login failed'); } };
+  const login = async (email: string, password: string) => {
+    setAuthError(null);
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPassword = password.trim();
+    if (!normalizedEmail || !normalizedPassword) {
+      setAuthError('ইমেইল ও পাসওয়ার্ড দিন।');
+      throw new Error('missing-credentials');
+    }
+    try {
+      await signInWithEmailAndPassword(auth, normalizedEmail, normalizedPassword);
+    } catch (error: any) {
+      console.error('DRIVER LOGIN ERROR:', error);
+      const code = String(error?.code || '');
+      const message = code === 'auth/invalid-credential' || code === 'auth/invalid-login-credentials' || code === 'auth/wrong-password' || code === 'auth/user-not-found'
+        ? 'ইমেইল বা পাসওয়ার্ড সঠিক নয়।'
+        : code === 'auth/too-many-requests'
+          ? 'অনেকবার চেষ্টা হয়েছে। কিছুক্ষণ পর আবার চেষ্টা করুন।'
+          : code === 'auth/network-request-failed'
+            ? 'নেটওয়ার্ক সংযোগ ব্যর্থ হয়েছে। ইন্টারনেট চেক করে আবার চেষ্টা করুন।'
+            : code === 'auth/web-storage-unsupported'
+              ? 'এই ব্রাউজারে লগইন স্টোরেজ সীমিত। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।'
+              : `লগইন ব্যর্থ${code ? ` (${code})` : ''}।`;
+      setAuthError(message);
+      throw error;
+    }
+  };
   const logout = async () => { await signOut(auth); };
   const setIsOnline = (online: boolean) => { setOnline(online); if (driverId) updateDoc(doc(db, 'drivers', driverId), { online, lastSeen: serverTimestamp() }).catch(() => { setOnline(!online); setUnableOnlineMessage('অনলাইন স্ট্যাটাস আপডেট হয়নি।'); }); };
   const setLanguage = (value: Language) => setLanguageState(value);
@@ -202,19 +254,20 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const savePreferences = (next: PreferencesState) => { setPreferences(next); if (driverId) updateDoc(doc(db, 'drivers', driverId), { preferences: next, updatedAt: serverTimestamp() }).catch(() => setUnableOnlineMessage('পছন্দসমূহ সংরক্ষণ করা যায়নি।')); };
   const updatePreferences = (key: keyof PreferencesState, value: unknown) => savePreferences({ ...preferences, [key]: value });
   const resetPreferences = () => savePreferences(defaultPreferences);
-  const updateOrder = async (fields: any) => { if (activeOrderId) await updateDoc(doc(db, 'orders', activeOrderId), { ...fields, updatedAt: serverTimestamp() }); };
-  const acceptOrder = () => void updateOrder({ driverAccepted: true, acceptedAt: serverTimestamp(), status: 'assigned' });
-  const declineOrder = () => void updateOrder({ status: 'confirmed', driverId: null, driverName: null, driverAccepted: false, rejectedAt: serverTimestamp() });
-  const advanceOrderStatus = () => {
-    if (!activeOrder) return;
-    const next: Record<Order['status'], Order['status']> = { idle: 'incoming', incoming: 'picking_up', picking_up: 'verifying', verifying: 'delivering', delivering: 'arrived', arrived: 'completed', completed: 'completed' };
-    const nextStatus = next[activeOrder.status]; const fields: any = { status: uiToStatus[activeOrder.status] };
-    if (nextStatus === 'delivering') fields.pickedUpAt = serverTimestamp();
-    if (nextStatus === 'arrived') fields.startedDeliveryAt = serverTimestamp();
-    if (nextStatus === 'completed') { fields.deliveredAt = serverTimestamp(); playCompletedTripSound(); }
-    void updateOrder(fields);
+  const runDriverOrderAction = async (action: 'accept' | 'decline' | 'advance') => {
+    if (!activeOrderId) return;
+    try {
+      const mutate = httpsCallable(functions, 'updateDriverOrderSecure');
+      await mutate({ orderId: activeOrderId, action });
+      if (action === 'advance' && activeOrder?.status === 'arrived') playCompletedTripSound();
+    } catch (error: any) {
+      setUnableOnlineMessage(error?.message || 'অর্ডার আপডেট করা যায়নি।');
+    }
   };
-  const cancelActiveOrder = () => void declineOrder();
+  const acceptOrder = () => void runDriverOrderAction('accept');
+  const declineOrder = () => void runDriverOrderAction('decline');
+  const advanceOrderStatus = () => void runDriverOrderAction('advance');
+  const cancelActiveOrder = () => void runDriverOrderAction('decline');
   // ⚠️ MT Studio audit fix: আগে এখানে শুধু client-side হিসাব করা
   // computedProfile.walletBalance-এর বিপরীতে amount চেক করে সরাসরি
   // payoutRequests-এ addDoc হতো — DevTools দিয়ে এই ফাংশন সরাসরি কল করলে আসল
@@ -224,10 +277,10 @@ export const DriverProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   // payoutRequests তৈরি করে (client-side create এখন firestore.rules-এ বন্ধ)।
   const requestDetailedPayout = (amount: number, method: PayoutTransaction['method'], accountNumber: string) => {
     if (!driverId || amount <= 0 || amount > computedProfile.walletBalance) return;
-    playCashOutSound(); setIsPayoutSuccess(true);
+    setIsPayoutSuccess(false);
     const requestPayout = httpsCallable(functions, 'requestPayoutSecure');
     requestPayout({ amount, method, accountNumber })
-      .then(() => window.setTimeout(() => { setIsPayoutSuccess(false); setShowCashOutModal(false); }, 1600))
+      .then(() => { playCashOutSound(); setIsPayoutSuccess(true); window.setTimeout(() => { setIsPayoutSuccess(false); setShowCashOutModal(false); }, 1600); })
       .catch((error: any) => { setIsPayoutSuccess(false); setUnableOnlineMessage(error?.message || 'পেআউট অনুরোধ পাঠানো যায়নি।'); });
   };
   const requestInstantPayout = () => requestDetailedPayout(computedProfile.walletBalance, 'bKash', computedProfile.phone);

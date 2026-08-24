@@ -658,6 +658,7 @@ const AdminDash = {
       const pins = snap.exists()? snap.data() : {};
       const s = document.getElementById('zmPinSadar'); if(s) s.value=pins.noakhali_sadar||'';
       const b = document.getElementById('zmPinBegumganj'); if(b) b.value=pins.begumganj||'';
+      const c = document.getElementById('zmPinZoneC'); if(c) c.value=pins.zone_c||'';
     }catch(e){ devWarn(e.message); }
   },
 
@@ -887,7 +888,8 @@ const AdminDash = {
     try{
       await FB.setDoc(FB.doc(FB.db,'setting','zone_manager_pins'),{
         noakhali_sadar: document.getElementById('zmPinSadar').value.trim(),
-        begumganj: document.getElementById('zmPinBegumganj').value.trim()
+        begumganj: document.getElementById('zmPinBegumganj').value.trim(),
+        zone_c: document.getElementById('zmPinZoneC')?.value.trim() || ''
       });
       toast('✓ পিন সংরক্ষণ করা হয়েছে','success');
     }catch(e){ toast('সমস্যা: '+e.message,'error'); }

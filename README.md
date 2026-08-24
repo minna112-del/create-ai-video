@@ -32,7 +32,7 @@ stable signed release APK বানায়, না পেলে শুধু test
 
 # Previous project documentation
 
-নোয়াখালী সদর ও বেগমগঞ্জের নিজস্ব অনলাইন শপ — মুদি, ঔষধ, গ্যাস, কসমেটিকস, কাস্টম বাজার ও স্বাস্থ্য সেবা (ডাক্তার এপয়েন্টমেন্ট/সিরিয়াল বুকিং সহায়তা)। PWA আর্কিটেকচার, Firebase ব্যাকএন্ড, Google Maps-ভিত্তিক লোকেশন সিস্টেম।
+নোয়াখালিতের নিজস্ব অনলাইন শপ — মুদি, ঔষধ, গ্যাস, কসমেটিকস, কাস্টম বাজার ও স্বাস্থ্য সেবা (ডাক্তার এপয়েন্টমেন্ট/সিরিয়াল বুকিং সহায়তা)। PWA আর্কিটেকচার, Firebase ব্যাকএন্ড, Google Maps-ভিত্তিক লোকেশন সিস্টেম।
 
 🔗 লাইভ সাইট: https://www.golapishop.online
 
@@ -105,7 +105,7 @@ index.html (~3 KB স্কেলিটন, শুধু <div id="slot-...">/<ma
 ## 📍 লোকেশন সিস্টেম
 
 - **Google Maps** (Places Autocomplete + Geocoding + Distance Matrix) — `index.html`-এ `window.GOOGLE_MAPS_API_KEY` বসাতে হয়
-- **Delivery Zone:** প্রতিটা শাখার (সদর/বেগমগঞ্জ) নিচে বৃত্তাকার Zone A/B/C (radius + flat fee) — Admin Panel থেকে লাইভ-এডিটেবল, `setting/delivery_zones` Firestore ডকুমেন্টে সেভ থাকে
+- **Delivery Zone:** প্রতিটা শাখার (সদর/Zone-B) নিচে বৃত্তাকার Zone A/B/C (radius + flat fee) — Admin Panel থেকে লাইভ-এডিটেবল, `setting/delivery_zones` Firestore ডকুমেন্টে সেভ থাকে
 - **Checkout-এ লোকেশন বাধ্যতামূলক** — ম্যাপে পিন না করলে অর্ডার confirm হয় না; Zone-এর বাইরে হলে ব্লক
 - **Customer tracking** (`location.js`, `livemap.js`) এবং **Driver tracking** (`driver-app/src/context/DriverContext.tsx`) একই order-এর Firestore coordinates/status ব্যবহার করে।
 

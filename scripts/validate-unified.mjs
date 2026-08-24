@@ -1,4 +1,4 @@
-import { access, readFile } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
 import { constants } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -44,6 +44,9 @@ const assertions = [
   [router.includes('AppRegistry.external(page)'), 'Router does not open the Driver app'],
   [worker.includes("requestUrl.pathname.startsWith('/driver/')"), 'Storefront service worker does not bypass Driver'],
   [worker.includes("requestUrl.pathname === '/app-version.json'"), 'Release metadata is still service-worker cached'],
+  [worker.includes("golapi-v94-fast-cache"), 'Fast cache service-worker version is missing'],
+  [worker.includes('stale-while-revalidate'), 'Static stale-while-revalidate strategy is missing'],
+  [netlify.includes('/driver/assets/*') && netlify.includes('immutable'), 'Driver hashed assets are not immutable-cached'],
   [/\/driver\/assets\//.test(driverIndex), 'Driver web build does not use the /driver/ base path'],
   [customerConfig.server?.url === 'https://www.golapishop.online/', 'Customer APK is not connected to the live website'],
   [driverConfig.server?.url === 'https://www.golapishop.online/driver/', 'Driver APK is not connected to the live Driver app'],
@@ -59,6 +62,24 @@ const assertions = [
 
 for (const [passed, message] of assertions) {
   if (!passed) throw new Error(message);
+}
+
+// Driver production bundle must be pinned to the Golapi Shop Firebase project.
+// This catches accidental Netlify/Vite environment overrides before deployment.
+const driverAssetsDir = resolve(root, 'dist/driver/assets');
+const driverAssetNames = await readdir(driverAssetsDir);
+const driverJsFiles = driverAssetNames.filter(name => name.endsWith('.js'));
+const driverBundleText = (await Promise.all(
+  driverJsFiles.map(name => readFile(resolve(driverAssetsDir, name), 'utf8'))
+)).join('\n');
+if (!driverBundleText.includes('golapishoponline.firebaseapp.com')) {
+  throw new Error('Driver bundle is not connected to golapishoponline Firebase Auth');
+}
+if (!driverBundleText.includes('golapishoponline')) {
+  throw new Error('Driver bundle is missing the golapishoponline project id');
+}
+if (driverBundleText.includes('mt-studio-ai.firebaseapp.com')) {
+  throw new Error('Driver bundle still contains the legacy mt-studio-ai Firebase config');
 }
 
 for (const removedLegacyFile of ['pages/driver.html', 'js/driver.js']) {

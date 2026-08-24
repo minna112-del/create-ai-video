@@ -35,8 +35,12 @@ async function checkPendingPaymentBanner() {
   }
   if (!FB) return;
   try {
-    const snap = await FB.getDoc(FB.doc(FB.db, 'orders', pending.orderId));
-    if (!snap.exists() || snap.data().paymentStatus !== 'pending_submission') {
+    const getPaymentState = FB.httpsCallable(FB.functions, 'getOrderPaymentStateSecure');
+    const state = await getPaymentState({
+      orderId: pending.orderId,
+      guestAccessToken: pending.guestAccessToken || null
+    });
+    if (state.data?.paymentStatus !== 'pending_submission') {
       try { localStorage.removeItem('golapi_pending_payment'); } catch (e) {}
       return;
     }
@@ -168,7 +172,7 @@ function initApp(){
         // localStorage-এ একটা version marker রাখে, marker না মিললে
         // (মানে এই ব্রাউজার পুরনো কোনো ভার্সন থেকে আসছে) সব service worker
         // registration ও cache মুছে একবার reload করে, তারপর normal flow।
-        const HEAL_VERSION = 'v5-access-checkout-atomic';
+        const HEAL_VERSION = 'v6-fast-cache-heal';
         const storedVersion = localStorage.getItem('golapi_heal_version');
         // ⚠️ আগে একদম নতুন ব্রাউজারেও (যেখানে পুরনো cache/SW কিছুই নেই, তাই
         // পরিষ্কার করার কিছু নেই) এই marker না থাকার কারণে unregister+cache

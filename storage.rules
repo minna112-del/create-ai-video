@@ -46,13 +46,11 @@ service firebase.storage {
       allow write: if isSignedIn() && isImageUnder5Mb();
     }
 
-    match /prescriptions/{fileName=**} {
-      // MT Studio audit fix: prescription ছবিতে গ্রাহকের মেডিকেল তথ্য (PII) থাকে —
-      // আগে যেকোনো staff role (procurement/marketing/CRM ইত্যাদি) সবার প্রেসক্রিপশন
-      // দেখতে পারত। এখন শুধু admin — এই মুহূর্তে অ্যাপে prescription যাচাইয়ের জন্য
-      // নির্দিষ্ট কোনো staff role নেই বলে সবচেয়ে সীমিত অ্যাক্সেস রাখা হলো।
-      allow read: if isAdmin();
-      allow write: if isSignedIn() && isImageUnder5Mb();
+    match /prescriptions/{userId}/{fileName=**} {
+      // Prescription PII is scoped to the uploader and admin. User-scoped paths
+      // also let getDownloadURL() succeed immediately after an authorized upload.
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow write: if isSignedIn() && request.auth.uid == userId && isImageUnder5Mb();
     }
 
     match /{allPaths=**} {

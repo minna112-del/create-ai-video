@@ -102,15 +102,17 @@ const EMERGENCY_CATEGORIES = ['medicine','gas'];
 
 const AREA_ZONES = {
   noakhali_sadar: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
-  begumganj: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','বেগমগঞ্জ','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর']
+  begumganj: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','বেগমগঞ্জ','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
+  zone_c: []
 };
 
 const BRANCH_INFO = {
-  noakhali_sadar:{label:'নোয়াখালী সদর',address:'মাইজদী বাজার, সদর, নোয়াখালী',managerName:'রিমন',managerPhone:'+880 1627-010060',bkashNumber:'01627010060',nagadNumber:'01627010060',lat:22.8710,lng:91.0996},
-  begumganj:{label:'বেগমগঞ্জ',address:'চৌরাস্তা, বেগমগঞ্জ, নোয়াখালী',managerName:'সৃজন',managerPhone:'+880 1310-006959',bkashNumber:'01612057371',nagadNumber:'01310006959',lat:22.9412,lng:91.1119}
+  noakhali_sadar:{label:'Zone-A',address:'নোয়াখালী Zone-A সার্ভিস পয়েন্ট',managerName:'রিমন',managerPhone:'+880 1627-010060',bkashNumber:'01627010060',nagadNumber:'01627010060',lat:22.8710,lng:91.0996},
+  begumganj:{label:'Zone-B',address:'নোয়াখালী Zone-B সার্ভিস পয়েন্ট',managerName:'সৃজন',managerPhone:'+880 1310-006959',bkashNumber:'01612057371',nagadNumber:'01310006959',lat:22.9412,lng:91.1119},
+  zone_c:{label:'Zone-C',address:'নোয়াখালী Zone-C সার্ভিস পয়েন্ট',managerName:'ম্যানেজার সেট করুন',managerPhone:'',bkashNumber:'',nagadNumber:'',lat:null,lng:null,active:false}
 };
 
-const AREA_LABELS = {noakhali_sadar:BRANCH_INFO.noakhali_sadar.label, begumganj:BRANCH_INFO.begumganj.label};
+const AREA_LABELS = {noakhali_sadar:BRANCH_INFO.noakhali_sadar.label, begumganj:BRANCH_INFO.begumganj.label, zone_c:BRANCH_INFO.zone_c.label};
 
 /* ============================================================
    DELIVERY ZONES — প্রতিটা শাখার নিচে Zone A/B/C (বৃত্তাকার — কেন্দ্র + radius)
@@ -127,7 +129,8 @@ const DELIVERY_ZONES = {
     { id:'begum_a', label:'Zone A — কাছাকাছি এলাকা', radiusKm:3, fee:30 },
     { id:'begum_b', label:'Zone B — মাঝারি দূরত্ব',   radiusKm:7, fee:50 },
     { id:'begum_c', label:'Zone C — দূরবর্তী এলাকা',  radiusKm:12, fee:80 }
-  ]
+  ],
+  zone_c: []
 };
 // ⚠️ আগে এটা সরাসরি "if(!FB) return;" (bare variable, যেটা app.js-এ পরে declare হয়) আর
 // সাথে সাথেই "loadLiveDeliveryZones();" কল হতো — তখন FB কোথাও declare-ই হয়নি, তাই
@@ -209,7 +212,7 @@ const MED_LIST = [
 const FAQ_LIST = [
   {q:'কাস্টম বাজার সেবা কীভাবে কাজ করে?',a:'আপনি আপনার বাজারের লিস্ট লিখে দিন, আমাদের ড্রাইভার সেই লিস্ট অনুযায়ী বাজার করে আপনার বাসায় পৌঁছে দেবে। অর্ডার নিশ্চিত করার জন্য ১০০ টাকা বিকাশ পে করতে হয়, বাকি টাকা ক্যাশ অন ডেলিভারি।'},
   {q:'ডেলিভারি চার্জ ও সময় কীভাবে ঠিক হয়?',a:'ডেলিভারি চার্জ ও সময় দুটোই নির্ভর করে আপনার অর্ডারের পরিমাণ (কতগুলো আইটেম) এবং আপনার ঠিকানার দূরত্বের (মাইলেজ) উপর। চেকআউটের সময় সঠিক চার্জ ও আনুমানিক সময় দেখানো হয় — আগে থেকে কোনো নির্দিষ্ট সময় প্রতিশ্রুতি দেওয়া হয় না, কারণ প্রতিটা অর্ডার আলাদা।'},
-  {q:'কোন এলাকায় ডেলিভারি হয়?',a:'বর্তমানে নোয়াখালী সদর ও বেগমগঞ্জ উপজেলার নির্দিষ্ট এলাকায় ডেলিভারি হয়। ভবিষ্যতে আরো জোন যোগ হবে।'},
+  {q:'কোন এলাকায় ডেলিভারি হয়?',a:'বর্তমানে নোয়াখালিতে Zone-A, Zone-B এবং কনফিগার করা Zone-C এলাকার নির্দিষ্ট অংশে ডেলিভারি হয়। অর্ডারের আগে ম্যাপে লোকেশন যাচাই করুন।'},
   {q:'কোন সময় অর্ডার করা যায়?',a:'যেকোনো সময় অর্ডার করতে পারেন। ডেলিভারি কখন পৌঁছাবে তা নির্ভর করে সেই মুহূর্তে অর্ডারের পরিমাণ ও দূরত্বের উপর — অর্ডার করার পর নির্দিষ্ট সময় জানিয়ে দেওয়া হবে।'},
   {q:'পেমেন্ট কীভাবে করব?',a:'ক্যাশ অন ডেলিভারি (COD), bKash, অথবা Nagad। জোন অনুযায়ী আলাদা bKash/Nagad নাম্বার চেকআউট পেজে দেখানো হয়।'},
   {q:'অর্ডার কীভাবে ট্র্যাক করব?',a:'"আমার অর্ডার" পেজে গিয়ে রিয়েল-টাইম অর্ডারের খবর ও ড্রাইভারের লাইভ লোকেশন দেখতে পারবেন।'},
@@ -322,14 +325,15 @@ window.loadScriptOnce = function(src){
 document.addEventListener('error', function(e){
   const img = e.target;
   if(!(img instanceof HTMLImageElement)) return;
-  if(img.dataset.retryCount === undefined) img.dataset.retryCount = '0';
-  const retries = parseInt(img.dataset.retryCount, 10);
-  if(retries >= 3) return; // ৩ বার চেষ্টার পরও ব্যর্থ হলে থেমে যাওয়া, infinite loop এড়াতে
+  const retries = Number(img.dataset.retryCount || 0);
+  if(retries >= 2) return;
   img.dataset.retryCount = String(retries + 1);
-  const delay = 1500 * (retries + 1); // ১.৫সে, ৩সে, ৪.৫সে — ক্রমবর্ধমান বিরতি
-  setTimeout(()=>{
-    const originalSrc = img.src;
-    img.src = ''; // cache-বাস্টিং রিলোড ট্রিগার করতে
-    img.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'retry=' + Date.now();
-  }, delay);
+  const retrySrc = img.currentSrc || img.src;
+  if(!retrySrc) return;
+  setTimeout(() => {
+    // Retry the canonical URL instead of generating endless ?retry= timestamps.
+    // Failed image responses are not useful cache entries, and keeping one URL
+    // lets the browser/CDN reuse a successful response normally.
+    img.src = retrySrc.replace(/([?&])retry=\d+(&?)/, (_, lead, tail) => tail ? lead : '');
+  }, 1200 * (retries + 1));
 }, true); // capture phase-এ শোনা হয়, কারণ img-এর error ইভেন্ট bubble করে না

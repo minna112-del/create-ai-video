@@ -32,6 +32,7 @@ const ProductStore = {
      final error state ছিল না। এখন `status==='error'` হলে Home.render()
      skeleton-এর বদলে retry বাটনসহ error UI দেখাবে। */
   status: 'idle',
+  refreshPromise: null,
 
   mapDoc(id, d) {
     return {
@@ -154,7 +155,7 @@ const ProductStore = {
       if (delivered) return;
       devWarn('onSnapshot timeout — falling back to getDocs() with retry');
       await this.refreshWithRetry();
-    }, hadCache ? 15000 : 6000);
+    }, hadCache ? 12000 : 5000);
 
     try {
       this.unsubscribe = FB.onSnapshot(
@@ -208,15 +209,7 @@ const ProductStore = {
             error.message
           );
 
-          toast(
-            '⚠ প্রোডাক্ট লোড ব্যর্থ: ' +
-              (
-                error.code ||
-                error.message ||
-                'অজানা কারণ'
-              ),
-            'error'
-          );
+          devWarn('product snapshot failed:', error.code || error.message || 'unknown');
 
           // permission-denied/unauthenticated হলো configuration error —
           // network retry দিয়ে ঠিক হবে না, তাই বারবার একই ব্যর্থ query না
@@ -237,11 +230,7 @@ const ProductStore = {
         error.message
       );
 
-      toast(
-        '⚠ প্রোডাক্ট সংযোগ শুরু করা যায়নি: ' +
-          error.message,
-        'error'
-      );
+      devWarn('product sync could not start:', error.message);
 
       // ⚠️ আগে এখানে fallback কল করা হতো না — onSnapshot চালু হতেই ব্যর্থ হলে
       // (যেমন FB.query/FB.collection অনুপলব্ধ) কোনো retry হতোই না, ProductStore.loaded
@@ -251,26 +240,31 @@ const ProductStore = {
   },
 
   async refreshWithRetry() {
-    // ধীর নেটওয়ার্কে একবার getDocs() ব্যর্থ হলেই থেমে না গিয়ে,
-    // ক্রমবর্ধমান বিরতিতে (৩, ৬, ১২ সেকেন্ড) সর্বোচ্চ ৩ বার আবার চেষ্টা করা হয়।
-    const delays = [0, 3000, 6000, 12000];
-    for (let attempt = 0; attempt < delays.length; attempt++) {
-      if (attempt > 0) {
-        toast(`⏳ ইন্টারনেট সংযোগ ধীর মনে হচ্ছে, আবার চেষ্টা করা হচ্ছে (${attempt}/${delays.length - 1})...`, 'info');
-        await new Promise(r => setTimeout(r, delays[attempt]));
+    // Only one fallback loop may run at a time. A snapshot timeout and an
+    // onSnapshot error can otherwise start duplicate getDocs() bursts, which
+    // wastes bandwidth and makes slow mobile connections feel even slower.
+    if (this.refreshPromise) return this.refreshPromise;
+
+    this.refreshPromise = (async () => {
+      const delays = [0, 2000, 5000];
+      for (let attempt = 0; attempt < delays.length; attempt++) {
+        if (attempt > 0) await new Promise(r => setTimeout(r, delays[attempt]));
+        const result = await this.refreshAndRerender();
+        if (result === 'fatal') break;
+        if (result && this.loaded && ALL_PRODUCTS.length > 0) return true;
       }
-      const result = await this.refreshAndRerender();
-      if (result === 'fatal') break; // permission-denied ইত্যাদি — আর retry করে লাভ নেই
-      if (result && this.loaded && ALL_PRODUCTS.length > 0) {
-        if (attempt > 0) toast('✓ পণ্য লোড হয়েছে', 'success');
-        return;
-      }
+
+      // Keep connectivity failures inside the product grid instead of showing
+      // repeated global popups while a customer is browsing.
+      this.markError();
+      return false;
+    })();
+
+    try {
+      return await this.refreshPromise;
+    } finally {
+      this.refreshPromise = null;
     }
-    // ⚠️ আগে সব retry ব্যর্থ হলে শুধু toast দেখানো হতো, ProductStore.loaded/status
-    // কখনো বদলাতো না — ফলে UI চিরকাল "loading" ভেবে skeleton দেখাতেই থাকতো।
-    // এখন explicit error state সেট হয়, যাতে grid-এ retry বাটনসহ error UI আসে।
-    toast('⚠ ইন্টারনেট সংযোগ খুবই ধীর — একটু পর আবার পেজ খুলুন, অথবা ওয়াইফাই/ভালো নেটওয়ার্কে চেষ্টা করুন', 'error');
-    this.markError();
   },
 
   async refreshAndRerender() {
@@ -283,7 +277,7 @@ const ProductStore = {
       // পরে স্পষ্টভাবে timeout করে দেওয়া হয়, retry loop চালিয়ে যাওয়ার জন্য।
       const snap = await Promise.race([
         FB.getDocs(FB.query(FB.collection(FB.db, 'products'), FB.limit(300))),
-        new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('getDocs timeout'), { code: 'app-timeout' })), 9000))
+        new Promise((_, reject) => setTimeout(() => reject(Object.assign(new Error('getDocs timeout'), { code: 'app-timeout' })), 7000))
       ]);
 
       const real = [];

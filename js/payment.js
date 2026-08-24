@@ -140,7 +140,12 @@ const PaymentGateway = {
   async switchToCOD(orderId){
     if(!FB) return;
     try{
-      await FB.updateDoc(FB.doc(FB.db,'orders',orderId), { paymentMethod:'cod', paymentStatus:'cod' });
+      const updatePayment = FB.httpsCallable(FB.functions, 'updateOrderPaymentSecure');
+      await updatePayment({
+        orderId,
+        action: 'cod',
+        guestAccessToken: this.getGuestAccessToken(orderId)
+      });
       try{ localStorage.removeItem('golapi_pending_payment'); }catch(e){}
       this.closeModal();
       toast('✓ Cash on Delivery-তে পরিবর্তন হয়েছে — ডেলিভারির সময় মূল্য পরিশোধ করুন', 'success');
@@ -148,6 +153,18 @@ const PaymentGateway = {
     }catch(e){
       toast('পরিবর্তন ব্যর্থ: ' + e.message, 'error');
     }
+  },
+
+  getGuestAccessToken(orderId){
+    try{
+      const pending = JSON.parse(localStorage.getItem('golapi_pending_payment') || '{}');
+      if(pending && pending.orderId === orderId && pending.guestAccessToken) return pending.guestAccessToken;
+    }catch(e){}
+    try{
+      const success = JSON.parse(sessionStorage.getItem('golapiLastOrderConfirmation') || '{}');
+      if(success && success.orderId === orderId && success.guestAccessToken) return success.guestAccessToken;
+    }catch(e){}
+    return null;
   },
 
   async cancelOrder(orderId){
@@ -196,11 +213,13 @@ const PaymentGateway = {
     }
     if (FB) {
       try {
-        await FB.updateDoc(FB.doc(FB.db, 'orders', orderId), {
-          paymentStatus: 'paid_pending_verification',
-          paymentMethod: method,
-          paymentTrxId: trxId,
-          paymentVerifiedAt: null
+        const updatePayment = FB.httpsCallable(FB.functions, 'updateOrderPaymentSecure');
+        await updatePayment({
+          orderId,
+          action: 'submit',
+          method,
+          trxId,
+          guestAccessToken: this.getGuestAccessToken(orderId)
         });
         try{ localStorage.removeItem('golapi_pending_payment'); }catch(e){}
         this.closeModal();

@@ -353,7 +353,7 @@ const PDP = {
       "@type":"Product",
       "name": p.name,
       "image": p.img,
-      "description": p.description || `${p.name} — Golapi Shop Online থেকে হোম ডেলিভারি, নোয়াখালী সদর ও বেগমগঞ্জ।`,
+      "description": p.description || `${p.name} — Golapi Shop Online থেকে হোম ডেলিভারি, নোয়াখালিতে।`,
       "sku": p.id,
       "brand": { "@type":"Brand", "name":"Golapi Shop Online" },
       "offers": {

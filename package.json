@@ -1,7 +1,7 @@
 {
   "name": "golapishop-online-unified",
   "private": true,
-  "version": "2.4.5",
+  "version": "2.4.7",
   "type": "module",
   "scripts": {
     "build": "npm --prefix driver-app ci --no-audit --no-fund && npm --prefix driver-app run build:web && node scripts/build-unified.mjs",
