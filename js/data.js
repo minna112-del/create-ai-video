@@ -39,7 +39,7 @@ const ProductStore = {
       id,
       name: d.name || 'নামহীন প্রোডাক্ট',
       category: d.category || 'grocery',
-      zone: d.zone || 'noakhali_sadar',
+      zone: d.zone || 'zone_a',
       unit: d.unit || 'পিস',
 
       price: Number(d.price) || 0,
@@ -519,7 +519,7 @@ function pcardHTML(p, idx) {
 
           ${
             inStock
-              ? 'কার্টে যোগ করুন'
+              ? 'কার্টে রাখুন'
               : 'স্টক শেষ'
           }
         </button>

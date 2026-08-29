@@ -40,8 +40,8 @@ const AddressService = {
         const docRef = await FB.addDoc(FB.collection(FB.db, 'addresses'), {
           userId: Auth.currentUser.uid,
           label: addr.label,
-          upazila: addr.upazila || '',
-          union: addr.union || '',
+          deliveryZone: addr.deliveryZone || '',
+          area: addr.area || '',
           village: addr.village || '',
           address: addr.address,
           phone: addr.phone || Auth.currentUser.phoneNumber || '',
@@ -87,7 +87,7 @@ const AddressService = {
           <div style="flex:1">
             <div style="font-weight:600;color:#fff;font-size:14px;margin-bottom:4px">📍 ${esc(a.label)}</div>
             <div style="font-size:12.5px;color:var(--ink-muted);line-height:1.5">
-              ${a.village ? esc(a.village) + ', ' : ''}${a.union ? esc(a.union) + ', ' : ''}${esc(a.upazila) || ''}<br>
+              ${a.village ? esc(a.village) + ', ' : ''}${a.area ? esc(a.area) + ', ' : ''}${esc(a.deliveryZone) || ''}<br>
               ${esc(a.address)}<br>
               ${a.phone ? '📞 ' + esc(a.phone) : ''}
             </div>
@@ -106,8 +106,8 @@ const AddressService = {
     const set = (elId, val) => { const e = document.getElementById(elId); if (e && val) e.value = val; };
     set('ckName', Auth.currentUser?.displayName || '');
     set('ckPhone', a.phone || '');
-    set('ckDistrict', a.upazila);
-    if (a.upazila) { onUpazilaChange('ck'); setTimeout(() => set('ckZone', a.union), 200); }
+    set('ckDistrict', a.deliveryZone);
+    if (a.deliveryZone) { onDeliveryZoneChange('ck'); setTimeout(() => set('ckZone', a.area), 200); }
     set('ckVillage', a.village);
     set('ckAddress', a.address);
     Router.go('checkout');
@@ -120,9 +120,9 @@ const AddressService = {
     m.classList.add('show');
     const set = (id, val) => { const e = document.getElementById(id); if (e && val) e.value = val; };
     set('addrLabel', prefill.label || '');
-    set('addrUpazila', prefill.upazila || '');
+    set('addrDistrict', prefill.deliveryZone || '');
     set('addrVillage', prefill.village || '');
-    set('addrAddress', prefill.address || '');
+    set('addrFull', prefill.address || '');
   },
 
   closeModal() {
@@ -132,12 +132,12 @@ const AddressService = {
 
   async submitModal() {
     const label = document.getElementById('addrLabel')?.value.trim() || '';
-    const upazila = document.getElementById('addrUpazila')?.value || '';
-    const union = document.getElementById('addrUnion')?.value || '';
+    const deliveryZone = document.getElementById('addrDistrict')?.value || '';
+    const area = document.getElementById('addrZone')?.value || '';
     const village = document.getElementById('addrVillage')?.value.trim() || '';
-    const address = document.getElementById('addrAddress')?.value.trim() || '';
+    const address = document.getElementById('addrFull')?.value.trim() || '';
     if (!label || !address) { toast('লেবেল ও ঠিকানা আবশ্যক', 'error'); return; }
-    const ok = await this.saveAddress({ label, upazila, union, village, address });
+    const ok = await this.saveAddress({ label, deliveryZone, area, village, address });
     if (ok) { this.closeModal(); this.renderAddresses(); }
   }
 };

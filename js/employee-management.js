@@ -65,7 +65,7 @@ const EmployeeManagement = {
     if(roleFilter && roleFilter.options.length<=1) roleFilter.insertAdjacentHTML('beforeend',options);
     if(roleInput) roleInput.innerHTML=options;
     const branch=document.getElementById('empBranch');
-    if(branch) branch.innerHTML='<option value="Head Office">Head Office</option>'+Object.entries(window.BRANCH_INFO||{}).map(([id,b])=>`<option value="${this.esc(b.label||id)}">${this.esc(b.label||id)}</option>`).join('');
+    if(branch) branch.innerHTML='<option value="Zone-A">Zone-A</option>'+Object.entries(window.BRANCH_INFO||{}).map(([id,b])=>`<option value="${this.esc(b.label||id)}">${this.esc(b.label||id)}</option>`).join('');
     const manager=document.getElementById('empReportingManager');
     if(manager){
       const selected=manager.value;
@@ -120,7 +120,7 @@ const EmployeeManagement = {
     const x=this.records.find(r=>r.uid===uid); if(!x)return;
     this.editingUid=uid; this.photoFile=null; this.populateControls();
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.value=v||''};
-    set('empName',x.name);set('empUid',uid);set('empEmail',x.email);set('empPhone',x.phone);set('empRole',x.role||'support');set('empDesignation',x.designation);set('empDepartment',x.department);set('empWorkspace',x.workspaceName);set('empEmployeeId',x.employeeId);set('empBranch',x.branchName||x.branchZone||'Head Office');set('empUniform',x.uniform);set('empStatus',x.status||(x.active===false?'inactive':'active'));set('empResponsibilities',x.responsibilities);set('empJoiningDate',x.joiningDate);set('empProbationEnd',x.probationEndDate);set('empSalaryGrade',x.salaryGrade||'Grade 1');set('empShift',x.shift||'General (9:00 AM–6:00 PM)');set('empReportingManager',x.reportingManagerUid);set('empEmergencyContact',x.emergencyContactName);set('empEmergencyPhone',x.emergencyContactPhone);
+    set('empName',x.name);set('empUid',uid);set('empEmail',x.email);set('empPhone',x.phone);set('empRole',x.role||'support');set('empDesignation',x.designation);set('empDepartment',x.department);set('empWorkspace',x.workspaceName);set('empEmployeeId',x.employeeId);set('empBranch',x.branchName||x.branchZone||'Zone-A');set('empUniform',x.uniform);set('empStatus',x.status||(x.active===false?'inactive':'active'));set('empResponsibilities',x.responsibilities);set('empJoiningDate',x.joiningDate);set('empProbationEnd',x.probationEndDate);set('empSalaryGrade',x.salaryGrade||'Grade 1');set('empShift',x.shift||'General (9:00 AM–6:00 PM)');set('empReportingManager',x.reportingManagerUid);set('empEmergencyContact',x.emergencyContactName);set('empEmergencyPhone',x.emergencyContactPhone);
     document.getElementById('empUid').disabled=true; document.getElementById('employeePhotoPreview').src=x.photoURL||x.photoUrl||'icons/head_logo.webp';
     document.getElementById('employeeFormTitle').textContent='কর্মীর পরিচয় ও অফিস ডেস্ক সম্পাদনা'; this.openForm();
   },
@@ -140,7 +140,7 @@ const EmployeeManagement = {
     try{
       let photoURL=this.records.find(x=>x.uid===uid)?.photoURL||'';
       if(this.photoFile){const safe=this.photoFile.name.replace(/[^a-zA-Z0-9._-]/g,'_');const ref=FB.storageRef(FB.storage,`staff/${uid}/profile-${Date.now()}-${safe}`);await FB.uploadBytes(ref,this.photoFile);photoURL=await FB.getDownloadURL(ref);}
-      const status=get('empStatus')||'probation'; const reportingManagerUid=get('empReportingManager'); const manager=this.records.find(x=>x.uid===reportingManagerUid); const payload={name,email:get('empEmail'),phone:get('empPhone'),role,designation:get('empDesignation'),department:get('empDepartment'),workspaceName:get('empWorkspace'),employeeId,branchName:get('empBranch')||'Head Office',uniform:get('empUniform'),responsibilities:get('empResponsibilities'),status,active:this.isOperational(status),joiningDate:get('empJoiningDate'),probationEndDate:get('empProbationEnd'),salaryGrade:get('empSalaryGrade'),shift:get('empShift'),reportingManagerUid,reportingManagerName:manager?.name||'',emergencyContactName:get('empEmergencyContact'),emergencyContactPhone:get('empEmergencyPhone'),photoURL,updatedAt:FB.serverTimestamp()};
+      const status=get('empStatus')||'probation'; const reportingManagerUid=get('empReportingManager'); const manager=this.records.find(x=>x.uid===reportingManagerUid); const payload={name,email:get('empEmail'),phone:get('empPhone'),role,designation:get('empDesignation'),department:get('empDepartment'),workspaceName:get('empWorkspace'),employeeId,branchName:get('empBranch')||'Zone-A',uniform:get('empUniform'),responsibilities:get('empResponsibilities'),status,active:this.isOperational(status),joiningDate:get('empJoiningDate'),probationEndDate:get('empProbationEnd'),salaryGrade:get('empSalaryGrade'),shift:get('empShift'),reportingManagerUid,reportingManagerName:manager?.name||'',emergencyContactName:get('empEmergencyContact'),emergencyContactPhone:get('empEmergencyPhone'),photoURL,updatedAt:FB.serverTimestamp()};
       if(!this.editingUid) payload.createdAt=FB.serverTimestamp();
       await FB.setDoc(FB.doc(FB.db,'staff',uid),payload,{merge:true});
       toast('✓ কর্মীর পরিচয় ও অফিস ডেস্ক সংরক্ষণ হয়েছে','success');this.closeForm();await this.load();

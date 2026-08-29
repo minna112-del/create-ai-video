@@ -12,8 +12,8 @@
   employeeId: "GS-CCE-0007",
   photoURL: "https://.../rakib.webp",
   uniform: "Golapi Customer Care Uniform",
-  branchName: "Noakhali Sadar Branch",
-  branchZone: "noakhali-sadar",
+  branchName: "Zone-A Branch",
+  branchZone: "zone_a",
   phone: "01XXXXXXXXX",
   active: true
 }

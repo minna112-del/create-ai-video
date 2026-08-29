@@ -678,15 +678,15 @@ document.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('searchInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') submitSearch(); });
 });
 
-function onUpazilaChange(prefix){
-  const upazila = document.getElementById(prefix+'District')?.value;
+function onDeliveryZoneChange(prefix){
+  const deliveryZone = document.getElementById(prefix+'District')?.value;
   const zoneSel = document.getElementById(prefix+'Zone');
   if(!zoneSel) return;
-  if(!upazila){ zoneSel.innerHTML = '<option value="">প্রথমে উপজেলা বেছে নিন</option>'; }
-  else { zoneSel.innerHTML = '<option value="">ইউনিয়ন বেছে নিন</option>' + AREA_ZONES[upazila].map(z=>`<option value="${z}">${z}</option>`).join(''); }
+  if(!deliveryZone){ zoneSel.innerHTML = '<option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option>'; }
+  else { zoneSel.innerHTML = '<option value="">এলাকা বেছে নিন</option>' + AREA_ZONES[deliveryZone].map(z=>`<option value="${z}">${z}</option>`).join(''); }
   if(prefix==='cb'){
     const numEl = document.getElementById('cbBkashNum');
-    if(numEl) numEl.textContent = upazila ? BRANCH_INFO[upazila].bkashNumber : 'উপজেলা বেছে নিলে দেখাবে';
+    if(numEl) numEl.textContent = deliveryZone ? BRANCH_INFO[deliveryZone].bkashNumber : 'ডেলিভারি জোন বেছে নিলে দেখাবে';
   }
   if(prefix==='ck'){
     const payInfo = document.getElementById('ckPayInfo');
@@ -823,7 +823,7 @@ function orderTrackHTML(o){
     : '';
   const liveBtn = (o.status==='in_transit' && o.driverLat && o.driverLng)
     ? `<div class="live-map-box" id="liveMapBox-${o.id}"><span class="live-map-badge"><span class="dot"></span> লাইভ ট্র্যাকিং</span></div>
-       <a href="https://www.google.com/maps?q=${o.driverLat},${o.driverLng}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:6px;font-size:11.5px;color:var(--ink-muted)">Google Maps-এ বড় করে দেখুন ↗</a>${etaBox}`
+       <a href="https://www.google.com/maps?q=${o.driverLat},${o.driverLng}" target="_blank" rel="noopener" style="display:block;text-align:center;margin-top:6px;font-size:11.5px;color:var(--ink-muted)">লাইভ লোকেশন দেখুন ↗</a>${etaBox}`
     : '';
   const memoBtn = (o.orderType==='custom-bazar')
     ? (()=>{ const k=BazarMemo.register(o); return `<button class="btn btn-outline btn-block" style="margin-top:8px;font-size:12.5px" onclick="BazarMemo.openById('${esc(k)}')">🧾 মেমো দেখুন / প্রিন্ট করুন</button>`; })() : '';
@@ -901,7 +901,7 @@ const SavedLists = {
             <a href="#" onclick="event.preventDefault();SavedLists.deleteList('${l.id}')" style="color:#f87171;font-size:11.5px">মুছুন</a>
           </div>
           <div style="font-size:12px;color:var(--ink-muted);margin-bottom:10px">${l.items.length}টি প্রোডাক্ট — ${availableCount}টি এখন পাওয়া যাচ্ছে</div>
-          <button class="btn btn-gold btn-block" style="font-size:12.5px" onclick="SavedLists.addToCart('${l.id}')">🛒 কার্টে যোগ করুন</button>
+          <button class="btn btn-gold btn-block" style="font-size:12.5px" onclick="SavedLists.addToCart('${l.id}')">🛒 কার্টে রাখুন</button>
         </div>`;
       }).join('');
     }catch(e){ devWarn('saved lists load failed', e.message); box.innerHTML = `<p style="color:var(--ink-muted)">লোড করা যায়নি</p>`; }

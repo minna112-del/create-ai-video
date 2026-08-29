@@ -9,8 +9,8 @@
       <div class="field"><label>মোবাইল নম্বর *</label><input type="tel" id="cbPhone" placeholder="01XXXXXXXXX"></div>
       <div class="field"><label>সম্পূর্ণ ঠিকানা *</label><textarea id="cbAddress" rows="2" placeholder="বাড়ি/রোড/এলাকা"></textarea></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="field"><label>ডেলিভারি জোন *</label><select id="cbDistrict" onchange="onUpazilaChange('cb')"><option value="">বেছে নিন</option><option value="noakhali_sadar">Zone-A</option><option value="begumganj">Zone-B</option><option value="zone_c">Zone-C</option></select></div>
-        <div class="field"><label>ইউনিয়ন *</label><select id="cbZone"><option value="">প্রথমে উপজেলা বেছে নিন</option></select></div>
+        <div class="field"><label>ডেলিভারি জোন *</label><select id="cbDistrict" onchange="onDeliveryZoneChange('cb')"><option value="">বেছে নিন</option><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option></select></div>
+        <div class="field"><label>এলাকা *</label><select id="cbZone"><option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option></select></div>
       </div>
       <div class="field"><label>গ্রাম / এলাকার নাম *</label><input type="text" id="cbVillage" placeholder="যেমন: পশ্চিম নাজিরপুর, ৩নং ওয়ার্ড"></div>
       <div class="field"><label>বাজারের ধরন *</label>
@@ -27,7 +27,7 @@
       </div>
       <div style="background:rgba(212,175,55,.06);border:1px solid var(--gold-line);border-radius:12px;padding:14px;margin-bottom:16px">
         <strong style="color:var(--gold);font-size:13px">⚠️ কাস্টম বাজারে ১০০ টাকা অগ্রিম কেন লাগে:</strong>
-        <p style="font-size:12.5px;color:var(--ink-soft);line-height:1.7;margin-top:4px">কাস্টম বাজারে ড্রাইভার আগে টাকা খরচ করে বাজার করে। তাই অর্ডার নিশ্চিত করতে <strong style="color:var(--ink)">১০০ টাকা অগ্রিম</strong> নেওয়া হয়। এই টাকা আপনার মোট বিল থেকে বাদ যাবে। বিকাশ নম্বর: <strong id="cbBkashNum" style="color:var(--gold)">উপজেলা বেছে নিলে দেখাবে</strong><br>বাকি সম্পূর্ণ টাকা ক্যাশ অন ডেলিভারি — পণ্য হাতে পাওয়ার পর। <strong style="color:var(--ink)">bKash-এর নিজস্ব চার্জ (যদি থাকে) আমরা বহন করি, আপনাকে দিতে হবে না।</strong></p>
+        <p style="font-size:12.5px;color:var(--ink-soft);line-height:1.7;margin-top:4px">কাস্টম বাজারে ড্রাইভার আগে টাকা খরচ করে বাজার করে। তাই অর্ডার নিশ্চিত করতে <strong style="color:var(--ink)">১০০ টাকা অগ্রিম</strong> নেওয়া হয়। এই টাকা আপনার মোট বিল থেকে বাদ যাবে। বিকাশ নম্বর: <strong id="cbBkashNum" style="color:var(--gold)">ডেলিভারি জোন বেছে নিলে দেখাবে</strong><br>বাকি সম্পূর্ণ টাকা ক্যাশ অন ডেলিভারি — পণ্য হাতে পাওয়ার পর। <strong style="color:var(--ink)">bKash-এর নিজস্ব চার্জ (যদি থাকে) আমরা বহন করি, আপনাকে দিতে হবে না।</strong></p>
       </div>
 
       <div class="card-box" style="margin-bottom:16px">

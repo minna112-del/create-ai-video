@@ -57,7 +57,7 @@ const WarehouseDash = {
   },
   renderReceiving(){
     const host=document.getElementById('whReceivingTable');if(!host)return;
-    host.innerHTML=this._purchaseOrders.length?this._purchaseOrders.map(po=>{const status=String(po.status||'pending');return `<tr><td><b>${this.esc(po.poNumber||po.id)}</b></td><td>${this.esc(po.supplierName||po.supplier||'—')}</td><td>${this.esc(po.branchName||po.branchZone||'Head Office')}</td><td>${this.date(po.expectedAt||po.expectedDate||po.createdAt)}</td><td>${this.esc(status)}</td><td>${['received','cancelled','closed'].includes(status.toLowerCase())?'—':`<button class="warehouse-action" onclick="WarehouseDash.receivePurchaseOrder('${this.esc(po.id)}')">Receive</button>`}</td></tr>`;}).join(''):'<tr><td colspan="6">কোনো Purchase Order পাওয়া যায়নি</td></tr>';
+    host.innerHTML=this._purchaseOrders.length?this._purchaseOrders.map(po=>{const status=String(po.status||'pending');return `<tr><td><b>${this.esc(po.poNumber||po.id)}</b></td><td>${this.esc(po.supplierName||po.supplier||'—')}</td><td>${this.esc(po.branchName||po.branchZone||'Zone-A')}</td><td>${this.date(po.expectedAt||po.expectedDate||po.createdAt)}</td><td>${this.esc(status)}</td><td>${['received','cancelled','closed'].includes(status.toLowerCase())?'—':`<button class="warehouse-action" onclick="WarehouseDash.receivePurchaseOrder('${this.esc(po.id)}')">Receive</button>`}</td></tr>`;}).join(''):'<tr><td colspan="6">কোনো Purchase Order পাওয়া যায়নি</td></tr>';
   },
   async receivePurchaseOrder(id){
     const po=this._purchaseOrders.find(x=>x.id===id);if(!po)return;if(!confirm('এই shipment গ্রহণ সম্পন্ন করবেন?'))return;

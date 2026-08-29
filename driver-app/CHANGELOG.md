@@ -13,7 +13,7 @@
 - Added route-level lazy loading for pages, dashboards and heavy modal flows
 - Split Firebase, React, map and UI vendor bundles for faster startup
 - Added reproducible `package-lock.json` installs and changed CI to `npm ci`
-- Replaced conflicting Dhaka/New York map placeholders with verified Golapi Shop Noakhali and Begumganj service zones
+- Replaced conflicting Dhaka/New York map placeholders with verified Golapi Shop Noakhali and Zone-B service zones
 - Map now uses saved/live driver coordinates and escapes Firestore-sourced marker labels
 - Inactive, suspended and resigned driver accounts are blocked during authentication
 - Revalidated TypeScript, project integration and production build

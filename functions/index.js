@@ -296,23 +296,21 @@ const PHONE_RE = /^(?:\+880|880|0)1[3-9]\d{8}$/;
 const NID_RE = /^\d{10}$|^\d{13}$/;
 
 const SERVICE_AREA_DEFAULTS = {
-  noakhali_sadar: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
-  begumganj: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','বেগমগঞ্জ','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
+  zone_a: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
+  zone_b: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
   zone_c: []
 };
 const SERVICE_BRANCH_DEFAULTS = {
-  noakhali_sadar: { label:'Zone - A', lat:22.8710, lng:91.0996, active:true, bkashNumber:'01627010060', nagadNumber:'01627010060' },
-  begumganj: { label:'Zone - B', lat:22.9412, lng:91.1119, active:true, bkashNumber:'01612057371', nagadNumber:'01310006959' },
+  zone_a: { label:'Zone - A', lat:22.8710, lng:91.0996, active:true, bkashNumber:'01627010060', nagadNumber:'01627010060' },
+  zone_b: { label:'Zone - B', lat:22.9412, lng:91.1119, active:true, bkashNumber:'01612057371', nagadNumber:'01310006959' },
   zone_c: { label:'Zone - C', lat:null, lng:null, active:false, bkashNumber:'', nagadNumber:'' }
 };
 const SERVICE_DELIVERY_DEFAULTS = {
-  noakhali_sadar:[{id:'sadar_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'sadar_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'sadar_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
-  begumganj:[{id:'begum_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'begum_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'begum_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
+  zone_a:[{id:'zone_a_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'zone_a_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'zone_a_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
+  zone_b:[{id:'zone_b_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'zone_b_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'zone_b_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
   zone_c:[]
 };
 function normalizeServiceZoneId(value) {
-  if (value === 'zone_a') return 'noakhali_sadar';
-  if (value === 'zone_b') return 'begumganj';
   return value;
 }
 function haversineKmServer(lat1, lng1, lat2, lng2) {

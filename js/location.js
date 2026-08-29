@@ -98,8 +98,8 @@ const LocationPicker = {
       <button class="btn btn-gold btn-block" id="lpConfirmBtn" disabled onclick="LocationPicker.confirm()">এই লোকেশন কনফার্ম করুন</button>
     `;
 
-    // ব্র্যান্ড থিমের সাথে মিলিয়ে সদর ব্রাঞ্চ থেকে শুরু (ডিফল্ট ভিউ)
-    const center = { lat: BRANCH_INFO.noakhali_sadar.lat, lng: BRANCH_INFO.noakhali_sadar.lng };
+    // ব্র্যান্ড থিমের সাথে মিলিয়ে Zone-A ব্রাঞ্চ থেকে শুরু (ডিফল্ট ভিউ)
+    const center = { lat: BRANCH_INFO.zone_a.lat, lng: BRANCH_INFO.zone_a.lng };
     this.map = new google.maps.Map(document.getElementById('lpMapDiv'), {
       center, zoom: 13, disableDefaultUI: true, zoomControl: true, gestureHandling: 'greedy',
       styles: [{ featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }]

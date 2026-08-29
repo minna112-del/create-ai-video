@@ -656,8 +656,8 @@ const AdminDash = {
     try{
       const snap = await FB.getDoc(FB.doc(FB.db,'setting','zone_manager_pins'));
       const pins = snap.exists()? snap.data() : {};
-      const s = document.getElementById('zmPinSadar'); if(s) s.value=pins.noakhali_sadar||'';
-      const b = document.getElementById('zmPinBegumganj'); if(b) b.value=pins.begumganj||'';
+      const s = document.getElementById('zmPinZoneA'); if(s) s.value=pins.zone_a||'';
+      const b = document.getElementById('zmPinZoneB'); if(b) b.value=pins.zone_b||'';
       const c = document.getElementById('zmPinZoneC'); if(c) c.value=pins.zone_c||'';
     }catch(e){ devWarn(e.message); }
   },
@@ -887,8 +887,8 @@ const AdminDash = {
     if(!FB){ toast('সংযোগ সমস্যা','error'); return; }
     try{
       await FB.setDoc(FB.doc(FB.db,'setting','zone_manager_pins'),{
-        noakhali_sadar: document.getElementById('zmPinSadar').value.trim(),
-        begumganj: document.getElementById('zmPinBegumganj').value.trim(),
+        zone_a: document.getElementById('zmPinZoneA').value.trim(),
+        zone_b: document.getElementById('zmPinZoneB').value.trim(),
         zone_c: document.getElementById('zmPinZoneC')?.value.trim() || ''
       });
       toast('✓ পিন সংরক্ষণ করা হয়েছে','success');

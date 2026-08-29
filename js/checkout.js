@@ -4,7 +4,7 @@ const Checkout = {
   locationData:null, // LocationPicker থেকে আসা {lat,lng,address,branchZone,distanceKm,etaMin,deliveryFee}
   async init(){
     const d=document.getElementById('ckDistrict'); if(d) d.value='';
-    const z=document.getElementById('ckZone'); if(z) z.innerHTML=`<option value="">${currentLang==='bn'?'প্রথমে উপজেলা বেছে নিন':'Select upazila first'}</option>`;
+    const z=document.getElementById('ckZone'); if(z) z.innerHTML=`<option value="">${currentLang==='bn'?'প্রথমে ডেলিভারি জোন বেছে নিন':'Select delivery zone first'}</option>`;
     const v=document.getElementById('ckVillage'); if(v) v.value='';
     this.locationData = null;
     const ls=document.getElementById('ckLocationSummary'); if(ls){ ls.hidden=true; ls.innerHTML=''; }
@@ -33,9 +33,9 @@ const Checkout = {
   openLocationPicker(){
     LocationPicker.open((data)=>{
       this.locationData = data;
-      // ম্যাপ থেকে পাওয়া নিকটতম শাখা অনুযায়ী উপজেলা ড্রপডাউন auto-select করে দেয়
+      // ম্যাপ থেকে পাওয়া নিকটতম শাখা অনুযায়ী ডেলিভারি জোন ড্রপডাউন auto-select করে দেয়
       const d = document.getElementById('ckDistrict');
-      if(d && data.branchZone){ d.value = data.branchZone; onUpazilaChange('ck'); }
+      if(d && data.branchZone){ d.value = data.branchZone; onDeliveryZoneChange('ck'); }
       const summary = document.getElementById('ckLocationSummary');
       if(summary){
         summary.hidden=false;
@@ -86,7 +86,7 @@ const Checkout = {
     const name = document.getElementById('ckName')?.value.trim()||'';
     const phone = document.getElementById('ckPhone')?.value.trim().replace(/[\s-]/g,'')||'';
     const addr = document.getElementById('ckAddress')?.value.trim()||'';
-    const upazila = document.getElementById('ckDistrict')?.value||'';
+    const deliveryZone = document.getElementById('ckDistrict')?.value||'';
     const zone = document.getElementById('ckZone')?.value||'';
     const village = document.getElementById('ckVillage')?.value.trim()||'';
     const instructions = document.getElementById('ckInstructions')?.value.trim()||'';
@@ -97,8 +97,8 @@ const Checkout = {
     const checks = [
       ['ckName', name.length>0, currentLang==='bn'?'নাম লিখুন':'Enter your name'],
       ['ckPhone', phoneRe.test(phone), currentLang==='bn'?'সঠিক মোবাইল নম্বর লিখুন':'Enter a valid mobile number'],
-      ['ckDistrict', !!upazila, currentLang==='bn'?'উপজেলা বেছে নিন':'Select an upazila'],
-      ['ckZone', !!zone, currentLang==='bn'?'ইউনিয়ন বেছে নিন':'Select a union'],
+      ['ckDistrict', !!deliveryZone, currentLang==='bn'?'ডেলিভারি জোন বেছে নিন':'Select a delivery zone'],
+      ['ckZone', !!zone, currentLang==='bn'?'এলাকা বেছে নিন':'Select an area'],
       ['ckVillage', village.length>0, currentLang==='bn'?'গ্রাম বা এলাকার নাম লিখুন':'Enter village or area'],
       ['ckAddress', addr.length>=5, currentLang==='bn'?'বাড়ি, রোড বা ল্যান্ডমার্ক একটু বিস্তারিত লিখুন':'Enter house, road, or landmark details'],
       ['ckInstructions', instructions.length>0, currentLang==='bn'?'ডেলিভারি নির্দেশনা লিখুন':'Enter delivery instructions'],
@@ -245,7 +245,7 @@ const Checkout = {
     const name=document.getElementById('ckName').value.trim();
     const phone=document.getElementById('ckPhone').value.trim();
     const addr=document.getElementById('ckAddress').value.trim();
-    const upazila=document.getElementById('ckDistrict').value;
+    const deliveryZone=document.getElementById('ckDistrict').value;
     const zone=document.getElementById('ckZone').value;
     const village=document.getElementById('ckVillage').value.trim();
     const instructions=document.getElementById('ckInstructions').value.trim();
@@ -253,7 +253,7 @@ const Checkout = {
     const phoneRe = /^(?:\+880|880|0)1[3-9]\d{8}$/;
     const nidRe = /^\d{10}$|^\d{13}$/;
     const nidOk = nid.length===0 || nidRe.test(nid);
-    if(!name||!phoneRe.test(phone.replace(/[\s-]/g,''))||!nidOk||addr.length<5||!upazila||!zone||!village||!instructions){ toast(currentLang==='bn'?'⚠ সব প্রয়োজনীয় তথ্য সঠিকভাবে পূরণ করুন':'⚠ Please fill in all required information correctly','error'); this.goStep(1); return; }
+    if(!name||!phoneRe.test(phone.replace(/[\s-]/g,''))||!nidOk||addr.length<5||!deliveryZone||!zone||!village||!instructions){ toast(currentLang==='bn'?'⚠ সব প্রয়োজনীয় তথ্য সঠিকভাবে পূরণ করুন':'⚠ Please fill in all required information correctly','error'); this.goStep(1); return; }
     if(!document.getElementById('ckTerms').checked){ toast(currentLang==='bn'?'⚠ শর্তাবলীতে সম্মত হতে হবে':'⚠ You must agree to the Terms & Conditions','error'); return; }
     if(!FB){ toast(currentLang==='bn'?'⚠ সংযোগ সমস্যা — আবার চেষ্টা করুন':'⚠ Connection issue — please try again','error'); return; }
     this.setPlaceOrderLoading(true);
@@ -287,7 +287,7 @@ const Checkout = {
       const res = await createOrder({
         items: cartEntries.map(([id,qty])=>({productId:id, qty:Number(qty)})),
         customerName:name, customerPhone:phone, customerNid:nid, address:addr, village,
-        branchZone:upazila, district:AREA_LABELS[upazila]||'', zone,
+        branchZone:deliveryZone, district:AREA_LABELS[deliveryZone]||'', zone,
         customerLat: this.locationData?.lat ?? null, customerLng: this.locationData?.lng ?? null,
         deliveryZoneId: this.locationData?.zone?.id ?? null, deliveryZoneLabel: this.locationData?.zone?.label ?? null,
         distanceKm: this.locationData?.distanceKm ?? null, etaMinutes: this.locationData?.etaMin ?? null,
@@ -323,7 +323,7 @@ const Checkout = {
         total,
         itemCount,
         paymentMethod:this.pay,
-        deliveryArea:this.locationData?.zone?.label || AREA_LABELS[upazila] || upazila,
+        deliveryArea:this.locationData?.zone?.label || AREA_LABELS[deliveryZone] || deliveryZone,
         guestAccessToken: guestAccessToken || null
       });
       Cart.items={}; Cart.save();
@@ -340,7 +340,7 @@ const Checkout = {
             at: Date.now()
           }));
         }catch(e){}
-        PaymentGateway.showPaymentModal(this.pay, total, orderId, upazila);
+        PaymentGateway.showPaymentModal(this.pay, total, orderId, deliveryZone);
       } else {
         Router.go('order-success');
       }

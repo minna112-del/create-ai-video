@@ -105,7 +105,7 @@ index.html (~3 KB স্কেলিটন, শুধু <div id="slot-...">/<ma
 ## 📍 লোকেশন সিস্টেম
 
 - **Google Maps** (Places Autocomplete + Geocoding + Distance Matrix) — `index.html`-এ `window.GOOGLE_MAPS_API_KEY` বসাতে হয়
-- **Delivery Zone:** প্রতিটা শাখার (সদর/Zone-B) নিচে বৃত্তাকার Zone A/B/C (radius + flat fee) — Admin Panel থেকে লাইভ-এডিটেবল, `setting/delivery_zones` Firestore ডকুমেন্টে সেভ থাকে
+- **Delivery Zone:** প্রতিটা শাখার (Zone-A/Zone-B) নিচে বৃত্তাকার Zone A/B/C (radius + flat fee) — Admin Panel থেকে লাইভ-এডিটেবল, `setting/delivery_zones` Firestore ডকুমেন্টে সেভ থাকে
 - **Checkout-এ লোকেশন বাধ্যতামূলক** — ম্যাপে পিন না করলে অর্ডার confirm হয় না; Zone-এর বাইরে হলে ব্লক
 - **Customer tracking** (`location.js`, `livemap.js`) এবং **Driver tracking** (`driver-app/src/context/DriverContext.tsx`) একই order-এর Firestore coordinates/status ব্যবহার করে।
 

@@ -207,7 +207,7 @@ const AccountPage = {
   openAddAddress(){
     ['addrLabel','addrVillage','addrFull'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
     const district=document.getElementById('addrDistrict'); if(district) district.value='';
-    const zone=document.getElementById('addrZone'); if(zone) zone.innerHTML='<option value="">প্রথমে উপজেলা বেছে নিন</option>';
+    const zone=document.getElementById('addrZone'); if(zone) zone.innerHTML='<option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option>';
     const msg=document.getElementById('addressMsg'); if(msg) msg.className='form-msg';
     document.getElementById('addressModal')?.classList.add('show');
   },
@@ -216,7 +216,7 @@ const AccountPage = {
     const msgEl=document.getElementById('addressMsg');
     if(!Auth.currentUser){ msgEl.textContent='লগইন করুন'; msgEl.className='form-msg err'; return; }
     const addr={label:document.getElementById('addrLabel').value.trim()||'ঠিকানা',district:document.getElementById('addrDistrict').value,zone:document.getElementById('addrZone').value,village:document.getElementById('addrVillage').value.trim(),address:document.getElementById('addrFull').value.trim()};
-    if(!addr.district||!addr.address){ msgEl.textContent='উপজেলা ও ঠিকানা দিন'; msgEl.className='form-msg err'; return; }
+    if(!addr.district||!addr.address){ msgEl.textContent='ডেলিভারি জোন ও ঠিকানা দিন'; msgEl.className='form-msg err'; return; }
     if(!FB){ msgEl.textContent='সংযোগ সমস্যা'; msgEl.className='form-msg err'; return; }
     try{ const ref=FB.doc(FB.db,'users',Auth.currentUser.uid); const snap=await FB.getDoc(ref); const addrs=snap.exists()?(snap.data().addresses||[]):[]; addrs.push(addr); await FB.setDoc(ref,{addresses:addrs},{merge:true}); toast('✓ ঠিকানা সংরক্ষণ করা হয়েছে','success'); this.closeAddAddress(); this.renderAddresses(); }
     catch(e){ msgEl.textContent='ঠিকানা সংরক্ষণ করা যায়নি'; msgEl.className='form-msg err'; }

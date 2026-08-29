@@ -101,34 +101,34 @@ const CATEGORIES = [
 const EMERGENCY_CATEGORIES = ['medicine','gas'];
 
 const AREA_ZONES = {
-  noakhali_sadar: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
-  begumganj: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','বেগমগঞ্জ','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
+  zone_a: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
+  zone_b: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
   zone_c: []
 };
 
 const BRANCH_INFO = {
-  noakhali_sadar:{label:'Zone-A',address:'নোয়াখালী Zone-A সার্ভিস পয়েন্ট',managerName:'রিমন',managerPhone:'+880 1627-010060',bkashNumber:'01627010060',nagadNumber:'01627010060',lat:22.8710,lng:91.0996},
-  begumganj:{label:'Zone-B',address:'নোয়াখালী Zone-B সার্ভিস পয়েন্ট',managerName:'সৃজন',managerPhone:'+880 1310-006959',bkashNumber:'01612057371',nagadNumber:'01310006959',lat:22.9412,lng:91.1119},
+  zone_a:{label:'Zone-A',address:'নোয়াখালী Zone-A সার্ভিস পয়েন্ট',managerName:'রিমন',managerPhone:'+880 1627-010060',bkashNumber:'01627010060',nagadNumber:'01627010060',lat:22.8710,lng:91.0996},
+  zone_b:{label:'Zone-B',address:'নোয়াখালী Zone-B সার্ভিস পয়েন্ট',managerName:'সৃজন',managerPhone:'+880 1310-006959',bkashNumber:'01612057371',nagadNumber:'01310006959',lat:22.9412,lng:91.1119},
   zone_c:{label:'Zone-C',address:'নোয়াখালী Zone-C সার্ভিস পয়েন্ট',managerName:'ম্যানেজার সেট করুন',managerPhone:'',bkashNumber:'',nagadNumber:'',lat:null,lng:null,active:false}
 };
 
-const AREA_LABELS = {noakhali_sadar:BRANCH_INFO.noakhali_sadar.label, begumganj:BRANCH_INFO.begumganj.label, zone_c:BRANCH_INFO.zone_c.label};
+const AREA_LABELS = {zone_a:BRANCH_INFO.zone_a.label, zone_b:BRANCH_INFO.zone_b.label, zone_c:BRANCH_INFO.zone_c.label};
 
 /* ============================================================
-   DELIVERY ZONES — প্রতিটা শাখার নিচে Zone A/B/C (বৃত্তাকার — কেন্দ্র + radius)
+   DELIVERY RADIUS TIERS — প্রতিটি Zone-A/B/C-এর ভেতরে distance-based fee
    Admin Panel থেকে edit হয় ('setting'/'delivery_zones' ডকুমেন্টে সেভ থাকে),
    এখানে যেগুলো আছে সেগুলো ডিফল্ট (কখনো Firestore-এ কিছু না থাকলে এটাই ব্যবহার হবে)।
    ============================================================ */
 const DELIVERY_ZONES = {
-  noakhali_sadar: [
-    { id:'sadar_a', label:'Zone A — কাছাকাছি এলাকা', radiusKm:3, fee:30 },
-    { id:'sadar_b', label:'Zone B — মাঝারি দূরত্ব',   radiusKm:7, fee:50 },
-    { id:'sadar_c', label:'Zone C — দূরবর্তী এলাকা',  radiusKm:12, fee:80 }
+  zone_a: [
+    { id:'zone_a_near', label:'নিকটবর্তী ডেলিভারি সীমা', radiusKm:3, fee:30 },
+    { id:'zone_a_mid', label:'মাঝারি ডেলিভারি সীমা', radiusKm:7, fee:50 },
+    { id:'zone_a_far', label:'সর্বোচ্চ ডেলিভারি সীমা', radiusKm:12, fee:80 }
   ],
-  begumganj: [
-    { id:'begum_a', label:'Zone A — কাছাকাছি এলাকা', radiusKm:3, fee:30 },
-    { id:'begum_b', label:'Zone B — মাঝারি দূরত্ব',   radiusKm:7, fee:50 },
-    { id:'begum_c', label:'Zone C — দূরবর্তী এলাকা',  radiusKm:12, fee:80 }
+  zone_b: [
+    { id:'zone_b_near', label:'নিকটবর্তী ডেলিভারি সীমা', radiusKm:3, fee:30 },
+    { id:'zone_b_mid', label:'মাঝারি ডেলিভারি সীমা', radiusKm:7, fee:50 },
+    { id:'zone_b_far', label:'সর্বোচ্চ ডেলিভারি সীমা', radiusKm:12, fee:80 }
   ],
   zone_c: []
 };

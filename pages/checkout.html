@@ -26,8 +26,8 @@
           <div class="checkout-form-grid">
             <div class="field"><label for="ckName" data-bn="পূর্ণ নাম *" data-en="Full Name *">পূর্ণ নাম *</label><input type="text" id="ckName" autocomplete="name" required></div>
             <div class="field"><label for="ckPhone" data-bn="মোবাইল নম্বর *" data-en="Mobile Number *">মোবাইল নম্বর *</label><input type="tel" id="ckPhone" placeholder="01XXXXXXXXX" inputmode="tel" autocomplete="tel" required></div>
-            <div class="field"><label for="ckDistrict" data-bn="ডেলিভারি জোন *" data-en="Delivery Zone *">ডেলিভারি জোন *</label><select id="ckDistrict" onchange="onUpazilaChange('ck')" required><option value="" data-bn="বেছে নিন" data-en="Select">বেছে নিন</option><option value="noakhali_sadar" data-bn="Zone-A" data-en="Zone-A">Zone-A</option><option value="begumganj" data-bn="Zone-B" data-en="Zone-B">Zone-B</option><option value="zone_c" data-bn="Zone-C" data-en="Zone-C">Zone-C</option></select></div>
-            <div class="field"><label for="ckZone" data-bn="ইউনিয়ন *" data-en="Union *">ইউনিয়ন *</label><select id="ckZone" required><option value="" data-bn="প্রথমে উপজেলা বেছে নিন" data-en="Select upazila first">প্রথমে উপজেলা বেছে নিন</option></select></div>
+            <div class="field"><label for="ckDistrict" data-bn="ডেলিভারি জোন *" data-en="Delivery Zone *">ডেলিভারি জোন *</label><select id="ckDistrict" onchange="onDeliveryZoneChange('ck')" required><option value="" data-bn="বেছে নিন" data-en="Select">বেছে নিন</option><option value="zone_a" data-bn="Zone-A" data-en="Zone-A">Zone-A</option><option value="zone_b" data-bn="Zone-B" data-en="Zone-B">Zone-B</option><option value="zone_c" data-bn="Zone-C" data-en="Zone-C">Zone-C</option></select></div>
+            <div class="field"><label for="ckZone" data-bn="এলাকা *" data-en="Area *">এলাকা *</label><select id="ckZone" required><option value="" data-bn="প্রথমে ডেলিভারি জোন বেছে নিন" data-en="Select delivery zone first">প্রথমে ডেলিভারি জোন বেছে নিন</option></select></div>
           </div>
 
           <button type="button" class="checkout-location-btn" onclick="Checkout.openLocationPicker()">

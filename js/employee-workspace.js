@@ -24,7 +24,7 @@ const EmployeeWorkspace = {
       const workspace=data.workspaceName||cfg.workspace;
       const employeeId=data.employeeId||data.companyId||`GS-${cfg.code}-${String(uid||'0000').slice(-6).toUpperCase()}`;
       const photo=data.photoURL||data.photoUrl||data.image||data.avatar||'icons/head_logo.webp';
-      const branch=data.branchName||data.branchZone||'Head Office';
+      const branch=data.branchName||data.branchZone||'Zone-A';
       const uniform=data.uniform||cfg.uniform;
       host.innerHTML=`
       <section class="employee-workspace-card" aria-label="কর্মীর অফিস পরিচয়">

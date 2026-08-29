@@ -65,7 +65,7 @@ const CompanyOS = {
     });
   },
   renderIdentity(){
-    const photo=this.staff.photoURL||this.staff.photo||this.staff.avatar||'icons/head_logo.webp',name=this.staff.name||'Staff',designation=this.staff.designation||this.staff.role||'Employee',id=this.staff.employeeId||`GS-${this.staff.uid.slice(0,6).toUpperCase()}`,branch=this.staff.branchName||this.staff.branch||'Head Office';
+    const photo=this.staff.photoURL||this.staff.photo||this.staff.avatar||'icons/head_logo.webp',name=this.staff.name||'Staff',designation=this.staff.designation||this.staff.role||'Employee',id=this.staff.employeeId||`GS-${this.staff.uid.slice(0,6).toUpperCase()}`,branch=this.staff.branchName||this.staff.branch||'Zone-A';
     document.getElementById('companyOsTopPhoto').src=photo;document.getElementById('companyOsTopName').textContent=name;document.getElementById('companyOsWelcomeName').textContent=name;document.getElementById('companyOsWelcomeMeta').textContent=`${designation} · ${branch} · ${id}`;
     document.getElementById('companyOsIdentity').innerHTML=`<img src="${this.esc(photo)}" alt=""><strong>${this.esc(name)}</strong><span>${this.esc(designation)}</span><small>${this.esc(id)} · ${this.esc(branch)}</small>`;
     document.getElementById('companyOsProfileCard').innerHTML=`<img src="${this.esc(photo)}" alt=""><strong>${this.esc(name)}</strong><span>${this.esc(designation)}</span><small>${this.esc(id)}<br>${this.esc(branch)}</small>`;

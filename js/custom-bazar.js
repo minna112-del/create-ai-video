@@ -3,8 +3,8 @@ const CustomBazar = {
   init(){
     ['cbName','cbPhone','cbAddress','cbList','cbNotes','cbTrxId','cbVillage','cbInstructions'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
     const d=document.getElementById('cbDistrict'); if(d) d.value='';
-    const z=document.getElementById('cbZone'); if(z) z.innerHTML='<option value="">প্রথমে উপজেলা বেছে নিন</option>';
-    const b=document.getElementById('cbBkashNum'); if(b) b.textContent='উপজেলা বেছে নিলে দেখাবে';
+    const z=document.getElementById('cbZone'); if(z) z.innerHTML='<option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option>';
+    const b=document.getElementById('cbBkashNum'); if(b) b.textContent='ডেলিভারি জোন বেছে নিলে দেখাবে';
     const m=document.getElementById('cbMsg'); if(m) m.className='form-msg';
     this.renderPastOrders();
   },
@@ -52,7 +52,7 @@ const CustomBazar = {
     document.getElementById('cbType').value = o.bazarType||'weekly';
     if(o.branchZone){
       document.getElementById('cbDistrict').value = o.branchZone;
-      onUpazilaChange('cb');
+      onDeliveryZoneChange('cb');
       setTimeout(()=>{ const zEl=document.getElementById('cbZone'); if(zEl) zEl.value = o.zone||''; }, 100);
     }
     toast('✓ আগের লিস্ট বসানো হয়েছে — চেক করে ট্রানজেকশন ID দিয়ে জমা দিন','success');
@@ -117,7 +117,7 @@ const CustomBazar = {
       // পুরো ফর্ম খালি করে দেওয়া হয়।
       ['cbName','cbPhone','cbAddress','cbList','cbNotes','cbTrxId','cbVillage','cbInstructions'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
       const dEl=document.getElementById('cbDistrict'); if(dEl) dEl.value='';
-      const zEl=document.getElementById('cbZone'); if(zEl) zEl.innerHTML='<option value="">প্রথমে উপজেলা বেছে নিন</option>';
+      const zEl=document.getElementById('cbZone'); if(zEl) zEl.innerHTML='<option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option>';
 
       // ⚠️ আগে শুধু এই একই পেজে ইনলাইন success message দেখানো হতো, কোনো
       // প্রকৃত "order success" পেজে navigation ছিল না। এখন OrderSuccess-এর
