@@ -14,39 +14,64 @@
   <div id="adminEmployeeWorkspace"></div>
   <section class="sec admin-content">
     <div class="dash-layout admin-layout">
-      <aside class="dash-side admin-nav" aria-label="Executive Office নেভিগেশন">
-        <a class="active" onclick="AdminDash.tab(this,'overview')">📊 ওভারভিউ</a>
-        <a onclick="AdminDash.tab(this,'products')">📦 প্রোডাক্ট</a>
-        <a onclick="AdminDash.tab(this,'orders')">🧾 অর্ডার</a>
-        <a onclick="AdminDash.tab(this,'analytics')">📈 অ্যানালিটিক্স</a>
-        <a onclick="Router.go('analytics-dash')">🧠 Analytics & Reports Center</a>
-        <a onclick="AdminDash.tab(this,'customers')">👥 কাস্টমার</a>
-        <a onclick="AdminDash.tab(this,'coupons')">🎟️ কুপন</a>
-        <a onclick="AdminDash.tab(this,'payments')">💳 পেমেন্ট ভেরিফিকেশন</a>
-        <a onclick="AdminDash.tab(this,'employees')">🪪 কর্মী ও অফিস ডেস্ক</a>
-        <a onclick="Router.go('procurement-dash')">🛒 Procurement Operations Office</a>
-        <a onclick="Router.go('warehouse-dash')">🏭 Warehouse Control Room</a>
-        <a onclick="Router.go('support-dash')">🎧 Customer Care Center</a>
-        <a onclick="AdminDash.tab(this,'branches')">🏢 শাখা ব্যবস্থাপনা</a>
-        <a onclick="Router.go('documents-dash')">📄 Document Management Office</a>
-        <a onclick="Router.go('attendance-dash')">⏱️ Attendance & Time Office</a>
-        <a onclick="Router.go('payroll-dash')">💳 Payroll Office</a>
-        <a onclick="Router.go('branch-dash')">🏢 Branch Management Office</a>
-        <a onclick="Router.go('crm-dash')">🤝 Customer Relationship Office</a>
-        <a onclick="Router.go('company-os')">◈ Golapi Company OS</a>
-        <a onclick="Router.go('ai-control')">✦ AI Control Center</a>
-        <a onclick="Router.go('hr-erp')">👥 Human Resources ERP</a>
-        <a onclick="Router.go('finance-erp')">📒 Finance ERP</a>
-        <a onclick="Router.go('warehouse-erp')">🏬 Advanced Warehouse ERP</a>
-        <a onclick="Router.go('marketing-erp')">📣 Marketing Automation Center</a>
-        <a onclick="Router.go('workflow-erp')">🔄 Workflow Automation Engine</a>
-        <a onclick="Router.go('bi-erp')">📊 Business Intelligence Center</a>
-        <a onclick="Router.go('asset-erp')">💼 Company Asset Management</a>
-        <a onclick="Router.go('crm-erp')">🎧 Customer Service CRM</a>
-        <a onclick="Router.go('procurement-erp')">🧾 Procurement & Vendor ERP</a>
-        <a onclick="Router.go('facilities-erp')">🏢 Facilities & Branch Operations ERP</a>
-        <a onclick="Router.go('company-settings')">🔐 Company Settings & Access Control</a>
-        <a onclick="AdminDash.tab(this,'settings')">⚙️ সেটিংস</a>
+      <aside class="dash-side admin-nav" aria-label="অ্যাডমিন নেভিগেশন">
+        <div class="admin-nav-section">
+          <span class="admin-nav-title">সিইও / অ্যাডমিন</span>
+          <a class="active" onclick="AdminDash.tab(this,'overview')">📊 ওভারভিউ</a>
+          <a onclick="Router.go('company-os')">◈ কোম্পানি ওএস</a>
+          <a onclick="AdminDash.tab(this,'employees')">🪪 কর্মী ও রোল</a>
+        </div>
+        <div class="admin-nav-section">
+          <span class="admin-nav-title">কাস্টমার</span>
+          <a onclick="AdminDash.tab(this,'products')">📦 প্রোডাক্ট</a>
+          <a onclick="AdminDash.tab(this,'orders')">🧾 অর্ডার</a>
+          <a onclick="AdminDash.tab(this,'customers')">👥 কাস্টমার</a>
+          <a onclick="Router.go('crm-dash')">🤝 কাস্টমার সম্পর্ক</a>
+        </div>
+        <div class="admin-nav-section">
+          <span class="admin-nav-title">জোন ম্যানেজার</span>
+          <a onclick="Router.go('zone-manager')">◎ জোন অপারেশন</a>
+          <a onclick="AdminDash.tab(this,'branches')">🏢 জোন/শাখা সেটআপ</a>
+          <a onclick="Router.go('branch-dash')">🏢 শাখা ম্যানেজমেন্ট</a>
+        </div>
+        <div class="admin-nav-section">
+          <span class="admin-nav-title">রাইডার / ডেলিভারি</span>
+          <a onclick="Router.go('driver')">♢ রাইডার ও ডেলিভারি</a>
+          <a onclick="Router.go('warehouse-dash')">🏭 ওয়্যারহাউস কন্ট্রোল</a>
+          <a onclick="Router.go('warehouse-erp')">🏬 ওয়্যারহাউস ইআরপি</a>
+        </div>
+        <div class="admin-nav-section">
+          <span class="admin-nav-title">সাপোর্ট</span>
+          <a onclick="Router.go('support-dash')">🎧 কাস্টমার কেয়ার</a>
+          <a onclick="Router.go('crm-erp')">🎧 সার্ভিস সিআরএম</a>
+          <a onclick="Router.go('documents-dash')">📄 ডকুমেন্ট অফিস</a>
+        </div>
+        <div class="admin-nav-section">
+          <span class="admin-nav-title">ফাইন্যান্স ও গ্রোথ</span>
+          <a onclick="AdminDash.tab(this,'payments')">💳 পেমেন্ট যাচাই</a>
+          <a onclick="AdminDash.tab(this,'coupons')">🎟️ কুপন</a>
+          <a onclick="Router.go('finance-dash')">৳ ফাইন্যান্স অফিস</a>
+          <a onclick="Router.go('finance-erp')">📒 ফাইন্যান্স ইআরপি</a>
+          <a onclick="AdminDash.tab(this,'analytics')">📈 অ্যানালিটিক্স</a>
+          <a onclick="Router.go('analytics-dash')">🧠 রিপোর্ট সেন্টার</a>
+        </div>
+        <div class="admin-nav-section">
+          <span class="admin-nav-title">অফিস কন্ট্রোল</span>
+          <a onclick="Router.go('inventory-dash')">▦ ইনভেন্টরি</a>
+          <a onclick="Router.go('procurement-dash')">🛒 প্রোকিউরমেন্ট</a>
+          <a onclick="Router.go('procurement-erp')">🧾 ভেন্ডর ইআরপি</a>
+          <a onclick="Router.go('attendance-dash')">⏱️ অ্যাটেনডেন্স</a>
+          <a onclick="Router.go('payroll-dash')">💳 পে-রোল</a>
+          <a onclick="Router.go('hr-erp')">👥 এইচআর ইআরপি</a>
+          <a onclick="Router.go('marketing-erp')">📣 মার্কেটিং</a>
+          <a onclick="Router.go('workflow-erp')">🔄 ওয়ার্কফ্লো</a>
+          <a onclick="Router.go('bi-erp')">📊 বিজনেস ইন্টেলিজেন্স</a>
+          <a onclick="Router.go('asset-erp')">💼 অ্যাসেট ম্যানেজমেন্ট</a>
+          <a onclick="Router.go('facilities-erp')">🏢 ফ্যাসিলিটিজ</a>
+          <a onclick="Router.go('ai-control')">✦ এআই কন্ট্রোল</a>
+          <a onclick="Router.go('company-settings')">🔐 অ্যাক্সেস কন্ট্রোল</a>
+          <a onclick="AdminDash.tab(this,'settings')">⚙️ সেটিংস</a>
+        </div>
       </aside>
       <div>
         <div id="adminOverviewPane">

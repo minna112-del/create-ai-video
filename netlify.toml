@@ -127,11 +127,6 @@
   for = "/driver/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-# Driver/Vite assets are content-hashed, so they are safe to cache for a year.
-[[headers]]
-  for = "/driver/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
 
 # ─── Static images/icons ───────────────────────────────────────
 # একই filename-এর ছবি replace হলেও stale asset দীর্ঘদিন আটকে থাকবে না।
