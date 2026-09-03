@@ -1,5 +1,5 @@
 /* sw.js — Golapi Shop Offline Service Worker (network-first) */
-const CACHE = 'golapi-v98-global-wakelock';
+const CACHE = 'golapi-v99-nostale-code';
 const OFFLINE_URL = '/offline.html';
 /* ⚠️ আগে এখানে admin/driver/zone-manager/checkout/account ইত্যাদি সব পেজ+JS
    pre-cache হতো — যদিও page-loader.js/router.js এগুলো lazy করে দিয়েছে, Service
@@ -137,9 +137,34 @@ self.addEventListener('fetch', event => {
       }
     }
 
-    // Static resources use stale-while-revalidate. After the first visit,
-    // page fragments/CSS/JS/icons render instantly from Cache Storage while
-    // a background request refreshes the cached copy for the next navigation.
+    // MT Studio audit fix: আগে JS/CSS/HTML fragment-ও ছবির মতো একই
+    // stale-while-revalidate পেত — মানে deploy-এর পর প্রথমবার পুরনো cache-করা
+    // কোডই সাথে সাথে চলত, নতুন ভার্সন শুধু পরের বার। এই সমস্যায় নিজেরাই
+    // (image-reprocess বাগ ঠিক করার সময়) ভুগেছি। এখন কোড/মার্কআপ ফাইল
+    // (js/css/html) সবসময় আগে network-এ চেষ্টা করে (দ্রুত, কারণ HTTP-লেভেলে
+    // no-cache থাকায় বেশিরভাগ সময় ছোট 304 respone) — অফলাইন/নেটওয়ার্ক-ব্যর্থ
+    // হলেই শুধু cache থেকে fallback করে। ছবি/আইকন (rarely changes) আগের মতোই
+    // stale-while-revalidate থেকে যায়, কারণ সেখানে speed-ই বেশি গুরুত্বপূর্ণ,
+    // freshness না।
+    const isCodeOrMarkup = /\.(js|css|html)$/i.test(requestUrl.pathname) || requestUrl.pathname.startsWith('/pages/');
+
+    if (isCodeOrMarkup) {
+      const cached = await caches.match(request);
+      try {
+        const response = await fetch(request);
+        if (response?.ok) {
+          const copy = response.clone();
+          event.waitUntil(caches.open(CACHE).then(cache => cache.put(request, copy)).then(() => trimCache(CACHE, MAX_CACHE_ENTRIES)).catch(() => {}));
+        }
+        return response;
+      } catch (error) {
+        return cached || Response.error();
+      }
+    }
+
+    // ছবি/ফন্ট ইত্যাদি static resource stale-while-revalidate-ই থেকে যায়।
+    // প্রথম visit-এর পর instant দেখা যায় Cache Storage থেকে, ব্যাকগ্রাউন্ডে
+    // refresh হয় পরের বারের জন্য।
     const cached = await caches.match(request);
     const network = fetch(request).then(response => {
       if (response?.ok) {

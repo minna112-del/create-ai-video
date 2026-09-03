@@ -99,12 +99,18 @@
 [[headers]]
   for = "/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=300, stale-while-revalidate=86400"
+    # MT Studio audit fix: আগে max-age=300 (৫ মিনিট) ছিল — deploy করার পর
+    # কয়েক মিনিট পুরনো JS দেখানোর কারণে বাগ-ফিক্স সাথে সাথে দেখা যাচ্ছিল না
+    # (নিজেরা এই সমস্যায় পড়ে বুঝেছি)। এখন HTML-এর মতোই no-cache — browser
+    # প্রতিবার সার্ভারের সাথে যাচাই করে নেয় (বদলায়নি হলে দ্রুত 304, পুরো
+    # ফাইল আবার ডাউনলোড হয় না), তাই speed প্রায় অপরিবর্তিত কিন্তু freshness
+    # নিশ্চিত।
+    Cache-Control = "no-cache, must-revalidate"
 
 [[headers]]
   for = "/css/*"
   [headers.values]
-    Cache-Control = "public, max-age=300, stale-while-revalidate=86400"
+    Cache-Control = "no-cache, must-revalidate"
 
 [[headers]]
   for = "/sw.js"

@@ -28,7 +28,7 @@
   color: #fde68a;
 }
 
-@media (max-width: 720px) {
+@media(max-width:720px){
   .company-os-wake-lock {
     max-width: 132px;
     overflow: hidden;
@@ -36,7 +36,7 @@
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
+@media(prefers-reduced-motion:reduce){
   .company-os-wake-lock {
     transition: none;
   }
