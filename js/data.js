@@ -387,7 +387,7 @@ function pcardHTML(p, idx) {
       onclick="Router.go('product',{id:'${p.id}'})"
       tabindex="0"
       role="link"
-      aria-label="${esc(p.name)} দেখুন"
+      aria-label="${esc(p.name)}"
       onkeydown="
         if(
           event.key === 'Enter' ||

@@ -340,7 +340,7 @@
             <select id="employeeStatusFilter" onchange="EmployeeManagement.render()"><option value="">সব স্ট্যাটাস</option><option value="probation">প্রবেশন</option><option value="active">সক্রিয়</option><option value="leave">ছুটিতে</option><option value="pending">অপেক্ষমাণ</option><option value="suspended">স্থগিত</option><option value="resigned">পদত্যাগ</option><option value="inactive">নিষ্ক্রিয়</option></select>
           </div>
           <div id="employeeDirectory" class="employee-directory"></div>
-          <div id="employeeFormModal" class="employee-modal" aria-hidden="true">
+          <div id="employeeFormModal" class="employee-modal" aria-hidden="true" inert>
             <div class="employee-modal-backdrop" onclick="EmployeeManagement.closeForm()"></div>
             <section class="employee-modal-panel" role="dialog" aria-modal="true" aria-labelledby="employeeFormTitle">
               <header><div><span>GOLAPI PEOPLE OPERATIONS</span><h3 id="employeeFormTitle">নতুন কর্মী নিয়োগ</h3></div><button onclick="EmployeeManagement.closeForm()" aria-label="বন্ধ করুন">×</button></header>

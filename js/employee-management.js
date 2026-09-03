@@ -124,8 +124,8 @@ const EmployeeManagement = {
     document.getElementById('empUid').disabled=true; document.getElementById('employeePhotoPreview').src=x.photoURL||x.photoUrl||'icons/head_logo.webp';
     document.getElementById('employeeFormTitle').textContent='কর্মীর পরিচয় ও অফিস ডেস্ক সম্পাদনা'; this.openForm();
   },
-  openForm(){const m=document.getElementById('employeeFormModal');m.classList.add('open');m.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'},
-  closeForm(){const m=document.getElementById('employeeFormModal');if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true')}document.body.style.overflow='';},
+  openForm(){const m=document.getElementById('employeeFormModal');m.classList.add('open');m.setAttribute('aria-hidden','false');m.removeAttribute('inert');document.body.style.overflow='hidden'},
+  closeForm(){const m=document.getElementById('employeeFormModal');if(m){m.classList.remove('open');m.setAttribute('aria-hidden','true');m.setAttribute('inert','')}document.body.style.overflow='';},
   applyRoleDefaults(force=false){
     const role=document.getElementById('empRole')?.value; const cfg=this.roles[role]; if(!cfg)return;
     const fill=(id,val)=>{const e=document.getElementById(id);if(e&&(force||!e.value))e.value=val};

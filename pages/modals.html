@@ -44,13 +44,13 @@
     <h3 class="tiro" id="pfTitle" style="font-size:18px;margin-bottom:14px">নতুন প্রোডাক্ট যুক্ত করুন</h3>
     <div id="pfMsg" class="form-msg"></div>
 
-    <div class="field"><label>প্রোডাক্টের নাম *</label><input type="text" id="pfName" oninput="ProductForm.autoDetectCategory(this.value)" onblur="ProductForm.maybeAutoGenerate()"></div>
+    <div class="field"><label for="pfName">প্রোডাক্টের নাম *</label><input type="text" id="pfName" oninput="ProductForm.autoDetectCategory(this.value)" onblur="ProductForm.maybeAutoGenerate()"></div>
 
     <div class="field"><label>শাখা/জোন *</label>
       <div id="pfZoneCheckboxes" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:4px"></div>
     </div>
 
-    <div class="field"><label>ক্যাটাগরি * <span style="font-size:10.5px;color:var(--ink-dim);font-weight:400">(নাম লিখলে অটো সাজেস্ট হবে, চাইলে বদলে দিন)</span></label>
+    <div class="field"><label for="pfCategory">ক্যাটাগরি * <span style="font-size:10.5px;color:var(--ink-dim);font-weight:400">(নাম লিখলে অটো সাজেস্ট হবে, চাইলে বদলে দিন)</span></label>
       <select id="pfCategory" onchange="ProductForm.categoryTouched=true">
         <option value="medicine"><span class="ic ic-pill" style="width:13px;height:13px;vertical-align:-2px;margin-right:3px"></span>ঔষধ</option>
         <option value="grocery"><span class="ic ic-cart" style="width:13px;height:13px;vertical-align:-2px;margin-right:3px"></span>মুদি বাজার</option>
@@ -89,7 +89,7 @@
       </select>
     </div>
 
-    <div class="field"><label>একক *</label>
+    <div class="field"><label for="pfUnit">একক *</label>
       <select id="pfUnit">
         <option value="পিস">পিস</option>
         <option value="কেজি">কেজি</option>
@@ -124,14 +124,14 @@
       </select>
     </div>
 
-    <div class="field"><label>স্টক পরিমাণ *</label><input type="text" inputmode="numeric" id="pfStock" value="0" oninput="normalizeDigitInput(this)"></div>
+    <div class="field"><label for="pfStock">স্টক পরিমাণ *</label><input type="text" inputmode="numeric" id="pfStock" value="0" oninput="normalizeDigitInput(this)"></div>
 
     <div class="card-box" style="background:rgba(212,175,55,.04);border-color:var(--gold-line);margin-bottom:14px">
       <div style="font-size:12px;color:var(--gold);font-weight:600;margin-bottom:8px">💰 মূল্য হিসাব (স্বয়ংক্রিয়)</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="field" style="margin-bottom:8px"><label style="font-size:11.5px">কস্ট মূল্য (৳)</label><input type="text" inputmode="decimal" id="pfCostPrice" oninput="normalizeDigitInput(this);ProductForm.recalc()"></div>
-        <div class="field" style="margin-bottom:8px"><label style="font-size:11.5px">অতিরিক্ত খরচ (৳)</label><input type="text" inputmode="decimal" id="pfExtraCost" value="0" oninput="normalizeDigitInput(this);ProductForm.recalc()"></div>
-        <div class="field" style="margin-bottom:0;grid-column:1 / -1"><label style="font-size:11.5px">লাভ (%)</label><input type="text" inputmode="decimal" id="pfProfitPercent" value="5" oninput="normalizeDigitInput(this);ProductForm.recalc()"></div>
+        <div class="field" style="margin-bottom:8px"><label for="pfCostPrice" style="font-size:11.5px">কস্ট মূল্য (৳)</label><input type="text" inputmode="decimal" id="pfCostPrice" oninput="normalizeDigitInput(this);ProductForm.recalc()"></div>
+        <div class="field" style="margin-bottom:8px"><label for="pfExtraCost" style="font-size:11.5px">অতিরিক্ত খরচ (৳)</label><input type="text" inputmode="decimal" id="pfExtraCost" value="0" oninput="normalizeDigitInput(this);ProductForm.recalc()"></div>
+        <div class="field" style="margin-bottom:0;grid-column:1 / -1"><label for="pfProfitPercent" style="font-size:11.5px">লাভ (%)</label><input type="text" inputmode="decimal" id="pfProfitPercent" value="5" oninput="normalizeDigitInput(this);ProductForm.recalc()"></div>
       </div>
       <!-- ⚠️ আগে এখানে "ডেলিভারি খরচ (%)" ফিল্ড ছিল যেটা প্রোডাক্টের দামের হিসাবে
            যুক্ত হতো — কিন্তু ডেলিভারি চার্জ checkout-এ আলাদাভাবে ধরা হয়, তাই এটা
@@ -179,7 +179,7 @@
     <h3 class="tiro" id="cpTitle" style="font-size:18px;margin-bottom:14px">নতুন কুপন তৈরি করুন</h3>
     <div id="cpMsg" class="form-msg"></div>
     <div class="field"><label>কুপন কোড *</label><input type="text" id="cpCode" placeholder="যেমন: EID50" style="text-transform:uppercase"></div>
-    <div class="field"><label>ধরন *</label>
+    <div class="field"><label for="cpType">ধরন *</label>
       <select id="cpType">
         <option value="percent">শতাংশ ছাড় (%)</option>
         <option value="flat">নির্দিষ্ট টাকা ছাড় (৳)</option>
@@ -205,7 +205,7 @@
     <h3 class="tiro" style="font-size:18px;margin-bottom:14px">নতুন ড্রাইভার যুক্ত করুন</h3>
     <div id="dfMsg" class="form-msg"></div>
     <div class="field"><label>ড্রাইভারের নাম *</label><input type="text" id="dfName"></div>
-    <div class="field"><label>ডেলিভারি জোন *</label><select id="dfZone"><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option><option value="zone_d">Zone-D</option></select></div>
+    <div class="field"><label for="dfZone">ডেলিভারি জোন *</label><select id="dfZone"><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option><option value="zone_d">Zone-D</option></select></div>
     <div class="field"><label>মোবাইল নম্বর *</label><input type="tel" id="dfPhone"></div>
     <div class="card-box" style="background:rgba(212,175,55,.04);border-color:var(--gold-line);font-size:12px;color:var(--ink-muted);margin-bottom:14px">
       ℹ️ ড্রাইভার লগইন করবে ইমেইল+পাসওয়ার্ড দিয়ে (Firebase Auth)। এখানে ড্রাইভার যোগ করার পর, Firebase Console → Authentication-এ গিয়ে এই ফোন নম্বরের সাথে মিলিয়ে একটা ইমেইল/পাসওয়ার্ড অ্যাকাউন্ট বানাও, তারপর <code>staff</code> কালেকশনে সেই UID দিয়ে <code>role: "driver"</code> ও <code>driverId</code> (এই ড্রাইভারের ID) যোগ করো।
@@ -258,7 +258,7 @@
     <h3 class="tiro" style="font-size:17px;margin-bottom:14px">নতুন ঠিকানা</h3>
     <div id="addressMsg" class="form-msg"></div>
     <div class="field"><label>লেবেল (যেমন: বাসা, অফিস)</label><input type="text" id="addrLabel" placeholder="বাসা"></div>
-    <div class="field"><label>ডেলিভারি জোন</label><select id="addrDistrict" onchange="onDeliveryZoneChange('addr')"><option value="">বেছে নিন</option><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option><option value="zone_d">Zone-D</option></select></div>
+    <div class="field"><label for="addrDistrict">ডেলিভারি জোন</label><select id="addrDistrict" onchange="onDeliveryZoneChange('addr')"><option value="">বেছে নিন</option><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option><option value="zone_d">Zone-D</option></select></div>
     <div class="field"><label>এলাকা</label><select id="addrZone"><option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option></select></div>
     <div class="field"><label>গ্রাম / এলাকা</label><input type="text" id="addrVillage"></div>
     <div class="field"><label>সম্পূর্ণ ঠিকানা</label><textarea id="addrFull" rows="2"></textarea></div>

@@ -7,7 +7,7 @@ const Home = {
     const featuredCategories=featuredCategoryIds.map(id=>CATEGORIES.find(c=>c.id===id)).filter(Boolean);
     if(catGrid) catGrid.innerHTML = featuredCategories.map(c=>{
       const label=currentLang==='en'?(c.labelEn||c.label):c.label;
-      return `<button type="button" class="cat-item" onclick="Router.go('listing',{cat:'${c.id}'})" aria-label="${esc(label)} ক্যাটাগরি দেখুন">
+      return `<button type="button" class="cat-item" onclick="Router.go('listing',{cat:'${c.id}'})" aria-label="${esc(label)}">
         <span class="cat-icon" aria-hidden="true">${c.icon}</span>
         <span class="cat-label">${esc(label)}</span>
         <span class="cat-arrow ic ic-arrow-r" aria-hidden="true"></span>
@@ -558,6 +558,7 @@ const Cart = {
     this.lastFocused=document.activeElement;
     drawer.classList.add('show'); overlay.classList.add('show');
     drawer.setAttribute('aria-hidden','false'); overlay.setAttribute('aria-hidden','false');
+    drawer.removeAttribute('inert'); overlay.removeAttribute('inert');
     document.body.classList.add('cart-open');
     this.renderDrawer();
     setTimeout(()=>drawer.querySelector('.cart-drawer__close')?.focus(),50);
@@ -566,6 +567,7 @@ const Cart = {
     const drawer=document.getElementById('cartDrawer'),overlay=document.getElementById('cartOverlay');
     drawer?.classList.remove('show'); overlay?.classList.remove('show');
     drawer?.setAttribute('aria-hidden','true'); overlay?.setAttribute('aria-hidden','true');
+    drawer?.setAttribute('inert',''); overlay?.setAttribute('inert','');
     document.body.classList.remove('cart-open');
     this.lastFocused?.focus?.();
   },

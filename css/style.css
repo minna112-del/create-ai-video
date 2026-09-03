@@ -4,9 +4,9 @@
 :root{
   --bg:#FFF8F3; --bg2:#FFF1E8; --card:#FFFFFF; --elevated:#FFFFFF;
   --gold:#D4930C; --gold-light:#F0B429; --gold-dark:#B8770A;
-  --rose:#F0356B; --rose-light:#F46E93; --pink:#F0356B; --pink-dark:#C41E56;
-  --emerald:#059669; --emerald-dark:#047857;
-  --ink:#181114; --ink-soft:#5A4E52; --ink-muted:#8C7E82; --ink-dim:#B5A8AC;
+  --rose:#DC3062; --rose-light:#F46E93; --pink:#DC3062; --pink-dark:#C41E56;
+  --emerald:#04875F; --emerald-dark:#047857;
+  --ink:#181114; --ink-soft:#5A4E52; --ink-muted:#807377; --ink-dim:#7C7376;
   --ink-band:#181114;
   --line:rgba(17,17,20,.09); --line-l:rgba(17,17,20,.14);
   --glass:rgba(17,17,20,.03); --gold-line:rgba(212,147,12,.3);
@@ -624,9 +624,9 @@ body {
 html[data-theme="dark"]{
   --bg:#121014; --bg2:#1A171C; --card:#1E1B20; --elevated:#2A262C;
   --gold:#F0B429; --gold-light:#F5C860; --gold-dark:#D4930C;
-  --rose:#FF5C87; --rose-light:#FF85A3; --pink:#FF5C87; --pink-dark:#E8567F;
-  --emerald:#34D399; --emerald-dark:#10B981;
-  --ink:#F5F1F2; --ink-soft:#C9BFC3; --ink-muted:#8F8388; --ink-dim:#5C5459;
+  --rose:#C9486A; --rose-light:#FF85A3; --pink:#C9486A; --pink-dark:#E8567F;
+  --emerald:#218561; --emerald-dark:#10B981;
+  --ink:#F5F1F2; --ink-soft:#C9BFC3; --ink-muted:#8F8388; --ink-dim:#817B7F;
   --line:rgba(255,255,255,.09); --line-l:rgba(255,255,255,.14);
   --glass:rgba(255,255,255,.03); --gold-line:rgba(240,180,41,.3);
   --shadow-gold:0 4px 24px rgba(240,180,41,.15); --shadow-card:0 8px 32px rgba(0,0,0,.45);
