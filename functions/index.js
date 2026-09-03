@@ -298,17 +298,28 @@ const NID_RE = /^\d{10}$|^\d{13}$/;
 const SERVICE_AREA_DEFAULTS = {
   zone_a: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
   zone_b: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
-  zone_c: []
+  zone_c: ['ইসলামগঞ্জ'],
+  zone_d: ['বাংলা বাজার']
 };
+// ⚠️ audit fix: এই তিনটা fallback (SERVICE_BRANCH_DEFAULTS/SERVICE_DELIVERY_DEFAULTS/
+// SERVICE_AREA_DEFAULTS) আগে শুধু zone_a/zone_b রাখত, zone_c/zone_d একদম ছিলই না বা
+// inactive/null ছিল — অথচ js/utils.js (client) অনেক আগেই ৪টা zone দিয়ে আপডেট হয়ে
+// গিয়েছিল। Firestore-এর setting/branches ডকুমেন্ট যদি কখনো (Admin Dashboard →
+// Branches থেকে সেভ করে) আপডেট না হয়ে থাকে, তাহলে Zone-C/D-এর গ্রাহক UI-তে সব ঠিক
+// দেখেও শেষ ধাপে ("অর্ডার নিশ্চিত করুন") গিয়ে সার্ভার থেকে "এই ডেলিভারি জোনটি বর্তমানে
+// বন্ধ আছে" এরর পেতেন — কারণ createOrderSecure এখানের পুরনো fallback ব্যবহার করত।
+// এখন client ও server-এর ডেটা হুবহু মেলানো হলো।
 const SERVICE_BRANCH_DEFAULTS = {
-  zone_a: { label:'Zone - A', lat:22.8710, lng:91.0996, active:true, bkashNumber:'01627010060', nagadNumber:'01627010060' },
-  zone_b: { label:'Zone - B', lat:22.9412, lng:91.1119, active:true, bkashNumber:'01612057371', nagadNumber:'01310006959' },
-  zone_c: { label:'Zone - C', lat:null, lng:null, active:false, bkashNumber:'', nagadNumber:'' }
+  zone_a: { label:'Zone-A', lat:22.9447125, lng:91.1021595, active:true, bkashNumber:'01311128584', nagadNumber:'01311128584' },
+  zone_b: { label:'Zone-B', lat:22.8698125, lng:91.0966875, active:true, bkashNumber:'01311128584', nagadNumber:'01311128584' },
+  zone_c: { label:'Zone-C', lat:22.8633125, lng:91.0472376, active:true, bkashNumber:'01311128584', nagadNumber:'01311128584' },
+  zone_d: { label:'Zone-D', lat:22.9434375, lng:91.0485625, active:true, bkashNumber:'01311128584', nagadNumber:'01311128584' }
 };
 const SERVICE_DELIVERY_DEFAULTS = {
   zone_a:[{id:'zone_a_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'zone_a_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'zone_a_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
   zone_b:[{id:'zone_b_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'zone_b_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'zone_b_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
-  zone_c:[]
+  zone_c:[{id:'zone_c_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'zone_c_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'zone_c_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}],
+  zone_d:[{id:'zone_d_near',label:'নিকটবর্তী ডেলিভারি সীমা',radiusKm:3,fee:30},{id:'zone_d_mid',label:'মাঝারি ডেলিভারি সীমা',radiusKm:7,fee:50},{id:'zone_d_far',label:'সর্বোচ্চ ডেলিভারি সীমা',radiusKm:12,fee:80}]
 };
 function normalizeServiceZoneId(value) {
   return value;

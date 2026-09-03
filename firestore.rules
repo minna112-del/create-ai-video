@@ -110,6 +110,20 @@ service cloud.firestore {
         ];
     }
 
+    // audit fix: analytics_manager/business_intelligence_manager/ai_operations_manager
+    // js/employee-management.js-এর role catalog-এ অফিসিয়াল পদ হিসেবে আছে (Analytics
+    // Center/AI Control/BI Center-এর জন্য), কিন্তু rules-এ এই রোলগুলোর কোনো অস্তিত্বই
+    // ছিল না — তাই এই পদে থাকা কেউ ড্যাশবোর্ড খুলতে পারলেও orders/drivers/
+    // refund_requests ডেটা কখনো পড়তে পারতো না।
+    function isAnalyticsStaff() {
+      return isStaff() &&
+        staffRole() in [
+          'analytics_manager',
+          'business_intelligence_manager',
+          'ai_operations_manager'
+        ];
+    }
+
     function ownDriverId() {
       return staffData().get(
         'driverId',
@@ -226,6 +240,10 @@ service cloud.firestore {
               'zoneId',
               'district',
               'photoURL',
+              // audit fix: js/auth.js-এর AccountPage.saveAddress()/deleteAddress()
+              // 'addresses' array field লেখে — এই ফিল্ড আগে অনুমোদিত তালিকায় ছিল না,
+              // তাই সংরক্ষিত ঠিকানা ফিচার সবসময় permission-denied দিত।
+              'addresses',
               'updatedAt'
             ]) &&
           request.resource.data.get('walletBalance', 0) ==
@@ -361,6 +379,8 @@ service cloud.firestore {
 
         isSupport() ||
 
+        isAnalyticsStaff() ||
+
         (
           isDriver() &&
           resource.data.driverId == ownDriverId()
@@ -401,6 +421,28 @@ service cloud.firestore {
               'driverLng',
               'driverAccuracy',
               'locationUpdatedAt',
+              'updatedAt'
+            ])
+        ) ||
+
+        // audit fix: কাস্টমার নিজের অর্ডার — শুধু driver pickup-এর আগে (js/auth.js-এর
+        // OrderEdit.isEditable() একই status list চেক করে), শুধু ঠিকানা/নির্দেশনা।
+        // এই clause না থাকায় "Edit Order" বাটন সবসময় permission-denied দিত।
+        (
+          isOrderOwner() &&
+          resource.data.status in [
+            'pending',
+            'confirmed',
+            'packed',
+            'assigned'
+          ] &&
+          request.resource.data
+            .diff(resource.data)
+            .affectedKeys()
+            .hasOnly([
+              'village',
+              'address',
+              'instructions',
               'updatedAt'
             ])
         );
@@ -490,6 +532,7 @@ service cloud.firestore {
       allow read: if
         isAdmin() ||
         isZoneManager() ||
+        isAnalyticsStaff() ||
         isOwnDriverProfile(driverId);
 
       allow create, delete: if isAdmin();
@@ -796,7 +839,8 @@ service cloud.firestore {
       allow read: if
         isAdmin() ||
         isFinance() ||
-        isCrmSupportStaff();
+        isCrmSupportStaff() ||
+        isAnalyticsStaff();
 
       allow create: if
         isCrmSupportStaff() ||
@@ -1069,7 +1113,12 @@ service cloud.firestore {
 
     match /expense_requests/{id} {
 
-      allow read, write: if
+      allow read: if
+        isAdmin() ||
+        isFinance() ||
+        isAnalyticsStaff();
+
+      allow write: if
         isAdmin() ||
         isFinance();
     }
@@ -1385,7 +1434,13 @@ service cloud.firestore {
 
     match /purchase_orders/{id} {
 
-      allow read, write: if
+      allow read: if
+        isAdmin() ||
+        isFinance() ||
+        isProcurementStaff() ||
+        isAnalyticsStaff();
+
+      allow write: if
         isAdmin() ||
         isFinance() ||
         isProcurementStaff();
