@@ -748,12 +748,17 @@ const AdminDash = {
       }
 
       let done = 0, failed = 0;
+      // MT Studio audit fix: আগে আসল error message কখনো screen-এ দেখানো হতো না
+      // (শুধু devWarn — যেটা production-এ সম্পূর্ণ অদৃশ্য, console-ও লাগে না)।
+      // তাই "124টা ব্যর্থ" ছাড়া কারণ বোঝার উপায় ছিল না। এখন প্রথম ৩টা আলাদা
+      // error message-ই সরাসরি স্ক্রিনে দেখানো হবে যাতে root cause সাথে সাথেই বোঝা যায়।
+      const firstErrors = [];
       for(const t of targets){
         progressEl.textContent = `প্রসেস হচ্ছে... (${done + failed + 1}/${targets.length}) — ${esc(t.data.name || t.id)}`;
         try{
           // CORS-নিরাপদভাবে ছবি fetch করে Blob বানানো (canvas taint সমস্যা এড়াতে <img> এর বদলে fetch ব্যবহার)
           const resp = await fetch(t.data.imageUrl);
-          if(!resp.ok) throw new Error('ছবি fetch ব্যর্থ');
+          if(!resp.ok) throw new Error(`ছবি fetch ব্যর্থ (HTTP ${resp.status})`);
           const originalBlob = await resp.blob();
 
           const variants = await this.generateImageVariants(originalBlob);
@@ -772,12 +777,14 @@ const AdminDash = {
           done++;
         }catch(e){
           devWarn('reprocess failed for', t.id, e.message);
+          if(firstErrors.length < 3) firstErrors.push(`${t.data.name || t.id}: ${e.message || e}`);
           failed++;
         }
         await new Promise(r => setTimeout(r, 400)); // Firebase-এ চাপ কমাতে ছোট বিরতি
       }
 
-      progressEl.textContent = `✓ শেষ হয়েছে — ${done}টা সফল, ${failed}টা ব্যর্থ (মোট ${targets.length}টার মধ্যে)।`;
+      const errSummary = firstErrors.length ? `\nকারণ (প্রথম ${firstErrors.length}টা): ${firstErrors.join(' | ')}` : '';
+      progressEl.textContent = `✓ শেষ হয়েছে — ${done}টা সফল, ${failed}টা ব্যর্থ (মোট ${targets.length}টার মধ্যে)।${errSummary}`;
       toast(`✓ ছবি reprocess সম্পন্ন — ${done}/${targets.length}`, 'success');
     }catch(e){
       progressEl.textContent = '⚠ ব্যর্থ: ' + e.message;
