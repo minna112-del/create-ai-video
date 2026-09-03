@@ -205,7 +205,7 @@
     <h3 class="tiro" style="font-size:18px;margin-bottom:14px">নতুন ড্রাইভার যুক্ত করুন</h3>
     <div id="dfMsg" class="form-msg"></div>
     <div class="field"><label>ড্রাইভারের নাম *</label><input type="text" id="dfName"></div>
-    <div class="field"><label>ডেলিভারি জোন *</label><select id="dfZone"><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option></select></div>
+    <div class="field"><label>ডেলিভারি জোন *</label><select id="dfZone"><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option><option value="zone_d">Zone-D</option></select></div>
     <div class="field"><label>মোবাইল নম্বর *</label><input type="tel" id="dfPhone"></div>
     <div class="card-box" style="background:rgba(212,175,55,.04);border-color:var(--gold-line);font-size:12px;color:var(--ink-muted);margin-bottom:14px">
       ℹ️ ড্রাইভার লগইন করবে ইমেইল+পাসওয়ার্ড দিয়ে (Firebase Auth)। এখানে ড্রাইভার যোগ করার পর, Firebase Console → Authentication-এ গিয়ে এই ফোন নম্বরের সাথে মিলিয়ে একটা ইমেইল/পাসওয়ার্ড অ্যাকাউন্ট বানাও, তারপর <code>staff</code> কালেকশনে সেই UID দিয়ে <code>role: "driver"</code> ও <code>driverId</code> (এই ড্রাইভারের ID) যোগ করো।
@@ -258,7 +258,7 @@
     <h3 class="tiro" style="font-size:17px;margin-bottom:14px">নতুন ঠিকানা</h3>
     <div id="addressMsg" class="form-msg"></div>
     <div class="field"><label>লেবেল (যেমন: বাসা, অফিস)</label><input type="text" id="addrLabel" placeholder="বাসা"></div>
-    <div class="field"><label>ডেলিভারি জোন</label><select id="addrDistrict" onchange="onDeliveryZoneChange('addr')"><option value="">বেছে নিন</option><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option></select></div>
+    <div class="field"><label>ডেলিভারি জোন</label><select id="addrDistrict" onchange="onDeliveryZoneChange('addr')"><option value="">বেছে নিন</option><option value="zone_a">Zone-A</option><option value="zone_b">Zone-B</option><option value="zone_c">Zone-C</option><option value="zone_d">Zone-D</option></select></div>
     <div class="field"><label>এলাকা</label><select id="addrZone"><option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option></select></div>
     <div class="field"><label>গ্রাম / এলাকা</label><input type="text" id="addrVillage"></div>
     <div class="field"><label>সম্পূর্ণ ঠিকানা</label><textarea id="addrFull" rows="2"></textarea></div>

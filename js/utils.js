@@ -103,16 +103,18 @@ const EMERGENCY_CATEGORIES = ['medicine','gas'];
 const AREA_ZONES = {
   zone_a: ['চরমটুয়া','দাদপুর','নোয়ান্নই','কাদির হানিফ','বিনোদপুর','নোয়াখালী','ধর্মপুর','এওজবালিয়া','কালা দরাপ','অশ্বদিয়া','নেয়াজপুর','আন্ডারচর'],
   zone_b: ['আমান উল্যাপুর','গোপালপুর','জিরতলী','আলাইয়ারপুর','ছয়ানী','রাজগঞ্জ','একলাশপুর','মিরওয়ারিশপুর','নরোত্তমপুর','দূর্গাপুর','কুতুবপুর','রসুলপুর','হাজিপুর','শরীফপুর','কাদিরপুর'],
-  zone_c: []
+  zone_c: ['ইসলামগঞ্জ'],
+  zone_d: ['বাংলা বাজার']
 };
 
 const BRANCH_INFO = {
-  zone_a:{label:'Zone-A',address:'নোয়াখালী Zone-A সার্ভিস পয়েন্ট',managerName:'রিমন',managerPhone:'+880 1627-010060',bkashNumber:'01627010060',nagadNumber:'01627010060',lat:22.8710,lng:91.0996},
-  zone_b:{label:'Zone-B',address:'নোয়াখালী Zone-B সার্ভিস পয়েন্ট',managerName:'সৃজন',managerPhone:'+880 1310-006959',bkashNumber:'01612057371',nagadNumber:'01310006959',lat:22.9412,lng:91.1119},
-  zone_c:{label:'Zone-C',address:'নোয়াখালী Zone-C সার্ভিস পয়েন্ট',managerName:'ম্যানেজার সেট করুন',managerPhone:'',bkashNumber:'',nagadNumber:'',lat:null,lng:null,active:false}
+  zone_a:{label:'Zone-A',address:'মসজিদ মার্কেট (তৃতীয় তলা), চৌরাস্তা, বেগমগঞ্জ, নোয়াখালী',managerName:'সৃজন',managerPhone:'+880 1310-006959',bkashNumber:'01311128584',nagadNumber:'01311128584',lat:22.9447125,lng:91.1021595,active:true},
+  zone_b:{label:'Zone-B',address:'এম রহমান প্লাজা, হোল্ডিং ১৭৩, পুরাতন বাসস্ট্যান্ড, প্রধান সড়ক, মাইজদী, সদর, নোয়াখালী',managerName:'রিমন',managerPhone:'+880 1627-010060',bkashNumber:'01311128584',nagadNumber:'01311128584',lat:22.8698125,lng:91.0966875,active:true},
+  zone_c:{label:'Zone-C',address:'ইসলামগঞ্জ বাজার, সদর, নোয়াখালী',managerName:'রাজু',managerPhone:'+880 1878-712787',bkashNumber:'01311128584',nagadNumber:'01311128584',lat:22.8633125,lng:91.0472376,active:true},
+  zone_d:{label:'Zone-D',address:'বাংলা বাজার, পূর্ব গলি, বেগমগঞ্জ, নোয়াখালী',managerName:'শিবলু',managerPhone:'+880 1827-505364',bkashNumber:'01311128584',nagadNumber:'01311128584',lat:22.9434375,lng:91.0485625,active:true}
 };
 
-const AREA_LABELS = {zone_a:BRANCH_INFO.zone_a.label, zone_b:BRANCH_INFO.zone_b.label, zone_c:BRANCH_INFO.zone_c.label};
+const AREA_LABELS = {zone_a:BRANCH_INFO.zone_a.label, zone_b:BRANCH_INFO.zone_b.label, zone_c:BRANCH_INFO.zone_c.label, zone_d:BRANCH_INFO.zone_d.label};
 
 /* ============================================================
    DELIVERY RADIUS TIERS — প্রতিটি Zone-A/B/C-এর ভেতরে distance-based fee
@@ -130,7 +132,16 @@ const DELIVERY_ZONES = {
     { id:'zone_b_mid', label:'মাঝারি ডেলিভারি সীমা', radiusKm:7, fee:50 },
     { id:'zone_b_far', label:'সর্বোচ্চ ডেলিভারি সীমা', radiusKm:12, fee:80 }
   ],
-  zone_c: []
+  zone_c: [
+    { id:'zone_c_near', label:'নিকটবর্তী ডেলিভারি সীমা', radiusKm:3, fee:30 },
+    { id:'zone_c_mid', label:'মাঝারি ডেলিভারি সীমা', radiusKm:7, fee:50 },
+    { id:'zone_c_far', label:'সর্বোচ্চ ডেলিভারি সীমা', radiusKm:12, fee:80 }
+  ],
+  zone_d: [
+    { id:'zone_d_near', label:'নিকটবর্তী ডেলিভারি সীমা', radiusKm:3, fee:30 },
+    { id:'zone_d_mid', label:'মাঝারি ডেলিভারি সীমা', radiusKm:7, fee:50 },
+    { id:'zone_d_far', label:'সর্বোচ্চ ডেলিভারি সীমা', radiusKm:12, fee:80 }
+  ]
 };
 // ⚠️ আগে এটা সরাসরি "if(!FB) return;" (bare variable, যেটা app.js-এ পরে declare হয়) আর
 // সাথে সাথেই "loadLiveDeliveryZones();" কল হতো — তখন FB কোথাও declare-ই হয়নি, তাই
