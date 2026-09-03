@@ -112,7 +112,11 @@ const SMSGateway = {
       return `Golapi Shop: অর্ডার #${no} রওনা হয়েছে! ড্রাইভার: ${driverName} (${driverPhone})। অ্যাপে লাইভ ট্র্যাক করুন।`;
     },
     orderDelivered(no, productId) {
-      const link = productId ? `golapishop.online/#product?id=${productId}` : 'golapishop.online';
+      // ⚠️ MT Studio audit fix: আগে '#product?id=...' (hash+query) ফরম্যাট
+      // ব্যবহার হতো — router.js শুধু bare hash page-name বা path-based
+      // (/product/:id) resolve করে, hash+query কখনো parse হতো না। ফলে এই
+      // লিংকে ক্লিক করলে সবসময় হোমপেজে চলে যেত, নির্দিষ্ট প্রোডাক্টে না।
+      const link = productId ? `golapishop.online/product/${productId}` : 'golapishop.online';
       return `Golapi Shop: অর্ডার #${no} ডেলিভারি সম্পন্ন ✅ কেমন লাগলো জানান, ৩০ সেকেন্ডে মতামত দিন: ${link}`;
     },
     orderCancelled(no) {

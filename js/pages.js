@@ -793,8 +793,14 @@ const OrderChat = {
   async send(){
     const input = document.getElementById('chatOrderInput');
     const text = input?.value.trim(); if(!text || !this.orderId || !FB) return;
+    // ⚠️ MT Studio audit fix: firestore.rules-এ এই subcollection-এ লেখার অনুমতি
+    // request.resource.data.senderId == request.auth.uid শর্তে দেওয়া — কিন্তু
+    // আগে শুধু 'from' (role string) পাঠানো হতো, কখনো 'senderId' না। ফলে এই
+    // চ্যাট ফিচার একবারও কাজ করেনি (সবসময় permission-denied, নিঃশব্দে toast-এ ধরা পড়তো)।
+    const senderId = Auth?.currentUser?.uid || null;
+    if(!senderId){ toast('মেসেজ পাঠাতে লগইন প্রয়োজন','error'); return; }
     if(input) input.value='';
-    try{ await FB.addDoc(FB.collection(FB.db,'orders',this.orderId,'messages'), {from:this.role, text, at:FB.serverTimestamp()}); }
+    try{ await FB.addDoc(FB.collection(FB.db,'orders',this.orderId,'messages'), {senderId, from:this.role, text, at:FB.serverTimestamp()}); }
     catch(e){ toast('মেসেজ পাঠানো যায়নি','error'); }
   }
 };

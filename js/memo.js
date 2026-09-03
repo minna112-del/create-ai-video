@@ -55,7 +55,7 @@ const BazarMemo = {
   .badge{display:inline-block;background:#fdf3d8;color:#a8842f;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;margin-top:4px}
   table{width:100%;border-collapse:collapse;font-size:12.5px}
   thead td{background:#faf7f0;font-weight:700;color:#a8842f;padding:8px 12px;font-size:11px}
-  tbody td{padding:9px 12px;border-bottom:1px solid #f0ebd f0;vertical-align:top}
+  tbody td{padding:9px 12px;border-bottom:1px solid #f0ebd0;vertical-align:top}
   tbody tr:nth-child(even){background:#fbfaf7}
   .idx{width:26px;color:#999}
   .amt{text-align:right;white-space:nowrap;font-weight:600;color:#1a1a1a}
