@@ -6,7 +6,7 @@
         <h1>Document Management Office</h1>
         <p>কর্মীর অফিসিয়াল চিঠি, চুক্তি, নোটিশ ও সার্টিফিকেট এক জায়গা থেকে তৈরি, সংরক্ষণ ও প্রিন্ট করুন।</p>
       </div>
-      <button class="btn primary" type="button" onclick="DocumentOffice.openComposer()">＋ নতুন ডকুমেন্ট</button>
+      <button class="btn btn-gold" type="button" onclick="DocumentOffice.openComposer()">＋ নতুন ডকুমেন্ট</button>
     </div>
 
     <div id="documentWorkspaceIdentity"></div>
@@ -30,7 +30,7 @@
       <select id="docStatusFilter" class="field" onchange="DocumentOffice.renderList()">
         <option value="all">সব স্ট্যাটাস</option><option value="draft">Draft</option><option value="issued">Issued</option><option value="revoked">Revoked</option>
       </select>
-      <button class="btn ghost" type="button" onclick="DocumentOffice.exportCSV()">CSV Export</button>
+      <button class="btn btn-outline" type="button" onclick="DocumentOffice.exportCSV()">CSV Export</button>
     </div>
 
     <div class="office-panel">
@@ -57,10 +57,10 @@
           <label>স্বাক্ষরকারীর পদবি<input id="docApproverTitle" class="field" placeholder="Chief Executive Officer"></label>
           <label>Reference Note<input id="docReference" class="field" placeholder="ঐচ্ছিক"></label>
         </div>
-        <div class="modal-actions"><button type="button" class="btn ghost" onclick="DocumentOffice.previewCurrent()">Preview</button><button type="button" class="btn ghost" onclick="DocumentOffice.closeComposer()">বাতিল</button><button type="submit" class="btn primary">সংরক্ষণ করুন</button></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="DocumentOffice.previewCurrent()">Preview</button><button type="button" class="btn btn-outline" onclick="DocumentOffice.closeComposer()">বাতিল</button><button type="submit" class="btn btn-gold">সংরক্ষণ করুন</button></div>
       </form>
     </div>
   </div>
 
-  <div id="documentPreview" class="modal-backdrop" hidden><div class="modal-card document-preview-card"><div class="modal-head"><h2>ডকুমেন্ট প্রিভিউ</h2><button class="icon-btn" onclick="DocumentOffice.closePreview()">✕</button></div><div id="documentPrintArea"></div><div class="modal-actions"><button class="btn primary" onclick="DocumentOffice.printPreview()">প্রিন্ট / PDF</button></div></div></div>
+  <div id="documentPreview" class="modal-backdrop" hidden><div class="modal-card document-preview-card"><div class="modal-head"><h2>ডকুমেন্ট প্রিভিউ</h2><button class="icon-btn" onclick="DocumentOffice.closePreview()">✕</button></div><div id="documentPrintArea"></div><div class="modal-actions"><button class="btn btn-gold" onclick="DocumentOffice.printPreview()">প্রিন্ট / PDF</button></div></div></div>
 </section>

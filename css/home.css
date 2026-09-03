@@ -525,7 +525,7 @@ html[data-theme="dark"] #page-home .home-assurance article{border-color:rgba(255
   #page-home .home-human-actions{grid-column:2}
 }
 
-@media(max-width:767px){
+@media(max-width:768px){
   #page-home .home-hero{padding:8px max(10px,env(safe-area-inset-left)) 0}
   #page-home .home-hero-shell{
     display:block;

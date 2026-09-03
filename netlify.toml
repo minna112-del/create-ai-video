@@ -133,4 +133,9 @@
 [[headers]]
   for = "/icons/*"
   [headers.values]
-    Cache-Control = "public, max-age=300, stale-while-revalidate=86400"
+    # MT Studio audit fix: লোগো/ব্যানার/প্রোডাক্ট আইকন খুব কম বদলায় — আগে
+    # JS/CSS-এর মতোই মাত্র ৫ মিনিট cache হতো, প্রতি visit-এ বারবার revalidate
+    # করতে হতো। এখন ৭ দিন cache + ৩০ দিন stale-while-revalidate — repeat
+    # visitor-দের জন্য ছবি লোড প্রায় সাথে সাথেই হবে। ছবি বদলালে ফাইলের নাম
+    # বদলে দিলেই (যেমন logo-v2.webp) পুরনো cache আর দেখাবে না।
+    Cache-Control = "public, max-age=604800, stale-while-revalidate=2592000"
