@@ -133,6 +133,17 @@ function checkCartAbandonment(){
 }
 
 function initApp(){
+  // MT Studio: শুধু Admin Dashboard না — পুরো সাইটেই (কাস্টমার পেজ, সব
+  // staff dashboard, customer-app/driver-app-এর ভেতরের ওয়েব কন্টেন্ট)
+  // অ্যাপ চালু থাকা পর্যন্ত স্ক্রিন যেন নিজে থেকে বন্ধ না হয়ে যায় — একবারই,
+  // app বুট হওয়ার সময়, সব পেজের জন্য। ট্যাব/অ্যাপ ব্যাকগ্রাউন্ডে গেলে browser
+  // নিজে থেকেই wake lock ছেড়ে দেয়; আবার সামনে আনলে BusinessOSRuntime নিজে
+  // থেকেই পুনরায় রিকোয়েস্ট করে (visibilitychange listener, business-os-
+  // runtime.js-এ আগে থেকেই আছে) — তাই ম্যানুয়াল কিছু করা লাগে না।
+  if (window.BusinessOSRuntime) {
+    BusinessOSRuntime.activate();
+  }
+
   // ⚠️ আগে ProductStore.loadFromCache() শুধু startLiveSync()-এর ভেতরে চলতো, যেটা
   // Firebase ready হওয়ার আগে কখনো ডাকা হতো না। ফলে ব্রাউজারে valid cache থাকা
   // সত্ত্বেও Firebase load দেরি/ব্যর্থ হলে সেই cache দেখানো হতো না। এখন Firebase-এর

@@ -5,6 +5,7 @@ import { BottomNav } from './components/BottomNav';
 import { DesktopSidebar } from './components/DesktopSidebar';
 import { SlidersHorizontal } from 'lucide-react';
 import { AuthScreen } from './components/AuthScreen';
+import { useWakeLock } from './hooks/useWakeLock';
 
 const Home = lazy(() => import('./pages/Home').then(module => ({ default: module.Home })));
 const Discover = lazy(() => import('./pages/Discover').then(module => ({ default: module.Discover })));
@@ -36,6 +37,10 @@ const MainAppContent: React.FC = () => {
     authReady,
     currentUser,
   } = useDriver();
+
+  // MT Studio: অ্যাপ খোলা থাকা পর্যন্ত (লগইন করা থাকলে) স্ক্রিন সচল রাখা —
+  // ড্রাইভিং/ডেলিভারির সময় বারবার স্ক্রিন আনলক করা লাগবে না।
+  useWakeLock(!!currentUser);
 
   if (!authReady) return <div className="min-h-screen bg-zinc-950 text-pink-500 flex items-center justify-center font-bold">Golapi Driver লোড হচ্ছে…</div>;
   if (!currentUser) return <AuthScreen />;

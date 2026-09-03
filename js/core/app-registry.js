@@ -25,7 +25,7 @@
     'admin-dash': {
       path: '/admin', aliases: ['/executive'], staff: true,
       scripts: ['./js/admin.js', staffChatScript, employeeWorkspaceScript, './js/employee-management.js'],
-      controller: ['AdminDash', 'render'], employeeHost: 'adminEmployeeWorkspace'
+      controller: ['AdminDash', 'render'], employeeHost: 'adminEmployeeWorkspace', persistent: true
     },
     driver: {
       path: '/driver', staff: true, external: '/driver/'

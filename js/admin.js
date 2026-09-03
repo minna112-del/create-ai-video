@@ -761,7 +761,11 @@ const AdminDash = {
           if(!resp.ok) throw new Error(`ছবি fetch ব্যর্থ (HTTP ${resp.status})`);
           const originalBlob = await resp.blob();
 
-          const variants = await this.generateImageVariants(originalBlob);
+          // MT Studio audit fix: generateImageVariants আসলে ProductForm অবজেক্টে
+          // সংজ্ঞায়িত (AdminDash-এ না) — 'this' এখানে AdminDash-কে বোঝায়, তাই
+          // 'this.generateImageVariants' সবসময় undefined ছিল, ফলে প্রতিটা
+          // প্রোডাক্টে "is not a function" error দিয়ে ব্যর্থ হতো।
+          const variants = await ProductForm.generateImageVariants(originalBlob);
           const updates = {};
           if(variants.smallBlob){
             const ext1 = variants.smallBlob.type === 'image/avif' ? 'avif' : 'webp';
