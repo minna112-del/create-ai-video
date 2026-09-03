@@ -1153,7 +1153,9 @@ const ProductForm = {
         logo.onerror = ()=>{ URL.revokeObjectURL(url); canvas.toBlob(blob=>resolve(blob), 'image/webp', 0.9); };
         logo.src = 'icons/head_logo.webp';
       };
-      img.onerror = reject;
+      // ⚠️ আগে img.onerror = reject; — raw DOM Event পাঠাতো, error message-এ
+      // "[object Event]" দেখাত (কোনো বাস্তব তথ্য ছাড়া)। এখন readable Error।
+      img.onerror = ()=>reject(new Error('ছবি লোড ব্যর্থ (সম্ভবত ফাইল করাপ্ট বা CSP/CORS ব্লক)'));
       img.src = url;
     });
   },
@@ -1167,7 +1169,8 @@ const ProductForm = {
     const img = new Image();
     const url = URL.createObjectURL(mainBlob);
     try{
-      await new Promise((resolve, reject)=>{ img.onload = resolve; img.onerror = reject; img.src = url; });
+      // ⚠️ আগে img.onerror = reject; সরাসরি Event পাঠাতো — এখন readable Error।
+      await new Promise((resolve, reject)=>{ img.onload = resolve; img.onerror = ()=>reject(new Error('ছবি লোড ব্যর্থ (সম্ভবত ফাইল করাপ্ট বা CSP/CORS ব্লক)')); img.src = url; });
 
       /* ⚠️ AVIF, WebP-এর চেয়েও ছোট ফাইল দেয় — যেসব ব্রাউজার/ডিভাইস থেকে এই
          অ্যাডমিন প্যানেল ব্যবহার হচ্ছে সেখানে canvas AVIF এনকোডিং সাপোর্ট করলে
