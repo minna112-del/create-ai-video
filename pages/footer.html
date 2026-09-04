@@ -402,23 +402,21 @@
   /* Social */
 
   .gs-footer-socials {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 9px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .gs-footer-social {
-    width: 100%;
-    min-width: 0;
-    display: flex;
+    width: 46px;
+    height: 46px;
+    flex: 0 0 auto;
+    display: inline-flex;
     align-items: center;
-    gap: 11px;
-    padding: 11px 12px;
+    justify-content: center;
     border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 12px;
+    border-radius: 13px;
     background: rgba(255, 255, 255, 0.045);
-    color: rgba(255, 255, 255, 0.78);
-    font-size: 12px;
     transition:
       transform 0.18s ease,
       border-color 0.18s ease,
@@ -426,18 +424,18 @@
   }
 
   .gs-footer-social-icon {
-    width: 32px;
-    height: 32px;
+    width: 100%;
+    height: 100%;
     flex: 0 0 auto;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 9px;
+    border-radius: 13px;
   }
 
   .gs-footer-social-icon svg {
-    width: 17px;
-    height: 17px;
+    width: 20px;
+    height: 20px;
   }
 
   .gs-footer-social-facebook {
@@ -649,10 +647,6 @@
         minmax(0, 0.8fr);
     }
 
-    .gs-footer-socials {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .gs-footer-assurances {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
@@ -692,9 +686,6 @@
       gap: 38px;
     }
 
-    .gs-footer-socials {
-      grid-template-columns: 1fr;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -970,8 +961,8 @@
             >
 
             <span class="gs-footer-contact-info">
-              <span class="gs-footer-contact-role" data-bn="Zone-A শাখা" data-en="Zone-A Branch">
-                Zone-A শাখা
+              <span class="gs-footer-contact-role" data-bn="Zone-A" data-en="Zone-A">
+                Zone-A
               </span>
 
               <strong class="gs-footer-contact-name">
@@ -1004,8 +995,8 @@
             >
 
             <span class="gs-footer-contact-info">
-              <span class="gs-footer-contact-role" data-bn="Zone-B শাখা" data-en="Zone-B Branch">
-                Zone-B শাখা
+              <span class="gs-footer-contact-role" data-bn="Zone-B" data-en="Zone-B">
+                Zone-B
               </span>
 
               <strong class="gs-footer-contact-name">
@@ -1038,8 +1029,8 @@
             >
 
             <span class="gs-footer-contact-info">
-              <span class="gs-footer-contact-role" data-bn="Zone-C শাখা" data-en="Zone-C Branch">
-                Zone-C শাখা
+              <span class="gs-footer-contact-role" data-bn="Zone-C" data-en="Zone-C">
+                Zone-C
               </span>
 
               <strong class="gs-footer-contact-name">
@@ -1072,8 +1063,8 @@
             >
 
             <span class="gs-footer-contact-info">
-              <span class="gs-footer-contact-role" data-bn="Zone-D শাখা" data-en="Zone-D Branch">
-                Zone-D শাখা
+              <span class="gs-footer-contact-role" data-bn="Zone-D" data-en="Zone-D">
+                Zone-D
               </span>
 
               <strong class="gs-footer-contact-name">
@@ -1135,18 +1126,6 @@
                 <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.78-3.91 1.09 0 2.23.2 2.23.2v2.46H15.2c-1.24 0-1.63.77-1.63 1.56v1.91h2.78l-.44 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z"/>
               </svg>
             </span>
-
-            <span class="gs-footer-social-text">
-              <strong>Facebook</strong>
-              <small data-bn="আপডেট ও অফার দেখুন" data-en="See updates &amp; offers">আপডেট ও অফার দেখুন</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              ↗
-            </span>
           </a>
 
           <a
@@ -1167,18 +1146,6 @@
                 <path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5.02 3.66 9.18 8.44 9.94v-7.03H7.9v-2.91h2.54V9.84c0-2.52 1.5-3.91 3.78-3.91 1.09 0 2.23.2 2.23.2v2.46H15.2c-1.24 0-1.63.77-1.63 1.56v1.91h2.78l-.44 2.91h-2.34V22C18.34 21.24 22 17.08 22 12.06Z"/>
               </svg>
             </span>
-
-            <span class="gs-footer-social-text">
-              <strong>Facebook</strong>
-              <small data-bn="প্রোফাইল ফলো করুন" data-en="Follow our profile">প্রোফাইল ফলো করুন</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              ↗
-            </span>
           </a>
 
           <a
@@ -1198,18 +1165,6 @@
                 <circle cx="17.2" cy="6.8" r="1.15" fill="#C13584" stroke="none"/>
               </svg>
             </span>
-
-            <span class="gs-footer-social-text">
-              <strong>Instagram</strong>
-              <small data-bn="রিল ও ছবি দেখুন" data-en="See reels &amp; photos">রিল ও ছবি দেখুন</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              ↗
-            </span>
           </a>
 
           <a
@@ -1226,18 +1181,6 @@
               <svg viewBox="0 0 24 24" fill="#111114">
                 <path d="M16.6 5.82c-.9-.98-1.4-2.26-1.4-3.62h-3.13v13.6c0 1.5-1.22 2.72-2.72 2.72a2.72 2.72 0 0 1-2.72-2.72 2.72 2.72 0 0 1 2.72-2.72c.28 0 .55.04.8.12v-3.18a5.9 5.9 0 0 0-.8-.06A5.86 5.86 0 0 0 3.5 15.8a5.86 5.86 0 0 0 5.85 5.86 5.86 5.86 0 0 0 5.85-5.86V9.1a8.9 8.9 0 0 0 5.2 1.67V7.64c-1.34 0-2.58-.44-3.6-1.19-.08-.05-.15-.11-.2-.63Z"/>
               </svg>
-            </span>
-
-            <span class="gs-footer-social-text">
-              <strong>TikTok</strong>
-              <small data-bn="মজার ভিডিও দেখুন" data-en="Watch short videos">মজার ভিডিও দেখুন</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              ↗
             </span>
           </a>
 
@@ -1256,18 +1199,6 @@
                 <path d="M12 21c-4.4 0-7.5-2.7-7.5-9s3.1-9 7.5-9 6.9 2.4 7 6.2c.05 2.3-.9 3.9-2.9 4.2-1.7.25-3-.5-3.2-1.8-.15-1 .4-1.8 1.5-2.2"/>
                 <path d="M9.3 12.6c.2-1.6 1.6-2.4 3.2-2.2 1.7.2 2.7 1.3 2.5 2.9-.2 1.8-1.9 3-4 2.75-1.5-.2-2.4-1.15-2.5-2.35"/>
               </svg>
-            </span>
-
-            <span class="gs-footer-social-text">
-              <strong>Threads</strong>
-              <small data-bn="আপডেট থ্রেডে দেখুন" data-en="Follow our threads">আপডেট থ্রেডে দেখুন</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              ↗
             </span>
           </a>
 
@@ -1289,18 +1220,6 @@
                 <path d="M23.5 6.2a3.02 3.02 0 0 0-2.12-2.13C19.52 3.56 12 3.56 12 3.56s-7.52 0-9.38.51A3.02 3.02 0 0 0 .5 6.2 31.2 31.2 0 0 0 0 12a31.2 31.2 0 0 0 .5 5.8 3.02 3.02 0 0 0 2.12 2.13c1.86.51 9.38.51 9.38.51s7.52 0 9.38-.51a3.02 3.02 0 0 0 2.12-2.13A31.2 31.2 0 0 0 24 12a31.2 31.2 0 0 0-.5-5.8ZM9.6 15.65v-7.3L15.9 12l-6.3 3.65Z"/>
               </svg>
             </span>
-
-            <span class="gs-footer-social-text">
-              <strong>YouTube</strong>
-              <small>@golapishoponline</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              ↗
-            </span>
           </a>
 
           <a
@@ -1321,18 +1240,6 @@
                 <path d="M12.04 2C6.52 2 2.03 6.48 2.03 12c0 1.76.46 3.48 1.33 5L2 22l5.12-1.34A9.95 9.95 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10Zm0 18.31a8.3 8.3 0 0 1-4.23-1.16l-.3-.18-3.04.8.81-2.97-.2-.31A8.3 8.3 0 1 1 12.04 20.3Zm4.56-6.22c-.25-.12-1.48-.73-1.71-.81-.23-.08-.4-.12-.57.13-.17.25-.65.81-.8.98-.15.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.24-1.47-1.39-1.72-.15-.25-.02-.38.11-.51.11-.11.25-.29.37-.44.12-.15.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.12-.56-1.36-.77-1.86-.2-.49-.41-.42-.57-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.09 0 1.23.9 2.42 1.02 2.59.12.17 1.76 2.68 4.26 3.76.6.26 1.06.41 1.42.52.6.19 1.14.16 1.57.1.48-.07 1.48-.61 1.69-1.2.21-.59.21-1.1.15-1.2-.06-.11-.23-.17-.48-.29Z"/>
               </svg>
             </span>
-
-            <span class="gs-footer-social-text">
-              <strong>WhatsApp</strong>
-              <small data-bn="হটলাইনে মেসেজ পাঠান" data-en="Message our hotline">হটলাইনে মেসেজ পাঠান</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              ↗
-            </span>
           </a>
 
           <a
@@ -1345,18 +1252,6 @@
               aria-hidden="true"
             >
               ✉
-            </span>
-
-            <span class="gs-footer-social-text">
-              <strong>ইমেইল</strong>
-              <small>golapishoponline.bd@gmail.com</small>
-            </span>
-
-            <span
-              class="gs-footer-social-arrow"
-              aria-hidden="true"
-            >
-              →
             </span>
           </a>
         </div>
