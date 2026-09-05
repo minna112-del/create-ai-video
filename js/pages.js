@@ -684,6 +684,12 @@ function onDeliveryZoneChange(prefix){
   const deliveryZone = document.getElementById(prefix+'District')?.value;
   const zoneSel = document.getElementById(prefix+'Zone');
   if(!zoneSel) return;
+  if(deliveryZone && BRANCH_INFO[deliveryZone]?.active === false){
+    if(typeof toast === 'function') toast(`দুঃখিত, ${BRANCH_INFO[deliveryZone].label} বর্তমানে সাময়িকভাবে বন্ধ আছে। অন্য জোন বেছে নিন।`, 'error');
+    const distEl = document.getElementById(prefix+'District'); if(distEl) distEl.value = '';
+    zoneSel.innerHTML = '<option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option>';
+    return;
+  }
   if(!deliveryZone){ zoneSel.innerHTML = '<option value="">প্রথমে ডেলিভারি জোন বেছে নিন</option>'; }
   else { zoneSel.innerHTML = '<option value="">এলাকা বেছে নিন</option>' + AREA_ZONES[deliveryZone].map(z=>`<option value="${z}">${z}</option>`).join(''); }
   if(prefix==='cb'){

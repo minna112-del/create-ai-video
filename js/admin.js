@@ -932,16 +932,38 @@ const AdminDash = {
     const tbody = document.getElementById('aBranchesTable');
     if(!tbody) return;
     const entries = Object.entries(BRANCH_INFO);
-    tbody.innerHTML = entries.map(([id,info])=>`<tr>
+    tbody.innerHTML = entries.map(([id,info])=>{
+      const isActive = info.active !== false;
+      return `<tr>
       <td>${esc(info.label)}</td>
       <td style="font-size:11.5px;color:var(--ink-muted)">${esc(info.address||'—')}</td>
       <td>${esc(info.managerName||'—')}</td>
       <td style="font-size:11.5px">${esc(info.managerPhone||'—')}</td>
-      <td style="display:flex;gap:10px">
+      <td>${isActive ? '<span style="color:#4ade80">🟢 চালু</span>' : '<span style="color:#f87171">🔴 বন্ধ</span>'}</td>
+      <td style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="#" onclick="event.preventDefault();AdminDash.toggleBranchActive('${id}')" style="color:${isActive?'#f87171':'#4ade80'};font-size:12px;font-weight:600">${isActive?'বন্ধ করুন':'চালু করুন'}</a>
         <a href="#" onclick="event.preventDefault();AdminDash.editBranchStart('${id}')" style="color:var(--gold);font-size:12px">এডিট</a>
         <a href="#" onclick="event.preventDefault();AdminDash.deleteBranch('${id}')" style="color:#f87171;font-size:12px">মুছুন</a>
       </td>
-    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--ink-muted);padding:16px">কোনো শাখা নেই</td></tr>';
+    </tr>`;
+    }).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--ink-muted);padding:16px">কোনো শাখা নেই</td></tr>';
+  },
+
+  async toggleBranchActive(id){
+    const info = BRANCH_INFO[id]; if(!info) return;
+    const newActive = info.active === false;
+    if(!confirm(newActive ? `"${info.label}" আবার চালু করতে চান?` : `"${info.label}" সাময়িকভাবে বন্ধ করতে চান?`)) return;
+    if(!FB){ toast('সংযোগ সমস্যা','error'); return; }
+    try{
+      const snap = await FB.getDoc(FB.doc(FB.db,'setting','branches'));
+      const branches = snap.exists() ? {...snap.data().branches} : {};
+      branches[id] = {...(branches[id] || info), active:newActive};
+      await FB.setDoc(FB.doc(FB.db,'setting','branches'), {branches, updatedAt:FB.serverTimestamp()}, {merge:true});
+      BRANCH_INFO[id] = {...BRANCH_INFO[id], active:newActive};
+      toast(newActive ? '✓ শাখা চালু করা হয়েছে' : '✓ শাখা সাময়িকভাবে বন্ধ করা হয়েছে', 'success');
+      this.renderBranches();
+      document.dispatchEvent(new Event('branches-updated'));
+    }catch(e){ toast('সমস্যা: '+e.message,'error'); }
   },
 
   openAddBranch(){
@@ -978,11 +1000,12 @@ const AdminDash = {
       label,
       address: document.getElementById('brAddress')?.value.trim()||'',
       managerName: document.getElementById('brManagerName')?.value.trim()||'',
-      managerPhone: document.getElementById('brManagerPhone')?.value.trim()||'',
+      managerPhone: document.getElementById('brBanagerPhone')?.value.trim()||'',
       bkashNumber: document.getElementById('brBkash')?.value.trim()||'',
       nagadNumber: document.getElementById('brNagad')?.value.trim()||'',
       lat: Number(document.getElementById('brLat')?.value)||0,
-      lng: Number(document.getElementById('brLng')?.value)||0
+      lng: Number(document.getElementById('brLng')?.value)||0,
+      active: this._branchEditId ? (BRANCH_INFO[this._branchEditId]?.active !== false) : true
     };
     try{
       const snap = await FB.getDoc(FB.doc(FB.db,'setting','branches'));
